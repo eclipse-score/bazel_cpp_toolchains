@@ -1,0 +1,457 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+"""C/C++ toolchain definition"""
+
+load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
+load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
+    "action_config",
+    "env_entry",
+    "env_set",
+    "feature",
+    "flag_group",
+    "flag_set",
+    "tool",
+    "tool_path",
+    "with_feature_set",
+)
+load("@score_bazel_cpp_toolchains//configurations/qcc:flags.bzl",
+    "UNFILTERED_COMPILE_FLAGS",
+    "DEFAULT_COMPILE_FLAGS",
+    "DEFAULT_C_COMPILE_FLAGS",
+    "DEFAULT_CXX_COMPILE_FLAGS",
+    "DEFAULT_LINK_FLAGS",
+    "DBG_COMPILE_FLAGS",
+    "OPT_COMPILE_FLAGS",
+    "MINIMAL_WARNINGS_FLAGS",
+    "MINIMAL_C_WARNINGS_FLAGS",
+    "MINIMAL_CXX_WARNINGS_FLAGS",
+    "STRICT_WARNINGS_FLAGS",
+    "STRICT_C_WARNINGS_FLAGS",
+    "STRICT_CXX_WARNINGS_FLAGS",
+    "ALL_WALL_WARNINGS",
+    "ALL_WALL_C_WARNINGS",
+    "ALL_WALL_CXX_WARNINGS",
+    "WARNINGS_AS_ERRORS",
+)
+
+all_cpp_compile_actions = [
+    ACTION_NAMES.cpp_compile,
+    ACTION_NAMES.linkstamp_compile,
+    ACTION_NAMES.cpp_header_parsing,
+    ACTION_NAMES.cpp_module_compile,
+    ACTION_NAMES.cpp_module_codegen,
+    ACTION_NAMES.clif_match,
+    ACTION_NAMES.lto_backend,
+]
+
+all_c_compile_actions = [
+    ACTION_NAMES.c_compile,
+]
+
+all_assemble_actions = [
+    ACTION_NAMES.assemble,
+    ACTION_NAMES.preprocess_assemble,
+]
+
+all_compile_actions = all_c_compile_actions + all_cpp_compile_actions + all_assemble_actions
+
+all_link_actions = [
+    ACTION_NAMES.cpp_link_executable,
+    ACTION_NAMES.cpp_link_dynamic_library,
+    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+]
+
+all_actions = all_compile_actions + all_link_actions + [
+    ACTION_NAMES.strip,
+    ACTION_NAMES.cpp_link_static_library,
+]
+
+def _impl(ctx):
+    """ Implementation function of GCC toolchains.
+    """
+
+    dbg_feature = feature(name = "dbg")
+    opt_feature = feature(name = "opt")
+
+    assemble_action = action_config(
+        action_name = ACTION_NAMES.assemble,
+        tools = [tool(tool = ctx.executable.cc_binary)],
+    )
+    preprocess_assemble_action = action_config(
+        action_name = ACTION_NAMES.preprocess_assemble,
+        tools = [tool(tool = ctx.executable.cc_binary)],
+    )
+    c_compile_action = action_config(
+        action_name = ACTION_NAMES.c_compile,
+        tools = [tool(tool = ctx.executable.cc_binary)],
+    )
+    cpp_compile_action = action_config(
+        action_name = ACTION_NAMES.cpp_compile,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_executable_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_executable,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_dynamic_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_dynamic_library,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_nodeps_dynamic_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_static_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_static_library,
+        tools = [tool(tool = ctx.executable.ar_binary)],
+        implies = ["archiver_flags"],
+    )
+    strip_action = action_config(
+        action_name = ACTION_NAMES.strip,
+        tools = [tool(tool = ctx.executable.strip_binary)],
+        flag_sets = [
+            flag_set(
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-g",
+                            "-p",
+                        ],
+                    ),
+                    flag_group(
+                        iterate_over = "stripopts",
+                        flags = ["%{stripopts}"],
+                    ),
+                    flag_group(
+                        flags = [
+                            "%{input_file}",
+                            "%{output_file}",
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    action_configs = [
+        assemble_action,
+        c_compile_action,
+        cpp_compile_action,
+        cpp_link_dynamic_library_action,
+        cpp_link_executable_action,
+        cpp_link_nodeps_dynamic_library_action,
+        cpp_link_static_library_action,
+        preprocess_assemble_action,
+        strip_action,
+    ]
+
+    unfiltered_compile_flags_feature = feature(
+        name = "unfiltered_compile_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_c_compile_actions + all_cpp_compile_actions,
+                flag_groups = UNFILTERED_COMPILE_FLAGS,
+            ),
+        ],
+    )
+
+    default_compile_flags_feature = feature(
+        name = "default_compile_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = DEFAULT_COMPILE_FLAGS,
+            ),
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [flag_group(flags = ["-V%{tc_version},gcc_nto%{tc_cpu}"])],
+            ),
+            flag_set(
+                actions = all_c_compile_actions,
+                flag_groups = DEFAULT_C_COMPILE_FLAGS,
+            ),
+            flag_set(
+                actions = all_cpp_compile_actions,
+                flag_groups = DEFAULT_CXX_COMPILE_FLAGS,
+            ),
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = DBG_COMPILE_FLAGS,
+                with_features = [with_feature_set(features = ["dbg"])],
+            ),
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = OPT_COMPILE_FLAGS,
+                with_features = [
+                    with_feature_set(features = ["opt"]),
+                    with_feature_set(features = ["fastbuild"]),
+                ],
+            ),
+        ],
+    )
+
+    default_link_flags_feature = feature(
+        name = "default_link_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [flag_group(flags = ["-V%{tc_version},gcc_nto%{tc_cpu_cxx}"])],
+            ),
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = DEFAULT_LINK_FLAGS,
+            ),
+        ],
+    )
+
+    minimal_warnings_feature = feature(
+        name = "minimal_warnings",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups =  MINIMAL_WARNINGS_FLAGS,
+            ),
+            flag_set(
+                actions = all_c_compile_actions,
+                flag_groups = MINIMAL_C_WARNINGS_FLAGS,
+            ),
+            flag_set(
+                actions = all_cpp_compile_actions,
+                flag_groups =  MINIMAL_CXX_WARNINGS_FLAGS,
+            ),
+        ],
+    )
+
+    strict_warnings_feature = feature(
+        name = "strict_warnings",
+        implies = ["minimal_warnings"],
+        enabled = False,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = STRICT_WARNINGS_FLAGS,
+            ),
+            flag_set(
+                actions = all_cpp_compile_actions,
+                flag_groups = STRICT_CXX_WARNINGS_FLAGS,
+            ),
+            flag_set(
+                actions = all_c_compile_actions,
+                flag_groups = STRICT_C_WARNINGS_FLAGS,
+            ),
+        ],
+    )
+
+    all_wall_warnings_feature = feature(
+        name = "all_wall_warnings",
+        implies = ["strict_warnings"],
+        enabled = False,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = ALL_WALL_WARNINGS,
+            ),
+            flag_set(
+                actions = all_c_compile_actions,
+                flag_groups = ALL_WALL_C_WARNINGS,
+            ),
+            flag_set(
+                actions = all_cpp_compile_actions,
+                flag_groups = ALL_WALL_CXX_WARNINGS,
+            ),
+        ],
+    )
+
+    warnings_as_errors_feature = feature(
+        name = "warnings_as_errors",
+        enabled = False,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = WARNINGS_AS_ERRORS,
+            ),
+        ],
+    )
+
+    extra_compile_flags = %{extra_compile_flags}
+    extra_compile_flags_feature = feature(
+        name = "extra_compile_flags",
+        enabled = %{extra_compile_flags_switch},
+        implies = ["default_compile_flags"],
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = extra_compile_flags,
+            ),
+        ],
+    )
+
+    extra_link_flags = %{extra_link_flags}
+    extra_link_flags_feature = feature(
+        name = "extra_link_flags",
+        enabled = %{extra_link_flags_switch},
+        implies = ["default_link_flags"],
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = extra_link_flags,
+            ),
+        ],
+    )
+    supports_pic_feature = feature(name = "supports_pic", enabled = True)
+
+    dependency_file_named_implicitly_feature = feature(
+        name = "dependency_file_named_implicitly",
+        enabled = False,
+    )
+
+    use_license_env_info_feautre = feature(
+        name = "qnx_license_env_info",
+        enabled = %{use_license_info},
+    )
+
+    license_variable = "%{license_info_variable}"
+    license_value = "%{license_info_value}"
+
+    sdp_env_feature = feature(
+        name = "sdp_env",
+        enabled = True,
+        env_sets = [
+            env_set(
+                actions = all_compile_actions + all_link_actions,
+                env_entries = [
+                    env_entry(key = "QNX_HOST", value = "/proc/self/cwd/" + ctx.file.qnx_host.path),
+                    env_entry(key = "QNX_TARGET", value = "/proc/self/cwd/" + ctx.file.qnx_target.path),
+                    env_entry(key = "QNX_CONFIGURATION_EXCLUSIVE", value = "/var/tmp/.qnx"),
+                    env_entry(key = "QNX_SHARED_LICENSE_FILE", value = "%{qnx_license_path}"),
+                ],
+            ),
+            env_set(
+                actions = all_compile_actions + all_link_actions,
+                env_entries = [env_entry(key = license_variable, value = license_value)] if license_value != "" else [],
+                with_features = [with_feature_set(features = ["qnx_license_env_info"])],
+            )
+        ],
+    )
+
+    dependency_file_feature = feature(
+        name = "dependency_file",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.objc_compile,
+                    ACTION_NAMES.objcpp_compile,
+                    ACTION_NAMES.cpp_header_parsing,
+                    ACTION_NAMES.clif_match,
+                ],
+                flag_groups = [flag_group(
+                    flags = [
+                        "-Wc,-MD,%{dependency_file}",
+                        "-Wp,-MD,%{dependency_file}",
+                    ],
+                    expand_if_available = "dependency_file",
+                )],
+                with_features = [
+                    with_feature_set(not_features = ["dependency_file_named_implicitly"]),
+                ],
+            ),
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.objc_compile,
+                    ACTION_NAMES.objcpp_compile,
+                    ACTION_NAMES.cpp_header_parsing,
+                    ACTION_NAMES.clif_match,
+                ],
+                flag_groups = [flag_group(flags = [
+                    "-Wc,-MD",
+                    "-Wp,-MD",
+                ])],
+                with_features = [
+                    with_feature_set(features = ["dependency_file_named_implicitly"]),
+                ],
+            ),
+        ],
+    )
+
+    # The order of the features is relevant, they are applied in this specific order.
+    # A command line parameter from a feature at the end of the list will appear
+    # after a command line parameter from a feature at the beginning of the list.
+
+    features = [
+        dbg_feature,
+        unfiltered_compile_flags_feature,
+        default_compile_flags_feature,
+        dependency_file_named_implicitly_feature,
+        dependency_file_feature,
+        default_link_flags_feature,
+        minimal_warnings_feature,
+        strict_warnings_feature,
+        all_wall_warnings_feature,
+        warnings_as_errors_feature,
+        extra_compile_flags_feature,
+        extra_link_flags_feature,
+        opt_feature,
+        use_license_env_info_feautre,
+        sdp_env_feature,
+        supports_pic_feature,
+    ]
+
+    cxx_builtin_include_directories = [
+        "/proc/self/cwd/{}".format(include_directory.path)
+        for include_directory in ctx.files.cxx_builtin_include_directories
+    ]
+
+    return cc_common.create_cc_toolchain_config_info(
+        ctx = ctx,
+        abi_version = "%{tc_cpu}-qnx%{sdp_version}",
+        abi_libc_version = "unknown",
+        compiler = "qcc",
+        cxx_builtin_include_directories = cxx_builtin_include_directories,
+        features =  features,
+        action_configs = action_configs,
+        host_system_name = "local",
+        target_system_name = "%{tc_cpu}-qnx",
+        target_cpu =  "%{tc_cpu}",
+        target_libc = "unknown",
+        toolchain_identifier = "%{tc_cpu}-qnx%{sdp_version}",
+    )
+
+cc_toolchain_config = rule(
+    implementation = _impl,
+    provides = [CcToolchainConfigInfo],
+    attrs = {
+        "ar_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "cc_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "cxx_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "strip_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "qnx_host": attr.label(allow_single_file = True, mandatory = True),
+        "qnx_target": attr.label(allow_single_file = True, mandatory = True),
+        "cxx_builtin_include_directories": attr.label(allow_files = True, mandatory = True),
+    },
+)

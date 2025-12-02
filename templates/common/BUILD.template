@@ -1,0 +1,52 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+""" C/C++ toolchain declaration for target platform.
+"""
+
+load("@rules_cc//cc:defs.bzl", "cc_toolchain")
+
+filegroup(
+    name = "empty",
+)
+
+cc_toolchain(
+    name = "cc_toolchain",
+    all_files = "@%{tc_pkg_repo}//:all_files",
+    ar_files = "@%{tc_pkg_repo}//:all_files",
+    as_files = "@%{tc_pkg_repo}//:all_files",
+    compiler_files = "@%{tc_pkg_repo}//:all_files",
+    coverage_files = "@%{tc_pkg_repo}//:all_files",
+    dwp_files = ":empty",
+    linker_files = "@%{tc_pkg_repo}//:all_files",
+    objcopy_files = ":empty",
+    strip_files = "@%{tc_pkg_repo}//:all_files",
+    toolchain_config = "//%{tc_family}:cc_toolchain_config",
+)
+
+toolchain(
+    name = "%{tc_cpu}-%{tc_os}-%{tc_family}-%{tc_version}",
+    exec_compatible_with = [
+        "@platforms//cpu:x86_64",
+        "@platforms//os:linux",
+    ],
+    target_compatible_with = [
+        "@platforms//cpu:%{tc_cpu}",
+        "@platforms//os:%{tc_os}",
+    ],
+    toolchain = ":cc_toolchain",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+    visibility = [
+        "//:__pkg__",
+    ],
+)

@@ -1,0 +1,33 @@
+..
+    *******************************************************************************
+    Copyright (c) 2025 Contributors to the Eclipse Foundation
+
+    See the NOTICE file(s) distributed with this work for additional
+    information regarding copyright ownership.
+
+    This program and the accompanying materials are made available under the
+    terms of the Apache License Version 2.0 which is available at
+    https://www.apache.org/licenses/LICENSE-2.0
+
+    SPDX-License-Identifier: Apache-2.0
+    *******************************************************************************
+
+Bazel C/C++ Toolchain Config Documentation
+============================
+
+TBD
+
+.. contents:: Table of Contents
+   :depth: 2
+   :local:
+
+Purpose
+-------
+TBD
+
+Summary
+-------
+
+**Library:** `Score C/C++ Toolchain configurations`
+
+**Type:** Bazel toolchain configurations

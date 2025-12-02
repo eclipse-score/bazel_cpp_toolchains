@@ -1,0 +1,33 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+""" GCC Toolchain definition file for CC configuration. 
+"""
+
+load(":cc_toolchain_config.bzl", "cc_toolchain_config")
+
+filegroup(
+    name = "empty",
+)
+
+cc_toolchain_config(
+    name = "cc_toolchain_config",
+    ar_binary = "@%{tc_pkg_repo}//:ar",
+    cc_binary = "@%{tc_pkg_repo}//:gcc",
+    cxx_binary = "@%{tc_pkg_repo}//:gpp",
+    gcov_binary = "@%{tc_pkg_repo}//:gcov",
+    strip_binary = "@%{tc_pkg_repo}//:strip",
+    sysroot = "@%{tc_pkg_repo}//:sysroot_dir",
+    target_cpu = "%{tc_cpu}",
+    visibility = ["//visibility:public"],
+)

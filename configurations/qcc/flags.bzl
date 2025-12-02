@@ -1,0 +1,103 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+""" Common compile and link flags for GCC toolchains.
+"""
+
+load("@score_bazel_cpp_toolchains//bazel/rules:common.bzl", "get_flag_group")
+
+# Flags that should always be applied, without filtering.
+UNFILTERED_COMPILE_FLAGS = get_flag_group([
+    "-D__DATE__=\"redacted\"",
+    "-D__TIMESTAMP__=\"redacted\"",
+    "-D__TIME__=\"redacted\"",
+    "-Wno-builtin-macro-redefined",
+])
+
+# Default compile flags when no specific build type is selected.
+DEFAULT_COMPILE_FLAGS = get_flag_group([
+    "-fno-canonical-system-headers",
+])
+
+# Default compile flags for C language when no specific build type is selected.
+DEFAULT_C_COMPILE_FLAGS = get_flag_group([
+    "-std=c11",
+])
+
+# Default compile flags for C++ language when no specific build type is selected.
+DEFAULT_CXX_COMPILE_FLAGS = get_flag_group([
+    "-D_QNX_SOURCE",
+    "-std=c++17",
+])
+
+# Debug compile flags.
+DBG_COMPILE_FLAGS = get_flag_group([
+    "-Og",
+    "-g3",
+])
+
+# Optimization compile flags.
+OPT_COMPILE_FLAGS = get_flag_group([
+    "-O2",
+    "-DNDEBUG",
+])
+
+# Default link flags when no specific build type is selected.
+DEFAULT_LINK_FLAGS = get_flag_group([
+    "-Wl,-z,relro",
+    "-Wl,-z,now",
+    "-Wl,--push-state",
+    "-Wl,--as-needed",
+    "-lc++",
+    "-lm",
+    "-Wl,--pop-state",
+])
+
+# Minimal set of warning flags to enable useful warnings without overwhelming the user.
+# -----------------------------------------------------------------------------
+# MINIMAL: The Base Group
+# -----------------------------------------------------------------------------
+MINIMAL_WARNINGS_FLAGS = get_flag_group([
+    "-Wall",
+    "-Wno-error=deprecated-declarations",
+    "-Wno-error=mismatched-new-delete", # See what we will do with this (only on GCC12.2.0 supported!)
+])
+MINIMAL_C_WARNINGS_FLAGS = get_flag_group([])
+MINIMAL_CXX_WARNINGS_FLAGS = get_flag_group([])
+
+# -----------------------------------------------------------------------------
+# STRICT: Extends MINIMAL
+# (Excludes flags already defined in MINIMAL)
+# -----------------------------------------------------------------------------
+STRICT_WARNINGS_FLAGS = get_flag_group([
+    "-Wextra",
+    "-Wpedantic",
+])
+STRICT_C_WARNINGS_FLAGS = get_flag_group([])
+STRICT_CXX_WARNINGS_FLAGS = get_flag_group([])
+
+# -----------------------------------------------------------------------------
+# ALL: Extends STRICT
+# (Excludes flags already defined in MINIMAL or STRICT)
+# -----------------------------------------------------------------------------
+ALL_WALL_C_WARNINGS = get_flag_group([])
+ALL_WALL_CXX_WARNINGS = get_flag_group([])
+ALL_WALL_WARNINGS = get_flag_group([])
+
+# -----------------------------------------------------------------------------
+# : Turn all warinings into errors
+# -----------------------------------------------------------------------------
+WARNINGS_AS_ERRORS = get_flag_group([
+    "-Werror",
+])
+

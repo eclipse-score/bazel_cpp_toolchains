@@ -1,0 +1,237 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+""" Common compile and link flags for GCC toolchains.
+"""
+
+load("@score_bazel_cpp_toolchains//bazel/rules:common.bzl", "get_flag_group")
+
+# Flags that should always be applied, without filtering.
+UNFILTERED_COMPILE_FLAGS = get_flag_group([
+    "-D__DATE__=\"redacted\"",
+    "-D__TIMESTAMP__=\"redacted\"",
+    "-D__TIME__=\"redacted\"",
+    "-Wno-builtin-macro-redefined",
+])
+
+# Default compile flags when no specific build type is selected.
+DEFAULT_COMPILE_FLAGS = get_flag_group([
+    "-U_FORTIFY_SOURCE",
+    "-D_XOPEN_SOURCE=700",
+    "-fstack-protector",
+    "-fdiagnostics-color=always",
+    "-fno-omit-frame-pointer",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-fno-canonical-system-headers",
+    "-no-canonical-prefixes",
+    "-z noexecstack",
+])
+
+# TODO: Check if we need this.
+DEFAULT_x86_64_COMPILE_FLAGS = get_flag_group([
+    "-m64",
+])
+
+DEFAULT_ARM64_COMPILE_FLAGS = get_flag_group([
+])
+
+# Default compile flags for C language when no specific build type is selected.
+DEFAULT_C_COMPILE_FLAGS = get_flag_group([
+    "-std=c11",
+])
+
+# Default compile flags for C++ language when no specific build type is selected.
+DEFAULT_CXX_COMPILE_FLAGS = get_flag_group([
+    "-std=c++17",
+])
+
+# Debug compile flags.
+DBG_COMPILE_FLAGS = get_flag_group([
+    "-Og",
+    "-g3",
+])
+
+# Optimization compile flags.
+OPT_COMPILE_FLAGS = get_flag_group([
+    "-O2",
+    "-DNDEBUG",
+])
+
+# Default link flags when no specific build type is selected.
+DEFAULT_LINK_FLAGS = get_flag_group([
+    "-lm",
+    "-ldl",
+    "-lrt",
+    "-static-libstdc++",
+    "-static-libgcc",
+])
+
+# Minimal set of warning flags to enable useful warnings without overwhelming the user.
+# -----------------------------------------------------------------------------
+# MINIMAL: The Base Group
+# -----------------------------------------------------------------------------
+MINIMAL_WARNINGS_FLAGS = get_flag_group([
+    "-Wall",
+    "-Wcast-align",
+    "-Wcast-qual",
+    "-Wformat-nonliteral",
+    "-Wformat-signedness",
+    "-Wformat=2",
+    "-Wmissing-format-attribute",
+    "-Wpointer-arith",
+    "-Wredundant-decls",
+    "-Wreturn-local-addr",
+    "-Wsizeof-array-argument",
+    "-Wundef",
+    "-Wwrite-strings",
+])
+
+MINIMAL_C_WARNINGS_FLAGS = get_flag_group([
+    "-Wbad-function-cast",
+    "-Wmissing-prototypes",
+])
+
+MINIMAL_CXX_WARNINGS_FLAGS = get_flag_group([
+    "-Wodr",
+    "-Wreorder",
+])
+
+# -----------------------------------------------------------------------------
+# STRICT: Extends MINIMAL
+# (Excludes flags already defined in MINIMAL)
+# -----------------------------------------------------------------------------
+STRICT_WARNINGS_FLAGS = get_flag_group([
+    "-Wbool-compare",
+    "-Wconversion",
+    "-Wdouble-promotion",
+    "-Wextra",
+    "-Winvalid-pch",
+    "-Wlogical-not-parentheses",
+    "-Wlogical-op",
+    "-Wpedantic",
+    "-Wswitch-bool",
+    "-Wunused-but-set-parameter",
+    "-Wvla",
+])
+
+STRICT_C_WARNINGS_FLAGS = get_flag_group([
+        # No additional strict C warnings for now
+])
+
+STRICT_CXX_WARNINGS_FLAGS = get_flag_group([
+    "-Wnarrowing",
+    "-Wuseless-cast",
+])
+
+# -----------------------------------------------------------------------------
+# ALL: Extends STRICT
+# (Excludes flags already defined in MINIMAL or STRICT)
+# -----------------------------------------------------------------------------
+ALL_WALL_C_WARNINGS = get_flag_group([
+    "-Wimplicit",
+    "-Wimplicit-function-declaration",
+    "-Wimplicit-int",
+    "-Wpointer-sign",
+    "-Wvla-parameter",
+])
+
+ALL_WALL_CXX_WARNINGS = get_flag_group([
+    "-Waligned-new",
+    "-Wc++11-compat",
+    "-Wc++14-compat",
+    "-Wc++17-compat",
+    "-Wc++20-compat",
+    "-Wcatch-value",
+    "-Wclass-memaccess",
+    "-Wdelete-non-virtual-dtor",
+    "-Wenum-int-mismatch",
+    "-Wmismatched-new-delete",
+    "-Woverloaded-virtual=1",
+    "-Wpessimizing-move",
+    "-Wrange-loop-construct",
+    "-Wself-move",
+])
+
+ALL_WALL_WARNINGS = get_flag_group([
+    "-Waddress",
+    "-Warray-bounds=1",
+    "-Warray-compare",
+    "-Warray-parameter=2",
+    "-Wbool-operation",
+    "-Wchar-subscripts",
+    "-Wcomment",
+    "-Wdangling-else",
+    "-Wdangling-pointer=2",
+    "-Wduplicate-decl-specifier",
+    "-Wenum-compare",
+    "-Wformat-contains-nul",
+    "-Wformat-diag",
+    "-Wformat-extra-args",
+    "-Wformat-overflow=1",
+    "-Wformat-truncation=1",
+    "-Wformat-zero-length",
+    "-Wformat=1",
+    "-Wframe-address",
+    "-Winfinite-recursion",
+    "-Winit-self",
+    "-Wint-in-bool-context",
+    "-Wmain",
+    "-Wmaybe-uninitialized",
+    "-Wmemset-elt-size",
+    "-Wmemset-transposed-args",
+    "-Wmisleading-indentation",
+    "-Wmismatched-dealloc",
+    "-Wmissing-attributes",
+    "-Wmissing-braces",
+    "-Wmultistatement-macros",
+    "-Wnonnull",
+    "-Wnonnull-compare",
+    "-Wopenmp-simd",
+    "-Wpacked-not-aligned",
+    "-Wparentheses",
+    "-Wrestrict",
+    "-Wreturn-type",
+    "-Wsequence-point",
+    "-Wsign-compare",
+    "-Wsizeof-array-div",
+    "-Wsizeof-pointer-div",
+    "-Wsizeof-pointer-memaccess",
+    "-Wstrict-aliasing",
+    "-Wstrict-overflow=1",
+    "-Wswitch",
+    "-Wtautological-compare",
+    "-Wtrigraphs",
+    "-Wuninitialized",
+    "-Wunknown-pragmas",
+    "-Wunused",
+    "-Wunused-but-set-variable",
+    "-Wunused-const-variable=1",
+    "-Wunused-function",
+    "-Wunused-label",
+    "-Wunused-local-typedefs",
+    "-Wunused-value",
+    "-Wunused-variable",
+    "-Wuse-after-free=2",
+    "-Wvolatile-register-var",
+    "-Wzero-length-bounds",
+])
+
+# -----------------------------------------------------------------------------
+# : Turn all warinings into errors
+# -----------------------------------------------------------------------------
+WARNINGS_AS_ERRORS = get_flag_group([
+    "-Werror",
+    "-Wno-error=deprecated-declarations",
+])
+

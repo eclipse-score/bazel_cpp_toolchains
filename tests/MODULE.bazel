@@ -1,0 +1,99 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+module(
+    name = "test_score_bazel_cpp_toolchains",
+    version = "0.1.0",
+    compatibility_level = 0,
+)
+
+# *******************************************************************************
+# Common useful functions and rules for Bazel
+# *******************************************************************************
+bazel_dep(name = "bazel_skylib", version = "1.8.1")
+
+# *******************************************************************************
+# Constraint values for specifying platforms and toolchains
+# *******************************************************************************
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "score_bazel_platforms", version = "0.0.2")
+
+# *******************************************************************************
+# C++ Rules for Bazel
+# *******************************************************************************
+bazel_dep(name = "rules_cc", version = "0.2.14")
+
+# *******************************************************************************
+# Set dependency to Bazel C/C++ Toolchain repository - with overriding path
+# *******************************************************************************
+bazel_dep(
+    name = "score_bazel_cpp_toolchains",
+    version = "0.1.0",
+)
+local_path_override(
+    module_name = "score_bazel_cpp_toolchains",
+    path = "../",
+)
+
+# *******************************************************************************
+# Setting GCC (CPU:x86_64|OS:Linux|v:12.2.0)
+# *******************************************************************************
+gcc = use_extension("@score_bazel_cpp_toolchains//bazel/extentions:gcc.bzl", "gcc")
+
+# Define toolchains with default package from version matrix
+gcc.toolchain(
+    target_cpu = "x86_64",
+    version = "12.2.0",
+    use_default_package = True,
+)
+use_repo(gcc, "score_gcc_toolchain", "score_gcc_toolchain_pkg")
+
+# The host package for the toolchain x86_64-linux-gcc-12.2.0 manually defined below
+gcc.package(
+    name = "my_toolchain_pkg",
+    url = "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/0.0.1/x86_64-unknown-linux-gnu_gcc12.tar.gz",
+    strip_prefix = "x86_64-unknown-linux-gnu",
+    sha256 = "457f5f20f57528033cb840d708b507050d711ae93e009388847e113b11bf3600",
+    build_file = "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
+)
+# Define toolchains with custom package
+gcc.toolchain(
+    name = "my_toolchain",
+    package_to_link = "my_toolchain_pkg",
+    target_os = "linux",
+    target_cpu = "x86_64",
+    version = "12.2.0",
+    extra_link_flags = [
+        "-lpthread",
+    ]
+)
+use_repo(gcc, "my_toolchain", "my_toolchain_pkg")
+
+# *******************************************************************************
+# Setting QCC (CPU:x86_64|OS:QNX|v:8.0)
+# *******************************************************************************
+qcc = use_extension("@score_bazel_cpp_toolchains//bazel/extentions:qcc.bzl", "qcc")
+qcc.toolchain(
+    target_cpu = "x86_64",
+    version = "12.2.0",
+    use_default_package = True,
+)
+use_repo(qcc, "score_qcc_toolchain", "score_qcc_toolchain_pkg")
+
+qcc.toolchain(
+    name = "score_qcc_arm64_toolchain",
+    target_cpu = "arm64",
+    version = "12.2.0",
+    use_default_package = True,
+)
+use_repo(qcc, "score_qcc_arm64_toolchain", "score_qcc_arm64_toolchain_pkg")
