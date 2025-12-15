@@ -11,11 +11,15 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
+# -------------------------------------------------------------------------------
 # Link to S-CORE Bazel Registry
+# -------------------------------------------------------------------------------
 common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
 common --registry=https://bcr.bazel.build
 
-# Shared configuration for simple test execution
+# -------------------------------------------------------------------------------
+# Shared configuration for simple example execution
+# -------------------------------------------------------------------------------
 build:shared --incompatible_strict_action_env
 build:shared --sandbox_writable_path=/var/tmp
 build:shared --host_platform=@score_bazel_platforms//:x86_64-linux

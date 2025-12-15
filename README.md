@@ -74,7 +74,7 @@ Instead:
     - Easy addition of new compilers or versions
 
 
-## Using Toolchains in a Bazel Module
+## Using Toolchains in a different Bazel Module
 
 ### GCC Example (Linux x86_64)
 
@@ -88,7 +88,6 @@ gcc.use(
     use_default_package = True,
 )
 use_repo("score_gcc_toolchain", "score_gcc_toolchain_pkg")
-registry_toolchains("x86_64-linux-gcc-12.2.0")
 ```
 
 ### QCC Example (QNX ARM64)
@@ -96,14 +95,23 @@ registry_toolchains("x86_64-linux-gcc-12.2.0")
 ```starlark
 bazel_dep(name = "score_cpp_toolchains", version = "0.1.0")
 use_extension("@score_cpp_toolchains//bazel/extentions:gcc.bzl", "qcc")
-gcc.use(
+qcc.use(
     target_cpu = "arm64",
     sdp_version = "8.0.0",
     use_default_package = True,
 )
 use_repo("score_qcc_toolchain", "score_qcc_toolchain_pkg")
-registry_toolchains("x86_64-linux-qcc-12.2.0")
 ```
+
+The registration of toolchains is done by adding command line option `--extra_toolchains=@<toolchain_repo>//:toolchain_name`
+In case above this would be:
+```bash
+--extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc-12.2.0
+--extra_toolchains=@score_qcc_toolchain//:x86_64-linux-qcc-12.2.0
+```
+
+> NOTE: In case that more than one toolchain needs to be defined, the registration must be protected via config flags otherwise</br>
+the first toolchain that matches constraints will be selected by toolchain resolutions.
 
 ## Configuration Flags
 
@@ -137,24 +145,15 @@ These templates simplify adding:
 
 ## Testing and Validation
 
-Every toolchain must pass mandatory tests under `tests/`.
-
-### Test Types
-
-| Test Type | Purpose |
-|-----------|---------|
-| Smoke tests | Validate tool presence |
-| Feature tests | Verify compiler/linker capabilities |
-| Integration tests | Validate Bazel builds using the toolchain |
-
-Tests cover:
-
-- Simple compilation (`main.cpp`)
-- pthread linking (`main_pthread.cpp`)
-- Toolchain registration behavior
-
 Testing is part of the **integration gate pipeline**.
 
+## Examples
+
+Example cover:
+
+- Simple compilation ( [examples/main.cpp](./examples/main.cpp))
+- pthread linking ([examples/main_pthread.cpp](./examples/main_pthread.cpp))
+- Toolchain registration behavior ([examples/.bazelrc](./examples/.bazelrc))
 
 # Documentation
 
@@ -166,8 +165,7 @@ Documentation uses **Sphinx** and lives in `docs/`.
 2. Add a package descriptor (e.g., `packages/linux/x86_64/gcc/13.1.0`)
 3. Generate configuration from templates
 4. Update flags if needed
-5. Run tests: `bazel test //tests/...`
-6. Submit through integration gate
+5. Submit through integration gate
 
 ---
 
