@@ -15,15 +15,15 @@
 """
 
 VERSION_MATRIX = {
-    "arm64-linux-gcc-12.2.0": {
-        "url": "",
-        "build_file": "",
-        "strip_prefix": "",
-        "sha256": "",
+    "aarch64-linux-gcc-12.2.0": {
+        "url": "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.3/aarch64-unknown-linux-gnu_gcc12.tar.gz",
+        "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/gcc/12.2.0:gcc.BUILD",
+        "strip_prefix": "aarch64-unknown-linux-gnu",
+        "sha256": "57153340625581b199408391b895c84651382d3edd4c60fadbf0399f9dad21e1",
     },
-    "arm64-qnx-sdp-8.0.0": {
+    "aarch64-qnx-sdp-8.0.0": {
         "url": "https://www.qnx.com/download/download/79858/installation.tgz",
-        "build_file": "@score_bazel_cpp_toolchains//packages/qnx/arm64/sdp/8.0.0:sdp.BUILD",
+        "build_file": "@score_bazel_cpp_toolchains//packages/qnx/aarch64/sdp/8.0.0:sdp.BUILD",
         "strip_prefix": "installation",
         "sha256": "f2e0cb21c6baddbcb65f6a70610ce498e7685de8ea2e0f1648f01b327f6bac63",
     },

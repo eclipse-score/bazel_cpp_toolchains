@@ -14,7 +14,24 @@
 """ Common compile and link flags for GCC toolchains.
 """
 
-load("@score_bazel_cpp_toolchains//bazel/rules:common.bzl", "get_flag_group")
+load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl", "flag_group")
+
+def get_flag_group(flags):
+    """Helper function to create a flag_group.
+
+    Args:
+        flags (list[str]): A list of compiler or linker flags.
+
+    Returns:
+        flag_group: A Bazel flag_group object containing the provided flags.
+    """
+    if len(flags):
+        return [
+            flag_group(
+                flags = flags,
+            )
+        ]
+    return []
 
 # Flags that should always be applied, without filtering.
 UNFILTERED_COMPILE_FLAGS = get_flag_group([
@@ -100,4 +117,3 @@ ALL_WALL_WARNINGS = get_flag_group([])
 WARNINGS_AS_ERRORS = get_flag_group([
     "-Werror",
 ])
-

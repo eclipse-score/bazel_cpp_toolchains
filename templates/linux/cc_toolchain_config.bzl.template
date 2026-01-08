@@ -16,18 +16,19 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
 load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "action_config",
-    "env_entry",
-    "env_set",
     "feature",
+    "feature_set",
     "flag_group",
     "flag_set",
     "tool",
     "tool_path",
     "with_feature_set",
 )
-load("@score_bazel_cpp_toolchains//configurations/qcc:flags.bzl",
+load(":flags.bzl",
     "UNFILTERED_COMPILE_FLAGS",
     "DEFAULT_COMPILE_FLAGS",
+    "DEFAULT_x86_64_COMPILE_FLAGS",
+    "DEFAULT_ARM64_COMPILE_FLAGS",
     "DEFAULT_C_COMPILE_FLAGS",
     "DEFAULT_CXX_COMPILE_FLAGS",
     "DEFAULT_LINK_FLAGS",
@@ -78,11 +79,11 @@ all_actions = all_compile_actions + all_link_actions + [
 ]
 
 def _impl(ctx):
-    """ Implementation function of GCC toolchains.
-    """
-
     dbg_feature = feature(name = "dbg")
     opt_feature = feature(name = "opt")
+
+    supports_dynamic_linker_feature = feature(name = "supports_dynamic_linker", enabled = True)
+    supports_fission_feature = feature(name = "supports_fission", enabled = True)
 
     assemble_action = action_config(
         action_name = ACTION_NAMES.assemble,
@@ -162,10 +163,16 @@ def _impl(ctx):
         flag_sets = [
             flag_set(
                 actions = all_c_compile_actions + all_cpp_compile_actions,
-                flag_groups = UNFILTERED_COMPILE_FLAGS,
+                flag_groups = UNFILTERED_COMPILE_FLAGS
             ),
         ],
     )
+
+    target_cpu_flags = []
+    if ctx.attr.target_cpu == "x86_64":
+        target_cpu_flags = DEFAULT_x86_64_COMPILE_FLAGS
+    else:
+        target_cpu_flags = DEFAULT_ARM64_COMPILE_FLAGS
 
     default_compile_flags_feature = feature(
         name = "default_compile_flags",
@@ -177,7 +184,7 @@ def _impl(ctx):
             ),
             flag_set(
                 actions = all_compile_actions,
-                flag_groups = [flag_group(flags = ["-V%{tc_version},gcc_nto%{tc_cpu}"])],
+                flag_groups = target_cpu_flags,
             ),
             flag_set(
                 actions = all_c_compile_actions,
@@ -209,11 +216,23 @@ def _impl(ctx):
         flag_sets = [
             flag_set(
                 actions = all_link_actions,
-                flag_groups = [flag_group(flags = ["-V%{tc_version},gcc_nto%{tc_cpu_cxx}"])],
+                flag_groups = DEFAULT_LINK_FLAGS,
             ),
             flag_set(
                 actions = all_link_actions,
-                flag_groups = DEFAULT_LINK_FLAGS,
+                flag_groups = [flag_group(flags = ["-Wl,--gc-sections"])],
+                with_features = [with_feature_set(features = ["opt"])],
+            ),
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-Wl,--compress-debug-sections=zlib",
+                        ],
+                    ),
+                ],
+                with_features = [with_feature_set(not_features = ["opt"])],
             ),
         ],
     )
@@ -313,90 +332,45 @@ def _impl(ctx):
             ),
         ],
     )
-    supports_pic_feature = feature(name = "supports_pic", enabled = True)
 
-    dependency_file_named_implicitly_feature = feature(
-        name = "dependency_file_named_implicitly",
+    pthread_feature = feature(
+        name = "use_pthread",
         enabled = False,
-    )
-
-    use_license_env_info_feautre = feature(
-        name = "qnx_license_env_info",
-        enabled = %{use_license_info},
-    )
-
-    license_variable = "%{license_info_variable}"
-    license_value = "%{license_info_value}"
-
-    sdp_env_feature = feature(
-        name = "sdp_env",
-        enabled = True,
-        env_sets = [
-            env_set(
-                actions = all_compile_actions + all_link_actions,
-                env_entries = [
-                    env_entry(key = "QNX_HOST", value = "/proc/self/cwd/" + ctx.file.qnx_host.path),
-                    env_entry(key = "QNX_TARGET", value = "/proc/self/cwd/" + ctx.file.qnx_target.path),
-                    env_entry(key = "QNX_CONFIGURATION_EXCLUSIVE", value = "/var/tmp/.qnx"),
-                    env_entry(key = "QNX_SHARED_LICENSE_FILE", value = "%{qnx_license_path}"),
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(flags = ["-pthread"]),
                 ],
             ),
-            env_set(
-                actions = all_compile_actions + all_link_actions,
-                env_entries = [env_entry(key = license_variable, value = license_value)] if license_value != "" else [],
-                with_features = [with_feature_set(features = ["qnx_license_env_info"])],
-            )
         ],
     )
 
-    dependency_file_feature = feature(
-        name = "dependency_file",
-        enabled = True,
+    supports_pic_feature = feature(name = "supports_pic", enabled = True)
+
+    coverage_feature = feature(name = "coverage")
+    gcc_coverage_map_format_feature = feature(
+        name = "gcc_coverage_map_format",
+        provides = ["profile"],
         flag_sets = [
             flag_set(
                 actions = [
-                    ACTION_NAMES.assemble,
-                    ACTION_NAMES.preprocess_assemble,
                     ACTION_NAMES.c_compile,
                     ACTION_NAMES.cpp_compile,
                     ACTION_NAMES.cpp_module_compile,
-                    ACTION_NAMES.objc_compile,
-                    ACTION_NAMES.objcpp_compile,
-                    ACTION_NAMES.cpp_header_parsing,
-                    ACTION_NAMES.clif_match,
+                    ACTION_NAMES.preprocess_assemble,
                 ],
                 flag_groups = [flag_group(
-                    flags = [
-                        "-Wc,-MD,%{dependency_file}",
-                        "-Wp,-MD,%{dependency_file}",
-                    ],
-                    expand_if_available = "dependency_file",
+                    expand_if_available = "gcov_gcno_file",
+                    flags = ["-fprofile-arcs", "-ftest-coverage"],
                 )],
-                with_features = [
-                    with_feature_set(not_features = ["dependency_file_named_implicitly"]),
-                ],
             ),
             flag_set(
-                actions = [
-                    ACTION_NAMES.assemble,
-                    ACTION_NAMES.preprocess_assemble,
-                    ACTION_NAMES.c_compile,
-                    ACTION_NAMES.cpp_compile,
-                    ACTION_NAMES.cpp_module_compile,
-                    ACTION_NAMES.objc_compile,
-                    ACTION_NAMES.objcpp_compile,
-                    ACTION_NAMES.cpp_header_parsing,
-                    ACTION_NAMES.clif_match,
-                ],
-                flag_groups = [flag_group(flags = [
-                    "-Wc,-MD",
-                    "-Wp,-MD",
-                ])],
-                with_features = [
-                    with_feature_set(features = ["dependency_file_named_implicitly"]),
-                ],
+                actions = all_link_actions,
+                flag_groups = [flag_group(flags = ["--coverage"])],
             ),
         ],
+        requires = [feature_set(features = ["coverage"])],
     )
 
     # The order of the features is relevant, they are applied in this specific order.
@@ -407,39 +381,48 @@ def _impl(ctx):
         dbg_feature,
         unfiltered_compile_flags_feature,
         default_compile_flags_feature,
-        dependency_file_named_implicitly_feature,
-        dependency_file_feature,
         default_link_flags_feature,
+        pthread_feature,
         minimal_warnings_feature,
         strict_warnings_feature,
         all_wall_warnings_feature,
         warnings_as_errors_feature,
         extra_compile_flags_feature,
+        # extra_c_compile_flags_feature,
+        # extra_cxx_compile_flags_feature,
         extra_link_flags_feature,
         opt_feature,
-        use_license_env_info_feautre,
-        sdp_env_feature,
+        supports_dynamic_linker_feature,
         supports_pic_feature,
+        supports_fission_feature,
+        coverage_feature,
+        gcc_coverage_map_format_feature,
     ]
 
-    cxx_builtin_include_directories = [
-        "/proc/self/cwd/{}".format(include_directory.path)
-        for include_directory in ctx.files.cxx_builtin_include_directories
-    ]
+    cxx_builtin_include_directories = []
+
+    # TODO: Once https://github.com/bazelbuild/rules_cc/issues/351 is fixed remove this.
+    tool_paths = [tool_path(name = "gcov", path = "gcov_wrapper")]
+
+    sysroot = None
+    if ctx.attr.sysroot != None:
+        sysroot = ctx.attr.sysroot[DefaultInfo].files.to_list()[0].path
 
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
-        abi_version = "%{tc_cpu}-qnx%{sdp_version}",
+        abi_version = "%{tc_abi_version}",
         abi_libc_version = "unknown",
-        compiler = "qcc",
+        builtin_sysroot = sysroot,
+        compiler = "gcc",
         cxx_builtin_include_directories = cxx_builtin_include_directories,
         features =  features,
         action_configs = action_configs,
         host_system_name = "local",
-        target_system_name = "%{tc_cpu}-qnx",
-        target_cpu =  "%{tc_cpu}",
+        target_system_name = "%{tc_cpu}-%{tc_os}",
+        target_cpu =  ctx.attr.target_cpu,
         target_libc = "unknown",
-        toolchain_identifier = "%{tc_cpu}-qnx%{sdp_version}",
+        toolchain_identifier = "%{tc_identifier}",
+        tool_paths = tool_paths,
     )
 
 cc_toolchain_config = rule(
@@ -449,9 +432,13 @@ cc_toolchain_config = rule(
         "ar_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
         "cc_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
         "cxx_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "gcov_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "target_cpu": attr.string(mandatory = True),
+        "target_os": attr.string(mandatory = True),
         "strip_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
-        "qnx_host": attr.label(allow_single_file = True, mandatory = True),
-        "qnx_target": attr.label(allow_single_file = True, mandatory = True),
-        "cxx_builtin_include_directories": attr.label(allow_files = True, mandatory = True),
+        "sysroot": attr.label(default = None),
+        "host_dir": attr.label(default = None),
+        "target_dir": attr.label(default = None),
+        "cxx_builtin_include_directories": attr.label(default = None),
     },
 )

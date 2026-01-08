@@ -14,7 +14,24 @@
 """ Common compile and link flags for GCC toolchains.
 """
 
-load("@score_bazel_cpp_toolchains//bazel/rules:common.bzl", "get_flag_group")
+load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl", "flag_group")
+
+def get_flag_group(flags):
+    """Helper function to create a flag_group.
+
+    Args:
+        flags (list[str]): A list of compiler or linker flags.
+
+    Returns:
+        flag_group: A Bazel flag_group object containing the provided flags.
+    """
+    if len(flags):
+        return [
+            flag_group(
+                flags = flags,
+            )
+        ]
+    return []
 
 # Flags that should always be applied, without filtering.
 UNFILTERED_COMPILE_FLAGS = get_flag_group([
@@ -155,12 +172,14 @@ ALL_WALL_CXX_WARNINGS = get_flag_group([
     "-Wcatch-value",
     "-Wclass-memaccess",
     "-Wdelete-non-virtual-dtor",
-    "-Wenum-int-mismatch",
+    # "-Wenum-int-mismatch", not supported in GCC12.2
+    # "-Wargument-mismatch", cc1plus: warning: command-line option '-Wduplicate-decl-specifier' is valid for C/ObjC but not for C++
     "-Wmismatched-new-delete",
-    "-Woverloaded-virtual=1",
+    "-Woverloaded-virtual", 
+    # -Woverloaded-virtual=1, not supported in GCC12.2
     "-Wpessimizing-move",
     "-Wrange-loop-construct",
-    "-Wself-move",
+    # "-Wself-move", not supported in GCC12.2
 ])
 
 ALL_WALL_WARNINGS = get_flag_group([

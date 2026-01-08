@@ -34,12 +34,12 @@ filegroup(
 )
 
 filegroup(
-    name = "qcc",
+    name = "cc",
     srcs = ["host/linux/x86_64/usr/bin/qcc"],
 )
 
 filegroup(
-    name = "qpp",
+    name = "cxx",
     srcs = ["host/linux/x86_64/usr/bin/q++"],
 )
 

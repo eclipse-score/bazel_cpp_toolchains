@@ -24,3 +24,15 @@ cc_binary(
     name = "main_pthread_cpp",
     srcs = ["main_pthread.cpp"],
 )
+
+cc_library(
+    name = "math_lib",
+    srcs = ["math_lib.cpp"],
+    hdrs = ["math_lib.h"],
+)
+
+cc_test(
+    name = "math_lib_test",
+    srcs = ["math_lib_test.cpp"],
+    deps = [":math_lib"],
+)

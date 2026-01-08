@@ -11,23 +11,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-""" GCC Toolchain definition file for CC configuration. 
-"""
+set -x
 
-load(":cc_toolchain_config.bzl", "cc_toolchain_config")
-
-filegroup(
-    name = "empty",
-)
-
-cc_toolchain_config(
-    name = "cc_toolchain_config",
-    ar_binary = "@%{tc_pkg_repo}//:ar",
-    cc_binary = "@%{tc_pkg_repo}//:gcc",
-    cxx_binary = "@%{tc_pkg_repo}//:gpp",
-    gcov_binary = "@%{tc_pkg_repo}//:gcov",
-    strip_binary = "@%{tc_pkg_repo}//:strip",
-    sysroot = "@%{tc_pkg_repo}//:sysroot_dir",
-    target_cpu = "%{tc_cpu}",
-    visibility = ["//visibility:public"],
-)
+exec "%{tc_gcov_path}" "$@"

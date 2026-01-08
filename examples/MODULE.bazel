@@ -14,7 +14,6 @@
 module(
     name = "test_score_bazel_cpp_toolchains",
     version = "0.1.0",
-    compatibility_level = 0,
 )
 
 # *******************************************************************************
@@ -26,7 +25,12 @@ bazel_dep(name = "bazel_skylib", version = "1.8.1")
 # Constraint values for specifying platforms and toolchains
 # *******************************************************************************
 bazel_dep(name = "platforms", version = "1.0.0")
-bazel_dep(name = "score_bazel_platforms", version = "0.0.2")
+bazel_dep(name = "score_bazel_platforms", version = "0.0.4")
+# git_override(
+#     module_name = "score_bazel_platforms",
+#     remote = "https://github.com/eclipse-score/bazel_platforms.git/",
+#     commit = "583e52c58f1f110357aa93fcba3c01cbd7b51675",
+# )
 
 # *******************************************************************************
 # C++ Rules for Bazel
@@ -46,30 +50,51 @@ local_path_override(
 )
 
 # *******************************************************************************
-# Setting GCC (CPU:x86_64|OS:Linux|v:12.2.0)
+# Init GCC extention
+# Legend:
+#     * CPU:   Control Processeor Unit
+#     * OS:    Operating System
+#     * V:     Version (GCC or SDP)
+#     * ES:    Runtime-EcoSystem
+#
 # *******************************************************************************
-gcc = use_extension("@score_bazel_cpp_toolchains//bazel/extentions:gcc.bzl", "gcc")
+gcc = use_extension("@score_bazel_cpp_toolchains//extentions:gcc.bzl", "gcc", dev_dependency = True)
 
-# Define toolchains with default package from version matrix
+# *******************************************************************************
+# Setting default GCC (CPU:x86_64|OS:Linux|V:12.2.0|ES:posix)
+# *******************************************************************************
 gcc.toolchain(
+    name = "score_gcc_toolchain",
     target_cpu = "x86_64",
+    target_os = "linux",
     version = "12.2.0",
     use_default_package = True,
 )
-use_repo(gcc, "score_gcc_toolchain", "score_gcc_toolchain_pkg")
 
-# The host package for the toolchain x86_64-linux-gcc-12.2.0 manually defined below
-gcc.package(
+# *******************************************************************************
+# Setting default GCC (CPU:aarch64|OS:Linux|V:12.2.0|ES:posix)
+# *******************************************************************************
+gcc.toolchain(
+    name = "score_aarch64_gcc_toolchain",
+    target_cpu = "aarch64",
+    target_os = "linux",
+    version = "12.2.0",
+    use_default_package = True,
+) 
+
+# *******************************************************************************
+# Setting custom GCC (CPU:x86_64|OS:Linux|V:12.2.0|ES:posix)
+# *******************************************************************************
+gcc.sdp(
     name = "my_toolchain_pkg",
     url = "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/0.0.1/x86_64-unknown-linux-gnu_gcc12.tar.gz",
     strip_prefix = "x86_64-unknown-linux-gnu",
     sha256 = "457f5f20f57528033cb840d708b507050d711ae93e009388847e113b11bf3600",
     build_file = "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
 )
-# Define toolchains with custom package
 gcc.toolchain(
     name = "my_toolchain",
-    package_to_link = "my_toolchain_pkg",
+    sdp_to_link = "my_toolchain_pkg",
     target_os = "linux",
     target_cpu = "x86_64",
     version = "12.2.0",
@@ -77,23 +102,60 @@ gcc.toolchain(
         "-lpthread",
     ]
 )
-use_repo(gcc, "my_toolchain", "my_toolchain_pkg")
 
 # *******************************************************************************
-# Setting QCC (CPU:x86_64|OS:QNX|v:8.0)
+# Setting GCC (CPU:x86_64|OS:QNX|version(sdp):8.0.0|ES:posix)
 # *******************************************************************************
-qcc = use_extension("@score_bazel_cpp_toolchains//bazel/extentions:qcc.bzl", "qcc")
-qcc.toolchain(
+gcc.toolchain(
+    name = "score_qcc_toolchain",
     target_cpu = "x86_64",
+    target_os = "qnx",
+    sdp_version = "8.0.0",
     version = "12.2.0",
     use_default_package = True,
 )
-use_repo(qcc, "score_qcc_toolchain", "score_qcc_toolchain_pkg")
 
-qcc.toolchain(
-    name = "score_qcc_arm64_toolchain",
-    target_cpu = "arm64",
+# *******************************************************************************
+# Setting GCC (CPU:aarch64|OS:QNX|version(sdp):8.0.0|ES:posix)
+# *******************************************************************************
+gcc.toolchain(
+    name = "score_qcc_arm_toolchain",
+    target_cpu = "aarch64",
+    target_os = "qnx",
+    sdp_version = "8.0.0",
     version = "12.2.0",
     use_default_package = True,
 )
-use_repo(qcc, "score_qcc_arm64_toolchain", "score_qcc_arm64_toolchain_pkg")
+
+# TODO: Not yet supported
+# *******************************************************************************
+# Setting local host GCC (CPU:x86_64|OS:Linux|V:unknown|ES:host)
+# *******************************************************************************
+# gcc.toolchain(
+#     name = "score_system_toolchain",
+#     target_cpu = "x86_64",
+#     target_os = "linux",
+#     use_system_toolchain = True,
+# )
+
+# TODO: Not yet supported
+# *******************************************************************************
+# Setting AutoSD GCC (CPU:x86_64|OS:Linux|V:unknown|ES:autosd)
+# *******************************************************************************
+# gcc.toolchain(
+#     name = "score_autosd_9_toolchain",
+#     target_cpu = "x86_64",
+#     target_os = "linux",
+#     runtime_ecosystem = "autosd",
+#     version = "9",
+#     use_system_toolchain = True,
+# ) 
+
+use_repo(
+    gcc,
+    "score_gcc_toolchain",
+    "score_aarch64_gcc_toolchain",
+    "my_toolchain",
+    "score_qcc_toolchain",
+    "score_qcc_arm_toolchain",
+)

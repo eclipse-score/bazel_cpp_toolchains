@@ -27,30 +27,30 @@ filegroup(
 
 filegroup(
     name = "ar",
-    srcs = ["bin/x86_64-unknown-linux-gnu-ar"],
+    srcs = ["bin/aarch64-unknown-linux-gnu-ar"],
 )
 
 filegroup(
     name = "cc",
-    srcs = ["bin/x86_64-unknown-linux-gnu-gcc"],
+    srcs = ["bin/aarch64-unknown-linux-gnu-gcc"],
 )
 
 filegroup(
     name = "gcov",
-    srcs = ["bin/x86_64-unknown-linux-gnu-gcov"],
+    srcs = ["bin/aarch64-unknown-linux-gnu-gcov"],
 )
 
 filegroup(
     name = "cxx",
-    srcs = ["bin/x86_64-unknown-linux-gnu-g++"],
+    srcs = ["bin/aarch64-unknown-linux-gnu-g++"],
 )
 
 filegroup(
     name = "strip",
-    srcs = ["bin/x86_64-unknown-linux-gnu-strip"],
+    srcs = ["bin/aarch64-unknown-linux-gnu-strip"],
 )
 
 filegroup(
     name = "sysroot_dir",
-    srcs = ["x86_64-unknown-linux-gnu/sysroot"],
+    srcs = ["aarch64-unknown-linux-gnu/sysroot"],
 )

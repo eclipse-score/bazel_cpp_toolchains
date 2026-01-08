@@ -11,15 +11,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-# -------------------------------------------------------------------------------
 # Link to S-CORE Bazel Registry
-# -------------------------------------------------------------------------------
 common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
 common --registry=https://bcr.bazel.build
 
-# -------------------------------------------------------------------------------
-# Shared configuration for simple example execution
-# -------------------------------------------------------------------------------
+# Shared configuration for simple test execution
 build:shared --incompatible_strict_action_env
 build:shared --sandbox_writable_path=/var/tmp
 build:shared --host_platform=@score_bazel_platforms//:x86_64-linux
@@ -28,41 +24,54 @@ build:shared --host_platform=@score_bazel_platforms//:x86_64-linux
 # Config dedicated to host platform CPU:x86_64 and OS:Linux
 # -------------------------------------------------------------------------------
 build:x86_64-linux --config=shared
-build:x86_64-linux --platforms=@score_bazel_platforms//:x86_64-linux
+build:x86_64-linux --platforms=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
 
 # -------------------------------------------------------------------------------
 # Different toolchain configuration for x86_64-linux
 # -------------------------------------------------------------------------------
 build:host_config_1 --config=x86_64-linux
-build:host_config_1 --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc-12.2.0
+build:host_config_1 --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0-posix
 build:host_config_1 --features=use_pthread
 
 # -------------------------------------------------------------------------------
 # Different toolchain configuration for x86_64-linux
 # -------------------------------------------------------------------------------
 build:host_config_2 --config=x86_64-linux
-build:host_config_2 --extra_toolchains=@my_toolchain//:x86_64-linux-gcc-12.2.0
+build:host_config_2 --extra_toolchains=@my_toolchain//:x86_64-linux-gcc_12.2.0-posix
+
+# -------------------------------------------------------------------------------
+# Config dedicated to target platform CPU:aarch64 and OS:linux
+# -------------------------------------------------------------------------------
+build:aarch64-linux --config=shared
+build:aarch64-linux --platforms=@score_bazel_platforms//:aarch64-linux-gcc_12.2.0-posix
+
+# -------------------------------------------------------------------------------
+# Different toolchain configuration for aarch64-linux
+# -------------------------------------------------------------------------------
+build:target_config_3 --config=aarch64-linux
+build:target_config_3 --extra_toolchains=@score_aarch64_gcc_toolchain//:aarch64-linux-gcc_12.2.0-posix
+
 
 # -------------------------------------------------------------------------------
 # Config dedicated to target platform CPU:x86_64 and OS:QNX
 # -------------------------------------------------------------------------------
 build:x86_64-qnx --config=shared
-build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx
+build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
 
 # -------------------------------------------------------------------------------
 # Different toolchain configuration for x86_64-qnx
 # -------------------------------------------------------------------------------
 build:target_config_1 --config=x86_64-qnx
-build:target_config_1 --extra_toolchains=@score_qcc_toolchain//:x86_64-qnx-qcc-12.2.0
+build:target_config_1 --extra_toolchains=@score_qcc_toolchain//:x86_64-qnx-sdp_8.0.0-posix
 
 # -------------------------------------------------------------------------------
-# Config dedicated to target platform CPU:arm64 and OS:QNX
+# Config dedicated to target platform CPU:aarch64 and OS:QNX
 # -------------------------------------------------------------------------------
-build:arm64-qnx --config=shared
-build:arm64-qnx --platforms=@score_bazel_platforms//:arm64-qnx
+build:aarch64-qnx --config=shared
+build:aarch64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
 
 # -------------------------------------------------------------------------------
-# Different toolchain configuration for arm64-qnx
+# Different toolchain configuration for aarch64-qnx
 # -------------------------------------------------------------------------------
-build:target_2_config_1 --config=arm64-qnx
-build:target_2_config_1 --extra_toolchains=@score_qcc_arm64_toolchain//:arm64-qnx-qcc-12.2.0
+build:target_config_2 --config=aarch64-qnx
+build:target_config_2 --extra_toolchains=@score_qcc_arm_toolchain//:aarch64-qnx-sdp_8.0.0-posix

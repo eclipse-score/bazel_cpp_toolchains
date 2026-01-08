@@ -15,10 +15,13 @@
 """
 
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
+load(":cc_toolchain_config.bzl", "cc_toolchain_config")
 
 filegroup(
     name = "empty",
 )
+
+%{cc_toolchain_config}
 
 cc_toolchain(
     name = "cc_toolchain",
@@ -26,16 +29,16 @@ cc_toolchain(
     ar_files = "@%{tc_pkg_repo}//:all_files",
     as_files = "@%{tc_pkg_repo}//:all_files",
     compiler_files = "@%{tc_pkg_repo}//:all_files",
-    coverage_files = "@%{tc_pkg_repo}//:all_files",
+    coverage_files = ":all_files",
     dwp_files = ":empty",
     linker_files = "@%{tc_pkg_repo}//:all_files",
     objcopy_files = ":empty",
     strip_files = "@%{tc_pkg_repo}//:all_files",
-    toolchain_config = "//%{tc_family}:cc_toolchain_config",
+    toolchain_config = ":cc_toolchain_config",
 )
 
 toolchain(
-    name = "%{tc_cpu}-%{tc_os}-%{tc_family}-%{tc_version}",
+    name = "%{tc_cpu}-%{tc_os}-%{tc_identifier}-%{tc_runtime_es}",
     exec_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
@@ -43,6 +46,8 @@ toolchain(
     target_compatible_with = [
         "@platforms//cpu:%{tc_cpu}",
         "@platforms//os:%{tc_os}",
+        "@score_bazel_platforms//runtime_es:%{tc_runtime_es}",
+        "@score_bazel_platforms//version:%{tc_identifier}",
     ],
     toolchain = ":cc_toolchain",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
