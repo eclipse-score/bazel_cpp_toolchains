@@ -35,6 +35,21 @@ cc_test(
     name = "math_lib_test",
     srcs = ["math_lib_test.cpp"],
     deps = [":math_lib"],
+    linkstatic = True,
+)
+
+cc_shared_library(
+    name = "math_lib_shared",
+    shared_lib_name = "libmath_lib.so",
+    deps = [":math_lib"],
+)
+
+cc_test(
+    name = "math_lib_dyn_test",
+    srcs = ["math_lib_test.cpp"],
+    deps = [":math_lib"],
+    dynamic_deps = [":math_lib_shared"],
+    linkstatic = False,
 )
 
 cc_test(

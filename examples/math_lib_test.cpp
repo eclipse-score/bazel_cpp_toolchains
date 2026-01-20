@@ -12,11 +12,13 @@
 ********************************************************************************/
 
 #include "math_lib.h"
+#include <iostream>
 #include <cassert>
 
 int main() {
     assert(add(2, 3) == 5);
     assert(sub(5, 3) == 2);
+    std::cout << "add(2, 3) = " << add(2, 3) << std::endl;
 
     // Note: sub(3, 5) is NOT tested → coverage will show a missed branch
     return 0;
