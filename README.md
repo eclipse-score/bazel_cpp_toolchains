@@ -27,7 +27,7 @@ This repository is structured and versioned as a Bazel module and is intended to
 ```bash
 .
 │
-├── extentions                   # Module extensions for GCC/QCC toolchains
+├── extensions                   # Module extensions for GCC/QCC toolchains
 │   ├── BUILD
 │   └── gcc.bzl
 │
@@ -81,7 +81,7 @@ Instead:
 
 ```starlark
 bazel_dep(name = "score_cpp_toolchains", version = "0.1.0")
-use_extension("@score_cpp_toolchains//bazel/extentions:gcc.bzl", "gcc")
+use_extension("@score_cpp_toolchains//extensions:gcc.bzl", "gcc")
 gcc.use(
     target_os = "linux",
     target_cpu = "x86_64",
@@ -95,7 +95,7 @@ use_repo(gcc, "score_gcc_toolchain")
 
 ```starlark
 bazel_dep(name = "score_cpp_toolchains", version = "0.2.0")
-use_extension("@score_cpp_toolchains//bazel/extentions:gcc.bzl", "gcc")
+use_extension("@score_cpp_toolchains//extensions:gcc.bzl", "gcc")
 gcc.use(
     target_os = "qnx",
     target_cpu = "arm64",

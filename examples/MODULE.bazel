@@ -58,7 +58,7 @@ local_path_override(
 #     * ES:    Runtime-EcoSystem
 #
 # *******************************************************************************
-gcc = use_extension("@score_bazel_cpp_toolchains//extentions:gcc.bzl", "gcc", dev_dependency = True)
+gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc", dev_dependency = True)
 
 # *******************************************************************************
 # Setting default GCC (CPU:x86_64|OS:Linux|V:12.2.0|ES:posix)
