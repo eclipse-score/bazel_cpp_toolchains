@@ -258,7 +258,7 @@ def _impl(ctx):
 
     strict_warnings_feature = feature(
         name = "strict_warnings",
-        implies = ["minimal_warnings"],
+        # implies = ["minimal_warnings"],
         enabled = False,
         flag_sets = [
             flag_set(
@@ -278,7 +278,7 @@ def _impl(ctx):
 
     all_wall_warnings_feature = feature(
         name = "all_wall_warnings",
-        implies = ["strict_warnings"],
+        # implies = ["strict_warnings"],
         enabled = False,
         flag_sets = [
             flag_set(
