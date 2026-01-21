@@ -36,6 +36,7 @@ bazel_dep(name = "score_bazel_platforms", version = "0.0.4")
 # C++ Rules for Bazel
 # *******************************************************************************
 bazel_dep(name = "rules_cc", version = "0.2.14")
+bazel_dep(name = "googletest", version = "1.17.0")
 
 # *******************************************************************************
 # Set dependency to Bazel C/C++ Toolchain repository - with overriding path

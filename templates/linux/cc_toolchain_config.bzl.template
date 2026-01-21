@@ -237,6 +237,187 @@ def _impl(ctx):
         ],
     )
 
+    sanitizer_feature = feature(
+        name = "sanitizer",
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-fno-omit-frame-pointer",
+                            "-fno-sanitize-recover=all", # TODO: Check if this is needed.
+                            "-g",
+                        ],
+                    ),
+                ],
+                with_features = [
+                    with_feature_set(
+                        features = [
+                            "asan",
+                            "lsan",
+                            "tsan",
+                            "ubsan",
+                        ],
+                        not_features = ["opt"],
+                    )
+                ],
+            ),
+        ],
+    )
+
+    asan_feature = feature(
+        name = "asan",
+        implies = ["sanitizer"],
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-fsanitize=address",
+                            "-DADDRESS_SANITIZER",
+                            "-O0",
+                        ],
+                    ),
+                ],
+                with_features = [
+                    with_feature_set(
+                        not_features = ["opt"],
+                    )
+                ],
+            ),
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-fsanitize=address",
+                        ],
+                    ),
+                ],
+                with_features = [
+                    with_feature_set(
+                        not_features = ["opt"],
+                    )
+                ],
+            ),
+        ],
+    )
+
+    lsan_feature = feature(
+        name = "lsan",
+        implies = ["sanitizer"],
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-fsanitize=leak",
+                            "-O0",
+                        ],
+                    ),
+                ],
+                with_features = [
+                    with_feature_set(
+                        not_features = ["opt"],
+                    )
+                ],
+            ),
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-fsanitize=leak",
+                        ],
+                    ),
+                ],
+                with_features = [
+                    with_feature_set(
+                        not_features = ["opt"],
+                    )
+                ],
+            ),
+        ],
+    )
+
+    tsan_feature = feature(
+        name = "tsan",
+        implies = ["sanitizer"],
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-fsanitize=thread",
+                            "-O1",
+                        ],
+                    ),
+                ],
+                with_features = [
+                    with_feature_set(
+                        not_features = ["opt"],
+                    )
+                ],
+            ),
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-fsanitize=thread",
+                        ],
+                    ),
+                ],
+                with_features = [
+                    with_feature_set(
+                        not_features = ["opt"],
+                    )
+                ],
+            ),
+        ],
+    )
+
+    ubsan_feature = feature(
+        name = "ubsan",
+        implies = ["sanitizer"],
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-fsanitize=undefined",
+                        ],
+                    ),
+                ],
+                with_features = [
+                    with_feature_set(
+                        not_features = ["opt"],
+                    )
+                ],
+            ),
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-fsanitize=undefined",
+                        ],
+                    ),
+                ],
+                with_features = [
+                    with_feature_set(
+                        not_features = ["opt"],
+                    )
+                ],
+            ),
+        ],
+    )
+
     minimal_warnings_feature = feature(
         name = "minimal_warnings",
         enabled = False,
@@ -378,6 +559,11 @@ def _impl(ctx):
     # after a command line parameter from a feature at the beginning of the list.
 
     features = [
+        sanitizer_feature,
+        asan_feature,
+        lsan_feature,
+        tsan_feature,
+        ubsan_feature,
         dbg_feature,
         unfiltered_compile_flags_feature,
         default_compile_flags_feature,

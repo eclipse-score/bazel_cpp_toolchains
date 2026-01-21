@@ -13,7 +13,7 @@
 
 """Small C++ CLI application for sanity testing"""
 
-load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 
 cc_binary(
     name = "main_cpp",
@@ -35,4 +35,14 @@ cc_test(
     name = "math_lib_test",
     srcs = ["math_lib_test.cpp"],
     deps = [":math_lib"],
+)
+
+cc_test(
+    name = "asan_test",
+    srcs = ["asan_test.cpp"],
+    features = ["asan"],
+    deps = [
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ]
 )
