@@ -110,7 +110,7 @@ The registration of toolchains is done by adding command line option `--extra_to
 In case above this would be:
 ```bash
 --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc-12.2.0
---extra_toolchains=@score_gcc_qnx_toolchain//:x86_64-linux-sdp-8.0.0
+--extra_toolchains=@score_gcc_qnx_toolchain//:x86_64-qnx-sdp-8.0.0
 ```
 
 > NOTE: In case that more than one toolchain needs to be defined, the registration must be protected via config flags otherwise</br>
@@ -161,6 +161,68 @@ Example cover:
 # Documentation
 
 Documentation uses **Sphinx** and lives in `docs/`. (Not yet prepared!)
+
+# QNX License
+
+## Local License File
+
+By default, the QNX toolchain uses `/opt/score_qnx/license/licenses` as the license path.
+If you want to change this location, you can override it by setting the `license_path` variable
+when calling the `gcc.toolchain(...)` function in your `MODULE.bazel` file.
+
+**Example:**
+
+```bazel
+gcc.toolchain(
+    name = "score_qcc_toolchain",
+    target_os = "qnx",
+    ...
+    license_path = "/path/to/your/custom/licenses",
+)
+```
+
+> **TODO:** Is it possible to set this via environment variable?
+
+## License Servers
+
+In case you are using a license server for QNX licenses (FLEXlm), you can set the license server information
+either locally in your module or centrally in your bazel configuration.
+This also applies to floating licenses.
+
+### Module Local Configuration
+
+You can set the license server for your toolchains by setting the variables `license_info_variable` and
+`license_info_url` when calling the `gcc.toolchain(...)` function in your `MODULE.bazel` file.
+
+**Example (for QNXLM_LICENSE_FILE variable):**
+
+```bazel
+gcc.toolchain(
+    name = "score_qcc_toolchain",
+    target_os = "qnx",
+    ...
+    license_info_variable = "QNXLM_LICENSE_FILE",
+    license_info_url = "<port>@<license_server_host>",
+)
+```
+
+### Central Configuration
+
+In case you want to set the license server for all your bazel projects you can set the
+environment variable in your `~/.bazelrc` file:
+
+**Example (for QNXLM_LICENSE_FILE variable):**
+
+```bazel
+common --action_env=QNXLM_LICENSE_FILE=<port>@<license_server_host>
+```
+
+In case you do not want to set it for all commands you can also set it per build/test command:
+
+```bazel
+build --action_env=QNXLM_LICENSE_FILE=<port>@<license_server_host>
+test --action_env=QNXLM_LICENSE_FILE=<port>@<license_server_host>
+```
 
 # Adding New Toolchain Versions
 
