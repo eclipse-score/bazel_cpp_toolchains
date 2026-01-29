@@ -82,7 +82,7 @@ Instead:
 ```starlark
 bazel_dep(name = "score_cpp_toolchains", version = "0.1.0")
 use_extension("@score_cpp_toolchains//extensions:gcc.bzl", "gcc")
-gcc.use(
+gcc(
     target_os = "linux",
     target_cpu = "x86_64",
     version = "12.2.0",
@@ -96,7 +96,7 @@ use_repo(gcc, "score_gcc_toolchain")
 ```starlark
 bazel_dep(name = "score_cpp_toolchains", version = "0.2.0")
 use_extension("@score_cpp_toolchains//extensions:gcc.bzl", "gcc")
-gcc.use(
+gcc(
     target_os = "qnx",
     target_cpu = "arm64",
     sdp_version = "8.0.0",
