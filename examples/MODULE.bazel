@@ -139,18 +139,17 @@ gcc.toolchain(
 #     use_system_toolchain = True,
 # )
 
-# TODO: Not yet supported
 # *******************************************************************************
-# Setting AutoSD GCC (CPU:x86_64|OS:Linux|V:unknown|ES:autosd)
+# Setting AutoSD 10 GCC (CPU:x86_64|OS:Linux|V:autosd-10.0|ES:autosd)
 # *******************************************************************************
-# gcc.toolchain(
-#     name = "score_autosd_9_toolchain",
-#     target_cpu = "x86_64",
-#     target_os = "linux",
-#     runtime_ecosystem = "autosd",
-#     version = "9",
-#     use_system_toolchain = True,
-# ) 
+gcc.toolchain(
+    name = "score_autosd_10_toolchain",
+    target_cpu = "x86_64",
+    target_os = "linux",
+    runtime_ecosystem = "autosd",
+    version = "autosd-10.0",
+    use_default_package = True,
+) 
 
 use_repo(
     gcc,
@@ -159,4 +158,5 @@ use_repo(
     "my_toolchain",
     "score_qcc_toolchain",
     "score_qcc_arm_toolchain",
+    "score_autosd_10_toolchain",
 )
