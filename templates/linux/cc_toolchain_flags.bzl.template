@@ -81,8 +81,15 @@ DBG_COMPILE_FLAGS = get_flag_group([
 
 # Optimization compile flags.
 OPT_COMPILE_FLAGS = get_flag_group([
+    "-g0",
+    "-D_FORTIFY_SOURCE=1",
     "-O2",
     "-DNDEBUG",
+])
+
+FST_COMPILE_FLAGS = get_flag_group([
+    "-O1",
+    "-g",
 ])
 
 # Default link flags when no specific build type is selected.

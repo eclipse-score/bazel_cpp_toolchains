@@ -34,6 +34,7 @@ load(":flags.bzl",
     "DEFAULT_LINK_FLAGS",
     "DBG_COMPILE_FLAGS",
     "OPT_COMPILE_FLAGS",
+    "FST_COMPILE_FLAGS",
     "MINIMAL_WARNINGS_FLAGS",
     "MINIMAL_C_WARNINGS_FLAGS",
     "MINIMAL_CXX_WARNINGS_FLAGS",
@@ -202,10 +203,12 @@ def _impl(ctx):
             flag_set(
                 actions = all_compile_actions,
                 flag_groups = OPT_COMPILE_FLAGS,
-                with_features = [
-                    with_feature_set(features = ["opt"]),
-                    with_feature_set(features = ["fastbuild"]),
-                ],
+                with_features = [with_feature_set(features = ["opt"])],
+            ),
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = FST_COMPILE_FLAGS,
+                with_features = [with_feature_set(features = ["fastbuild"])],
             ),
         ],
     )
@@ -237,6 +240,14 @@ def _impl(ctx):
         ],
     )
 
+    # TODO: After testing move them to flags template (flags as well)
+    sanitizers = [
+        "asan",
+        "lsan",
+        "tsan",
+        "ubsan",
+    ]
+
     sanitizer_feature = feature(
         name = "sanitizer",
         flag_sets = [
@@ -246,19 +257,13 @@ def _impl(ctx):
                     flag_group(
                         flags = [
                             "-fno-omit-frame-pointer",
-                            "-fno-sanitize-recover=all", # TODO: Check if this is needed.
-                            "-g",
+                            "-fno-optimize-sibling-calls",
                         ],
                     ),
                 ],
                 with_features = [
                     with_feature_set(
-                        features = [
-                            "asan",
-                            "lsan",
-                            "tsan",
-                            "ubsan",
-                        ],
+                        features = sanitizers,
                         not_features = ["opt"],
                     )
                 ],
@@ -277,7 +282,6 @@ def _impl(ctx):
                         flags = [
                             "-fsanitize=address",
                             "-DADDRESS_SANITIZER",
-                            "-O0",
                         ],
                     ),
                 ],
@@ -315,7 +319,6 @@ def _impl(ctx):
                     flag_group(
                         flags = [
                             "-fsanitize=leak",
-                            "-O0",
                         ],
                     ),
                 ],
@@ -353,7 +356,6 @@ def _impl(ctx):
                     flag_group(
                         flags = [
                             "-fsanitize=thread",
-                            "-O1",
                         ],
                     ),
                 ],
@@ -414,6 +416,18 @@ def _impl(ctx):
                         not_features = ["opt"],
                     )
                 ],
+            ),
+        ],
+    )
+
+    ubsan_recover_feature = feature(
+        name = "ubsan_recover",
+        implies = ["ubsan"],
+        enabled = False,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [flag_group(flags = ["-fsanitize-recover=undefined"])],
             ),
         ],
     )
@@ -558,25 +572,23 @@ def _impl(ctx):
     # A command line parameter from a feature at the end of the list will appear
     # after a command line parameter from a feature at the beginning of the list.
 
-    features = [
-        sanitizer_feature,
-        asan_feature,
-        lsan_feature,
-        tsan_feature,
-        ubsan_feature,
+    features = [        
         dbg_feature,
         unfiltered_compile_flags_feature,
         default_compile_flags_feature,
         default_link_flags_feature,
         pthread_feature,
+        sanitizer_feature,
+        asan_feature,
+        lsan_feature,
+        tsan_feature,
+        ubsan_feature,
+        extra_compile_flags_feature,
+        extra_link_flags_feature,
         minimal_warnings_feature,
         strict_warnings_feature,
         all_wall_warnings_feature,
         warnings_as_errors_feature,
-        extra_compile_flags_feature,
-        # extra_c_compile_flags_feature,
-        # extra_cxx_compile_flags_feature,
-        extra_link_flags_feature,
         opt_feature,
         supports_dynamic_linker_feature,
         supports_pic_feature,
