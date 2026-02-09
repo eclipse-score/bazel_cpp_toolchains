@@ -148,7 +148,6 @@ STRICT_C_WARNINGS_FLAGS = get_flag_group([
 
 STRICT_CXX_WARNINGS_FLAGS = get_flag_group([
     "-Wnarrowing",
-    "-Wuseless-cast",
 ])
 
 # -----------------------------------------------------------------------------
@@ -180,6 +179,7 @@ ALL_WALL_CXX_WARNINGS = get_flag_group([
     "-Wpessimizing-move",
     "-Wrange-loop-construct",
     # "-Wself-move", not supported in GCC12.2
+    "-Wuseless-cast",
 ])
 
 ALL_WALL_WARNINGS = get_flag_group([
