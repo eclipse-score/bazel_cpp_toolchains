@@ -23,9 +23,9 @@ _attrs_sdp = {
         default = "",
         doc = "package name of toolchain, default set to toolchain toolchain name + `_pkg`.",
     ),
-    "build_file": attr.string(
+    "build_file": attr.label(
         mandatory = False,
-        default = "",
+        default = None,
         doc = "The path to the BUILD file of selected archive.",
     ),
     "url": attr.string(
