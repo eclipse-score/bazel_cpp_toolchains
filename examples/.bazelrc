@@ -24,19 +24,19 @@ build:shared --host_platform=@score_bazel_platforms//:x86_64-linux
 # Config dedicated to host platform CPU:x86_64 and OS:Linux
 # -------------------------------------------------------------------------------
 build:x86_64-linux --config=shared
-build:x86_64-linux --platforms=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
 
 # -------------------------------------------------------------------------------
 # Different toolchain configuration for x86_64-linux
 # -------------------------------------------------------------------------------
 build:host_config_1 --config=x86_64-linux
-build:host_config_1 --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0-posix
+build:host_config_1 --extra_toolchains=@score_gcc_toolchain//:x86_64-linux
 build:host_config_1 --features=use_pthread
 
 # -------------------------------------------------------------------------------
 # Different toolchain configuration for x86_64-linux
 # -------------------------------------------------------------------------------
 build:host_config_2 --config=x86_64-linux
+build:host_config_2 --platforms=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
 build:host_config_2 --extra_toolchains=@my_toolchain//:x86_64-linux-gcc_12.2.0-posix
 
 # -------------------------------------------------------------------------------

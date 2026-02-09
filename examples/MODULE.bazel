@@ -65,6 +65,7 @@ gcc.toolchain(
     target_os = "linux",
     version = "12.2.0",
     use_default_package = True,
+    use_base_constraints_only = True,
 )
 
 # *******************************************************************************

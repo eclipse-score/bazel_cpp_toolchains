@@ -101,6 +101,16 @@ def _impl(rctx):
     else:
         fail("Unsupported OS detected!")
 
+    tc_identifier_short_1 = ""
+    tc_identifier_long_1 = "[]"
+    tc_identifier_short_2 = ""
+    tc_identifier_long_2 = "[]"
+    if not rctx.attr.use_base_constraints_only:
+        tc_identifier_short_1 = "-{}".format(tc_identifier)
+        tc_identifier_long_1 = "[\"@score_bazel_platforms//version:{}\"]".format(tc_identifier)
+        tc_identifier_short_2 = "-{}".format(rctx.attr.tc_runtime_ecosystem)
+        tc_identifier_long_2 = "[\"@score_bazel_platforms//runtime_es:{}\"]".format(rctx.attr.tc_runtime_ecosystem)
+
     rctx.template(
         "BUILD",
         rctx.attr._cc_toolchain_build,
@@ -110,8 +120,10 @@ def _impl(rctx):
             "%{tc_cpu}": rctx.attr.tc_cpu,
             "%{tc_os}": rctx.attr.tc_os,
             "%{tc_version}": rctx.attr.gcc_version,
-            "%{tc_identifier}": tc_identifier, 
-            "%{tc_runtime_es}": rctx.attr.tc_runtime_ecosystem,
+            "%{tc_identifier_short_1}": tc_identifier_short_1,
+            "%{tc_identifier_short_2}": tc_identifier_short_2,
+            "%{tc_identifier_long_1}": tc_identifier_long_1,
+            "%{tc_identifier_long_2}": tc_identifier_long_2,
         },
     )
 
@@ -135,7 +147,6 @@ def _impl(rctx):
     extra_c_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_c_compile_flags))
     extra_cxx_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_cxx_compile_flags))
     extra_link_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_link_flags))
-
 
     template_dict = {
         "%{tc_version}": rctx.attr.gcc_version,
@@ -212,6 +223,7 @@ gcc_toolchain = repository_rule(
         "cc_toolchain_flags": attr.label(
             doc = "Path to the Bazel BUILD file template for the toolchain.",
         ),
+        "use_base_constraints_only": attr.bool(doc="Boolean flag to state only base constraints should be used for toolchain compatibility definition"),
         "_cc_toolchain_build": attr.label(
             default = "@score_bazel_cpp_toolchains//templates:BUILD.template",
             doc = "Path to the Bazel BUILD file template for the toolchain.",

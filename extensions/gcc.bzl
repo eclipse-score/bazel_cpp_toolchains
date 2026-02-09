@@ -62,12 +62,16 @@ _attrs_tc = {
     ),
     "use_system_toolchain": attr.bool(
         default = False,
-        doc = "TBD",
+        doc = "Flag for toolchain creation to use host installed binaries. Not yet supported!",
+    ),
+    "use_base_constraints_only": attr.bool(
+        default = False,
+        doc = "Experimental. Attribute for flag toolchain creation to use only base platform constraints. Limits toolchain registration to 1 per base platform definition."
     ),
     "runtime_ecosystem": attr.string(
         default = "posix",
         mandatory = False,
-        doc = "TBD",
+        doc = "Attribute for identifing the system-level runtime environment a binary or target is built to run in.",
     ),
     "target_cpu": attr.string(
         mandatory = True,
@@ -172,6 +176,7 @@ def _get_toolchains(tags):
             "sdp_to_link": tag.sdp_to_link,
             "use_default_package": tag.use_default_package,
             "use_system_toolchain": tag.use_system_toolchain,
+            "use_base_constraints_only": tag.use_base_constraints_only,
             "tc_extra_compile_flags": tag.extra_compile_flags,
             "tc_extra_c_compile_flags": tag.extra_c_compile_flags,
             "tc_extra_cxx_compile_flags": tag.extra_cxx_compile_flags,
@@ -285,6 +290,7 @@ def _impl(mctx):
             gcc_version = toolchain_info["tc_version"],
             cc_toolchain_config = toolchain_info["cc_toolchain_config"],
             cc_toolchain_flags = toolchain_info["cc_toolchain_flags"],
+            use_base_constraints_only = toolchain_info["use_base_constraints_only"]
         )
 
 gcc = module_extension(
