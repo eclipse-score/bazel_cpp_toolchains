@@ -204,6 +204,14 @@ def _create_and_link_sdp(toolchain_info):
     )
     matrix = VERSION_MATRIX[matrix_key]
     toolchain_info["sdp_to_link"] = pkg_name
+
+    if "extra_c_compile_flags" in matrix and not toolchain_info["tc_extra_c_compile_flags"]:
+        toolchain_info["tc_extra_c_compile_flags"] = matrix["extra_c_compile_flags"]
+    if "extra_cxx_compile_flags" in matrix and not toolchain_info["tc_extra_cxx_compile_flags"]:
+        toolchain_info["tc_extra_cxx_compile_flags"] = matrix["extra_cxx_compile_flags"]
+    if "extra_link_flags" in matrix and not toolchain_info["tc_extra_link_flags"]:
+        toolchain_info["tc_extra_link_flags"] = matrix["extra_link_flags"]
+
     return {
         "name": pkg_name,
         "url": matrix["url"],
