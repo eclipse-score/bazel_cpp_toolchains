@@ -555,6 +555,12 @@ def _impl(ctx):
 
     supports_pic_feature = feature(name = "supports_pic", enabled = True)
 
+    # Feature to disable absolute path warnings for system headers
+    supports_header_path_normalization = feature(
+        name = "supports_header_path_normalization",
+        enabled = True,
+    )
+
     coverage_feature = feature(name = "coverage")
     gcc_coverage_map_format_feature = feature(
         name = "gcc_coverage_map_format",
@@ -606,6 +612,7 @@ def _impl(ctx):
         opt_feature,
         supports_dynamic_linker_feature,
         supports_pic_feature,
+        supports_header_path_normalization,
         supports_fission_feature,
         coverage_feature,
         gcc_coverage_map_format_feature,
