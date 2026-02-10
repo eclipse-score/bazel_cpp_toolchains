@@ -115,6 +115,16 @@ _attrs_tc = {
         default = [],
         doc = "List of additional flags to be passed to compiler.",
     ),
+    "extra_c_compile_flags": attr.string_list(
+        mandatory = False,
+        default = [],
+        doc = "List of additional flags to be passed to C compiler.",
+    ),
+    "extra_cxx_compile_flags": attr.string_list(
+        mandatory = False,
+        default = [],
+        doc = "List of additional flags to be passed to C++ compiler.",
+    ),
     "extra_link_flags": attr.string_list(
         mandatory = False,
         default = [],
@@ -163,6 +173,8 @@ def _get_toolchains(tags):
             "use_default_package": tag.use_default_package,
             "use_system_toolchain": tag.use_system_toolchain,
             "tc_extra_compile_flags": tag.extra_compile_flags,
+            "tc_extra_c_compile_flags": tag.extra_c_compile_flags,
+            "tc_extra_cxx_compile_flags": tag.extra_cxx_compile_flags,
             "tc_extra_link_flags": tag.extra_link_flags,
             "sdp_version": tag.sdp_version,
             "tc_license_info_variable": tag.license_info_variable,
@@ -250,6 +262,8 @@ def _impl(mctx):
         gcc_toolchain(
             name = toolchain_info["name"],
             extra_compile_flags = toolchain_info["tc_extra_compile_flags"],
+            extra_c_compile_flags = toolchain_info["tc_extra_c_compile_flags"],
+            extra_cxx_compile_flags = toolchain_info["tc_extra_cxx_compile_flags"],
             extra_link_flags = toolchain_info["tc_extra_link_flags"],
             license_info_variable = toolchain_info["tc_license_info_variable"],
             license_info_value = toolchain_info["tc_license_info_url"],
