@@ -65,11 +65,22 @@ gcc.toolchain(
     target_os = "linux",
     version = "12.2.0",
     use_default_package = True,
+)
+
+# *******************************************************************************
+# Setting GCC (CPU:x86_64|OS:Linux) 
+# *******************************************************************************
+gcc.toolchain(
+    name = "score_gcc_toolchain_bp_only",
+    target_cpu = "x86_64",
+    target_os = "linux",
+    version = "12.2.0",
+    use_default_package = True,
     use_base_constraints_only = True,
 )
 
 # *******************************************************************************
-# Setting default GCC (CPU:aarch64|OS:Linux|V:12.2.0|ES:posix)
+# Setting GCC (CPU:aarch64|OS:Linux|V:12.2.0|ES:posix)
 # *******************************************************************************
 gcc.toolchain(
     name = "score_aarch64_gcc_toolchain",
@@ -150,6 +161,7 @@ gcc.toolchain(
 use_repo(
     gcc,
     "score_gcc_toolchain",
+    "score_gcc_toolchain_bp_only",
     "score_aarch64_gcc_toolchain",
     "my_toolchain",
     "score_qcc_toolchain",

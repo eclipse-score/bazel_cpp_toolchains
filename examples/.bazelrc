@@ -29,15 +29,22 @@ build:x86_64-linux --config=shared
 # Different toolchain configuration for x86_64-linux
 # -------------------------------------------------------------------------------
 build:host_config_1 --config=x86_64-linux
-build:host_config_1 --extra_toolchains=@score_gcc_toolchain//:x86_64-linux
-build:host_config_1 --features=use_pthread
+build:host_config_1 --platforms=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
+build:host_config_1 --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0-posix
+
+# -------------------------------------------------------------------------------
+# Different toolchain configuration for x86_64-linux (base platforms only)
+# -------------------------------------------------------------------------------
+build:host_config_2 --config=x86_64-linux
+build:host_config_2 --extra_toolchains=@score_gcc_toolchain_bp_only//:x86_64-linux
+build:host_config_2 --features=use_pthread
 
 # -------------------------------------------------------------------------------
 # Different toolchain configuration for x86_64-linux
 # -------------------------------------------------------------------------------
-build:host_config_2 --config=x86_64-linux
-build:host_config_2 --platforms=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
-build:host_config_2 --extra_toolchains=@my_toolchain//:x86_64-linux-gcc_12.2.0-posix
+build:host_config_3 --config=x86_64-linux
+build:host_config_3 --platforms=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
+build:host_config_3 --extra_toolchains=@my_toolchain//:x86_64-linux-gcc_12.2.0-posix
 
 # -------------------------------------------------------------------------------
 # Config dedicated to target platform CPU:aarch64 and OS:linux
@@ -50,7 +57,6 @@ build:aarch64-linux --platforms=@score_bazel_platforms//:aarch64-linux-gcc_12.2.
 # -------------------------------------------------------------------------------
 build:target_config_3 --config=aarch64-linux
 build:target_config_3 --extra_toolchains=@score_aarch64_gcc_toolchain//:aarch64-linux-gcc_12.2.0-posix
-
 
 # -------------------------------------------------------------------------------
 # Config dedicated to target platform CPU:x86_64 and OS:QNX
