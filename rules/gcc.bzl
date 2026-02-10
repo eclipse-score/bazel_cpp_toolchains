@@ -90,7 +90,9 @@ def _impl(rctx):
     Args:
         rctx: The repository context.
     """
-    tc_identifier = "gcc_{}".format(rctx.attr.gcc_version)
+    tc_identifier = "gcc_{}".format(rctx.attr.tc_gcc_version)
+    if rctx.attr.tc_sdk_version != "":
+        tc_identifier = "sdk_{}".format(rctx.attr.tc_sdk_version)
     if rctx.attr.tc_os == "qnx":
         tc_identifier = "sdp_{}".format(rctx.attr.sdp_version)
 
@@ -101,6 +103,9 @@ def _impl(rctx):
     else:
         fail("Unsupported OS detected!")
 
+    # The reason for this implementation is to provide support for toolchains defined only by based constraints.
+    # By default `cpu-os-version-runtime_os` is constraint set used for toolchain target compatible fileds but
+    # in case of base platform constraints, only cpu and os are involved in toolchain definition.
     tc_identifier_short_1 = ""
     tc_identifier_long_1 = "[]"
     tc_identifier_short_2 = ""
@@ -119,7 +124,7 @@ def _impl(rctx):
             "%{tc_pkg_repo}": rctx.attr.tc_pkg_repo,
             "%{tc_cpu}": rctx.attr.tc_cpu,
             "%{tc_os}": rctx.attr.tc_os,
-            "%{tc_version}": rctx.attr.gcc_version,
+            "%{tc_version}": rctx.attr.tc_gcc_version,
             "%{tc_identifier_short_1}": tc_identifier_short_1,
             "%{tc_identifier_short_2}": tc_identifier_short_2,
             "%{tc_identifier_long_1}": tc_identifier_long_1,
@@ -149,7 +154,7 @@ def _impl(rctx):
     extra_link_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_link_flags))
 
     template_dict = {
-        "%{tc_version}": rctx.attr.gcc_version,
+        "%{tc_version}": rctx.attr.tc_gcc_version,
         "%{tc_identifier}": "gcc",
         "%{tc_cpu}": "aarch64le" if rctx.attr.tc_cpu == "aarch64" else rctx.attr.tc_cpu,
         "%{tc_runtime_es}": rctx.attr.tc_runtime_ecosystem,
@@ -206,7 +211,8 @@ gcc_toolchain = repository_rule(
         "tc_pkg_repo": attr.string(doc="The label name of toolchain tarbal."),
         "tc_cpu": attr.string(doc="Target platform CPU."),
         "tc_os": attr.string(doc="Target platform OS."),
-        "gcc_version": attr.string(doc="GCC version number"),
+        "tc_gcc_version": attr.string(doc="GCC version number"),
+        "tc_sdk_version": attr.string(doc="SDK version number"),
         "extra_compile_flags": attr.string_list(doc="Extra/Additional compile flags."),
         "extra_c_compile_flags": attr.string_list(doc="Extra/Additional C-specific compile flags."),
         "extra_cxx_compile_flags": attr.string_list(doc="Extra/Additional C++-specific compile flags."),
