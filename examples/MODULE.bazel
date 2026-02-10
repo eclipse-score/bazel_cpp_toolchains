@@ -19,18 +19,13 @@ module(
 # *******************************************************************************
 # Common useful functions and rules for Bazel
 # *******************************************************************************
-bazel_dep(name = "bazel_skylib", version = "1.8.1")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
 
 # *******************************************************************************
 # Constraint values for specifying platforms and toolchains
 # *******************************************************************************
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "score_bazel_platforms", version = "0.0.4")
-# git_override(
-#     module_name = "score_bazel_platforms",
-#     remote = "https://github.com/eclipse-score/bazel_platforms.git/",
-#     commit = "583e52c58f1f110357aa93fcba3c01cbd7b51675",
-# )
 
 # *******************************************************************************
 # C++ Rules for Bazel
