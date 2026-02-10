@@ -210,9 +210,33 @@ def _impl(ctx):
         ],
     )
 
+    # Add sysroot linker flags as a separate feature (always enabled)
+    sysroot_link_flags_feature_flag_sets = []
+    if ctx.attr.sysroot != None:
+        sysroot_files = ctx.attr.sysroot[DefaultInfo].files.to_list()
+        if sysroot_files:
+            sysroot_path = sysroot_files[0].path
+            sysroot_link_flags_feature_flag_sets = [
+                flag_set(
+                    actions = all_link_actions,
+                    flag_groups = [flag_group(flags = [
+                        "--sysroot=" + sysroot_path,
+                        "-Wl,--sysroot=" + sysroot_path,
+                    ])],
+                ),
+            ]
+
+    sysroot_link_flags_feature = feature(
+        name = "sysroot_link_flags",
+        enabled = True,
+        flag_sets = sysroot_link_flags_feature_flag_sets,
+    )
+
+    # Only enable default link flags if extra link flags are not provided
+    default_link_flags_enabled = not %{extra_link_flags_switch}
     default_link_flags_feature = feature(
         name = "default_link_flags",
-        enabled = True,
+        enabled = default_link_flags_enabled,
         flag_sets = [
             flag_set(
                 actions = all_link_actions,
@@ -501,11 +525,36 @@ def _impl(ctx):
         ],
     )
 
+    extra_c_compile_flags = %{extra_c_compile_flags}
+    extra_c_compile_flags_feature = feature(
+        name = "extra_c_compile_flags",
+        enabled = %{extra_c_compile_flags_switch},
+        implies = ["default_compile_flags"],
+        flag_sets = [
+            flag_set(
+                actions = all_c_compile_actions,
+                flag_groups = extra_c_compile_flags,
+            ),
+        ],
+    )
+
+    extra_cxx_compile_flags = %{extra_cxx_compile_flags}
+    extra_cxx_compile_flags_feature = feature(
+        name = "extra_cxx_compile_flags",
+        enabled = %{extra_cxx_compile_flags_switch},
+        implies = ["default_compile_flags"],
+        flag_sets = [
+            flag_set(
+                actions = all_cpp_compile_actions,
+                flag_groups = extra_cxx_compile_flags,
+            ),
+        ],
+    )
+
     extra_link_flags = %{extra_link_flags}
     extra_link_flags_feature = feature(
         name = "extra_link_flags",
         enabled = %{extra_link_flags_switch},
-        implies = ["default_link_flags"],
         flag_sets = [
             flag_set(
                 actions = all_link_actions,
@@ -528,6 +577,12 @@ def _impl(ctx):
     )
 
     supports_pic_feature = feature(name = "supports_pic", enabled = True)
+
+    # Feature to disable absolute path warnings for system headers
+    supports_header_path_normalization = feature(
+        name = "supports_header_path_normalization",
+        enabled = True,
+    )
 
     coverage_feature = feature(name = "coverage")
     gcc_coverage_map_format_feature = feature(
@@ -568,24 +623,29 @@ def _impl(ctx):
         unfiltered_compile_flags_feature,
         default_compile_flags_feature,
         default_link_flags_feature,
+        sysroot_link_flags_feature,
         pthread_feature,
         minimal_warnings_feature,
         strict_warnings_feature,
         all_wall_warnings_feature,
         warnings_as_errors_feature,
         extra_compile_flags_feature,
-        # extra_c_compile_flags_feature,
-        # extra_cxx_compile_flags_feature,
+        extra_c_compile_flags_feature,
+        extra_cxx_compile_flags_feature,
         extra_link_flags_feature,
         opt_feature,
         supports_dynamic_linker_feature,
         supports_pic_feature,
+        supports_header_path_normalization,
         supports_fission_feature,
         coverage_feature,
         gcc_coverage_map_format_feature,
     ]
 
+    # Get builtin include directories from attribute if provided
     cxx_builtin_include_directories = []
+    if hasattr(ctx.attr, "builtin_include_directories") and ctx.attr.builtin_include_directories:
+        cxx_builtin_include_directories = ctx.attr.builtin_include_directories
 
     # TODO: Once https://github.com/bazelbuild/rules_cc/issues/351 is fixed remove this.
     tool_paths = [tool_path(name = "gcov", path = "gcov_wrapper")]
@@ -625,6 +685,6 @@ cc_toolchain_config = rule(
         "sysroot": attr.label(default = None),
         "host_dir": attr.label(default = None),
         "target_dir": attr.label(default = None),
-        "cxx_builtin_include_directories": attr.label(default = None),
+        "cxx_builtin_include_directories": attr.label(allow_files = True, default = None),
     },
 )

@@ -115,8 +115,26 @@ def _impl(rctx):
         },
     )
 
-    extra_compile_flags = get_flag_groups(rctx.attr.extra_compile_flags)
-    extra_link_flags = get_flag_groups(rctx.attr.extra_link_flags)
+    # Get canonical repository name for the toolchain package
+    # In bzlmod, repos created by module extensions follow the pattern: module++extension+repo_name
+    # Get our own canonical name (e.g., "score_bazel_cpp_toolchains++gcc+score_autosd_10_toolchain")
+    # and replace our repo name with the package repo name
+    my_canonical_name = rctx.name
+    if "++" in my_canonical_name:
+        parts = my_canonical_name.rsplit("+", 1)
+        prefix = parts[0] + "+"
+        canonical_pkg_name = prefix + rctx.attr.tc_pkg_repo
+    else:
+        canonical_pkg_name = rctx.attr.tc_pkg_repo
+
+    # Replace %{toolchain_pkg}% placeholder in extra flags with canonical name
+    def replace_placeholder(flags):
+        return [flag.replace("%{toolchain_pkg}%", canonical_pkg_name) for flag in flags]
+
+    extra_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_compile_flags))
+    extra_c_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_c_compile_flags))
+    extra_cxx_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_cxx_compile_flags))
+    extra_link_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_link_flags))
 
 
     template_dict = {
@@ -126,6 +144,10 @@ def _impl(rctx):
         "%{tc_runtime_es}": rctx.attr.tc_runtime_ecosystem,
         "%{extra_compile_flags_switch}": "True" if len(rctx.attr.extra_compile_flags) else "False",
         "%{extra_compile_flags}":extra_compile_flags,
+        "%{extra_c_compile_flags_switch}": "True" if len(rctx.attr.extra_c_compile_flags) else "False",
+        "%{extra_c_compile_flags}": extra_c_compile_flags,
+        "%{extra_cxx_compile_flags_switch}": "True" if len(rctx.attr.extra_cxx_compile_flags) else "False",
+        "%{extra_cxx_compile_flags}": extra_cxx_compile_flags,
         "%{extra_link_flags_switch}": "True" if len(rctx.attr.extra_link_flags) else "False",
         "%{extra_link_flags}": extra_link_flags,
     }
@@ -175,6 +197,8 @@ gcc_toolchain = repository_rule(
         "tc_os": attr.string(doc="Target platform OS."),
         "gcc_version": attr.string(doc="GCC version number"),
         "extra_compile_flags": attr.string_list(doc="Extra/Additional compile flags."),
+        "extra_c_compile_flags": attr.string_list(doc="Extra/Additional C-specific compile flags."),
+        "extra_cxx_compile_flags": attr.string_list(doc="Extra/Additional C++-specific compile flags."),
         "extra_link_flags": attr.string_list(doc="Extra/Additional link flags."),
         "sdp_version": attr.string(doc="SDP version number"),
         "license_path": attr.string(doc="Lincese path"),
