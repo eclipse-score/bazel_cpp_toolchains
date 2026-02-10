@@ -13,7 +13,7 @@
 
 module(
     name = "score_bazel_cpp_toolchains",
-    version = "0.2.2",
+    version = "0.3.0",
     compatibility_level = 0,
 )
 
@@ -26,7 +26,7 @@ bazel_dep(name = "bazel_skylib", version = "1.8.1")
 # Constraint values for specifying platforms and toolchains
 # *******************************************************************************
 bazel_dep(name = "platforms", version = "1.0.0")
-bazel_dep(name = "score_bazel_platforms", version = "0.0.2")
+bazel_dep(name = "score_bazel_platforms", version = "0.1.0")
 
 # *******************************************************************************
 # C++ Rules for Bazel

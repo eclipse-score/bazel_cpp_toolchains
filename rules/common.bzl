@@ -42,6 +42,6 @@ def get_flag_group(flags):
         return [
             flag_group(
                 flags = flags,
-            )
+            ),
         ]
     return []

@@ -38,7 +38,7 @@ cc_toolchain(
 )
 
 toolchain(
-    name = "%{tc_cpu}-%{tc_os}-%{tc_identifier}-%{tc_runtime_es}",
+    name = "%{tc_cpu}-%{tc_os}%{tc_identifier_short_1}%{tc_identifier_short_2}",
     exec_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
@@ -46,9 +46,7 @@ toolchain(
     target_compatible_with = [
         "@platforms//cpu:%{tc_cpu}",
         "@platforms//os:%{tc_os}",
-        "@score_bazel_platforms//runtime_es:%{tc_runtime_es}",
-        "@score_bazel_platforms//version:%{tc_identifier}",
-    ],
+    ] + %{tc_identifier_long_1} + %{tc_identifier_long_2},
     toolchain = ":cc_toolchain",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
     visibility = [

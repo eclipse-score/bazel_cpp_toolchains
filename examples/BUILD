@@ -13,7 +13,7 @@
 
 """Small C++ CLI application for sanity testing"""
 
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test", "cc_shared_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_shared_library", "cc_test")
 
 cc_binary(
     name = "main_cpp",
@@ -34,8 +34,8 @@ cc_library(
 cc_test(
     name = "math_lib_test",
     srcs = ["math_lib_test.cpp"],
-    deps = [":math_lib"],
     linkstatic = True,
+    deps = [":math_lib"],
 )
 
 cc_shared_library(
@@ -47,9 +47,9 @@ cc_shared_library(
 cc_test(
     name = "math_lib_dyn_test",
     srcs = ["math_lib_test.cpp"],
-    deps = [":math_lib"],
     dynamic_deps = [":math_lib_shared"],
     linkstatic = False,
+    deps = [":math_lib"],
 )
 
 cc_test(
@@ -59,5 +59,5 @@ cc_test(
     deps = [
         "@googletest//:gtest",
         "@googletest//:gtest_main",
-    ]
+    ],
 )

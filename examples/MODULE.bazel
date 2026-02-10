@@ -25,7 +25,7 @@ bazel_dep(name = "bazel_skylib", version = "1.8.2")
 # Constraint values for specifying platforms and toolchains
 # *******************************************************************************
 bazel_dep(name = "platforms", version = "1.0.0")
-bazel_dep(name = "score_bazel_platforms", version = "0.0.4")
+bazel_dep(name = "score_bazel_platforms", version = "0.1.0")
 
 # *******************************************************************************
 # C++ Rules for Bazel
@@ -38,7 +38,7 @@ bazel_dep(name = "googletest", version = "1.17.0")
 # *******************************************************************************
 bazel_dep(
     name = "score_bazel_cpp_toolchains",
-    version = "0.2.0",
+    version = "0.3.0",
 )
 local_path_override(
     module_name = "score_bazel_cpp_toolchains",
@@ -60,11 +60,23 @@ gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc", de
 # Setting default GCC (CPU:x86_64|OS:Linux|V:12.2.0|ES:posix)
 # *******************************************************************************
 gcc.toolchain(
+    name = "score_gcc_toolchain_bp",
+    target_cpu = "x86_64",
+    target_os = "linux",
+    use_default_package = True,
+    version = "12.2.0",
+    use_base_constraints_only = True,
+)
+
+# *******************************************************************************
+# Setting default GCC (CPU:x86_64|OS:Linux|V:12.2.0|ES:posix)
+# *******************************************************************************
+gcc.toolchain(
     name = "score_gcc_toolchain",
     target_cpu = "x86_64",
     target_os = "linux",
-    version = "12.2.0",
     use_default_package = True,
+    version = "12.2.0",
 )
 
 # *******************************************************************************
@@ -74,29 +86,29 @@ gcc.toolchain(
     name = "score_aarch64_gcc_toolchain",
     target_cpu = "aarch64",
     target_os = "linux",
-    version = "12.2.0",
     use_default_package = True,
-) 
+    version = "12.2.0",
+)
 
 # *******************************************************************************
 # Setting custom GCC (CPU:x86_64|OS:Linux|V:12.2.0|ES:posix)
 # *******************************************************************************
 gcc.sdp(
     name = "my_toolchain_pkg",
-    url = "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/0.0.1/x86_64-unknown-linux-gnu_gcc12.tar.gz",
-    strip_prefix = "x86_64-unknown-linux-gnu",
-    sha256 = "457f5f20f57528033cb840d708b507050d711ae93e009388847e113b11bf3600",
     build_file = "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
+    sha256 = "457f5f20f57528033cb840d708b507050d711ae93e009388847e113b11bf3600",
+    strip_prefix = "x86_64-unknown-linux-gnu",
+    url = "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/0.0.1/x86_64-unknown-linux-gnu_gcc12.tar.gz",
 )
 gcc.toolchain(
     name = "my_toolchain",
-    sdp_to_link = "my_toolchain_pkg",
-    target_os = "linux",
-    target_cpu = "x86_64",
-    version = "12.2.0",
     extra_link_flags = [
         "-lpthread",
-    ]
+    ],
+    sdp_to_link = "my_toolchain_pkg",
+    target_cpu = "x86_64",
+    target_os = "linux",
+    version = "12.2.0",
 )
 
 # *******************************************************************************
@@ -104,10 +116,9 @@ gcc.toolchain(
 # *******************************************************************************
 gcc.toolchain(
     name = "score_qcc_toolchain",
+    sdp_version = "8.0.0",
     target_cpu = "x86_64",
     target_os = "qnx",
-    sdp_version = "8.0.0",
-    version = "12.2.0",
     use_default_package = True,
 )
 
@@ -116,42 +127,39 @@ gcc.toolchain(
 # *******************************************************************************
 gcc.toolchain(
     name = "score_qcc_arm_toolchain",
+    sdp_version = "8.0.0",
     target_cpu = "aarch64",
     target_os = "qnx",
-    sdp_version = "8.0.0",
-    version = "12.2.0",
     use_default_package = True,
 )
 
-# TODO: Not yet supported
 # *******************************************************************************
-# Setting local host GCC (CPU:x86_64|OS:Linux|V:unknown|ES:host)
-# *******************************************************************************
-# gcc.toolchain(
-#     name = "score_system_toolchain",
-#     target_cpu = "x86_64",
-#     target_os = "linux",
-#     use_system_toolchain = True,
-# )
-
-# *******************************************************************************
-# Setting AutoSD 10 GCC (CPU:x86_64|OS:Linux|V:autosd-10.0|ES:autosd)
+# Setting AutoSD 10 GCC (CPU:x86_64|OS:Linux|ES:autosd10)
 # *******************************************************************************
 gcc.toolchain(
     name = "score_autosd_10_toolchain",
+    runtime_ecosystem = "autosd10",
     target_cpu = "x86_64",
     target_os = "linux",
-    runtime_ecosystem = "autosd",
-    version = "autosd-10.0",
     use_default_package = True,
-) 
+)
 
 use_repo(
     gcc,
-    "score_gcc_toolchain",
-    "score_aarch64_gcc_toolchain",
     "my_toolchain",
-    "score_qcc_toolchain",
-    "score_qcc_arm_toolchain",
+    "score_gcc_toolchain_bp",
+    "score_aarch64_gcc_toolchain",
     "score_autosd_10_toolchain",
+    "score_gcc_toolchain",
+    "score_qcc_arm_toolchain",
+    "score_qcc_toolchain",
 )
+
+# register_toolchains(
+#     "@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0",
+#     "@my_toolchain//:x86_64-linux-gcc_12.2.0",
+#     "@score_qcc_toolchain//:x86_64-qnx-sdp_8.0.0",
+#     "@score_qcc_arm_toolchain//:aarch64-qnx-sdp_8.0.0",
+#     "@score_aarch64_gcc_toolchain//:aarch64-linux-gcc_12.2.0",
+#     "@score_autosd_10_toolchain//:x86_64-linux-autosd10",
+# )
