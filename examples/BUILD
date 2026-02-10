@@ -13,7 +13,7 @@
 
 """Small C++ CLI application for sanity testing"""
 
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test", "cc_shared_library")
 
 cc_binary(
     name = "main_cpp",

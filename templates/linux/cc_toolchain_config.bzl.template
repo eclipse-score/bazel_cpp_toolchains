@@ -24,6 +24,7 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "tool_path",
     "with_feature_set",
 )
+load("@rules_cc//cc:defs.bzl", "cc_common", "CcToolchainConfigInfo")
 load(":flags.bzl",
     "UNFILTERED_COMPILE_FLAGS",
     "DEFAULT_COMPILE_FLAGS",
