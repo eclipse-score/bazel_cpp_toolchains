@@ -15,7 +15,7 @@
 Bazel C/C++ Toolchain Config Documentation
 ============================
 
-TBD
+Welcome to Bazel C/C++ Toolchain Config documentation. This repository containts Bazel toolchain configurations for different platforms used within S-CORE modules.
 
 .. contents:: Table of Contents
    :depth: 2
