@@ -68,3 +68,10 @@ build:target_config_3 --extra_toolchains=@score_aarch64_gcc_toolchain//:aarch64-
 build:target_config_4 --config=host_config_1
 build:target_config_4 --platforms=@score_bazel_platforms//:x86_64-linux-autosd10
 build:target_config_4 --extra_toolchains=@score_autosd_10_toolchain//:x86_64-linux-autosd10
+
+# -------------------------------------------------------------------------------
+# Config dedicated to target platform CPU:aarch64 and OS:ebclfsa
+# -------------------------------------------------------------------------------
+build:aarch64-ebclfsa --config=shared
+build:aarch64-ebclfsa --platforms=@score_bazel_platforms//:aarch64-linux-sdk_0.1.0-ebclfsa
+build:aarch64-ebclfsa --extra_toolchains=@score_ebclfsa_toolchain//:aarch64-linux-sdk_0.1.0-ebclfsa

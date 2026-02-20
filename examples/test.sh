@@ -21,3 +21,6 @@ bazel clean --expunge
 echo -e "Testing 'target_config_4' ..."
 bazel build --config target_config_4 //:main_cpp
 bazel clean --expunge
+echo -e "Testing 'aarch64-ebclfsa' ..."
+bazel build --config aarch64-ebclfsa //:main_cpp
+bazel clean --expunge

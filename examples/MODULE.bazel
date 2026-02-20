@@ -144,6 +144,18 @@ gcc.toolchain(
     use_default_package = True,
 )
 
+# *******************************************************************************
+# Setting EBcLfSA 0.1.0 GCC (CPU:aarch64|OS:Linux|V:ebclfsa-0.1.0|ES:ebclfsa)
+# *******************************************************************************
+gcc.toolchain(
+    name = "score_ebclfsa_toolchain",
+    target_os = "linux",
+    target_cpu = "aarch64",
+    runtime_ecosystem = "ebclfsa",
+    sdk_version = "0.1.0",
+    use_default_package = True,
+)
+
 use_repo(
     gcc,
     "my_toolchain",
@@ -153,6 +165,7 @@ use_repo(
     "score_gcc_toolchain",
     "score_qcc_arm_toolchain",
     "score_qcc_toolchain",
+    "score_ebclfsa_toolchain",
 )
 
 # register_toolchains(
