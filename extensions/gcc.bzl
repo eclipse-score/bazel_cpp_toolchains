@@ -140,6 +140,11 @@ _attrs_tc = {
         mandatory = False,
         doc = "Version of the GCC toolchain.",
     ),
+    "ld_library_paths": attr.string_list(
+        mandatory = False,
+        default = [],
+        doc = "List of paths relative to the sysroot which should build up the runtime linker path of the tools of this toolchain.",
+    ),
 }
 
 def _get_packages(tags):
