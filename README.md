@@ -27,37 +27,31 @@ This repository is structured and versioned as a Bazel module and is intended to
 ```bash
 .
 │
+├── .github                      # Configuration directory for GitHub operations.
+├── docs                         # Sphinx documentation sources.
+├── examples                     # Functional examples for toolchain validation.
 ├── extensions                   # Module extensions for GCC/QCC toolchains
 │   ├── BUILD
-│   └── gcc.bzl
-│
-├── rules                        # Bazel rule implementations for toolchains
-│   ├── BUILD
-│   └── gcc.bzl
-│
+│   └── gcc.bzl                  # Module extension for setting up GCC toolchains in Bazel.
 ├── packages                     # Toolchain package descriptors (no binaries)
 │   ├── linux/                   # Linux toolchain versions (GCC only)
 │   ├── qnx/                     # QNX SDP/QCC toolchain metadata
 │   └── version_matrix.bzl       # Supported toolchain version definitions
-│
+├── rules                        # Bazel rule implementations for toolchains
+│   ├── BUILD
+│   ├── common.bz                # Common rules used by all drivers
+│   └── gcc.bzl                  # Module rule for defining GCC toolchains in Bazel.
 ├── templates                    # Templates for toolchain definition and configuration
 │   ├── linux/
 │   ├── qnx/
 │   ├── BUILD
 │   └── BUILD.template
-│
-├── examples                     # Functional examples for toolchain validation
-│
-├── docs                         # Sphinx documentation sources
-│
 ├── tools                        # Utility scripts (e.g., QNX credential helper)
-│
 ├── MODULE.bazel                 # Module declaration for Bzlmod
 ├── BUILD
 ├── LICENSE
 ├── NOTICE
 └── README.md
-
 ```
 
 ## Toolchain Model
