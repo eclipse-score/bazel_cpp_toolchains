@@ -38,8 +38,8 @@ jobs:
           cache-save: ${{ github.event_name == 'push' }}
       - name: Bazel Build (basic)
         run: |
-          bazel build --config host_config_1 -- //:main_cpp //:main_pthread_cpp //:math_lib
+          bazel build --config host_config_1 -- //...
       - name: Bazel Test
         run: |
-          bazel test --config host_config_1 -- //:math_lib_test //:asan_test
+          bazel test --config host_config_1 -- //...
   
