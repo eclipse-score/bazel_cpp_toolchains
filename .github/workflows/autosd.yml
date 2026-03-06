@@ -10,7 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-name: Bazel Build (x86_64-Linux)
+name: Bazel Build (AutoSD 10)
 on:
   pull_request:
     types: [opened, reopened, synchronize]
@@ -21,7 +21,7 @@ on:
     types: [checks_requested]
   workflow_call:
 jobs:
-  host_config_1:
+  target_config_4:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,8 +38,5 @@ jobs:
           cache-save: ${{ github.event_name == 'push' }}
       - name: Bazel Build (basic)
         run: |
-          bazel build --config host_config_1 -- //...
-      - name: Bazel Test
-        run: |
-          bazel test --config host_config_1 -- //...
+          bazel build --config target_config_4 -- //:main_cpp //:main_pthread_cpp //:math_lib //:math_lib_shared
   
