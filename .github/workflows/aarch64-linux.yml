@@ -39,4 +39,26 @@ jobs:
       - name: Bazel Build (basic)
         run: |
           bazel build --config target_config_3 -- //...
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: examples/bazel-bin/
+  run_on_target:
+    runs-on: ubuntu-24.04-arm
+    needs: target_config_3
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: build-output
+          path: downloaded/
+      - name: Use artifact
+        run: |
+          chmod 755 ./downloaded/main_cpp
+          chmod 755 ./downloaded/main_pthread_cpp
+          ./downloaded/main_cpp
+          ./downloaded/main_pthread_cpp
+          
+
   
