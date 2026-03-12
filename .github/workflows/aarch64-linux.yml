@@ -59,6 +59,3 @@ jobs:
           chmod 755 ./downloaded/main_pthread_cpp
           ./downloaded/main_cpp
           ./downloaded/main_pthread_cpp
-          
-
-  

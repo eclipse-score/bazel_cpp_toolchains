@@ -140,7 +140,6 @@ _attrs_tc = {
         mandatory = False,
         doc = "Version of the GCC toolchain.",
     ),
-    
 }
 
 def _get_packages(tags):
@@ -254,7 +253,7 @@ def _resolve_identifier(toolchain_info):
     elif toolchain_info["sdp_version"] != "":
         identifier = "sdp"
         version = toolchain_info["sdp_version"]
-    
+
     return "{}_{}".format(identifier, version)
 
 def _get_info(mctx):
@@ -278,9 +277,9 @@ def _get_info(mctx):
     for tc in toolchains:
         if tc["sdp_version"] != "" or tc["sdk_version"] != "" or tc["gcc_version"] != "":
             identifier = _resolve_identifier(tc)
-            tc.update({"tc_identifier":"{}".format(identifier)})
+            tc.update({"tc_identifier": "{}".format(identifier)})
         else:
-            tc.update({"tc_identifier":""})
+            tc.update({"tc_identifier": ""})
 
         # need to be sure not to link package in case of system toolchain.
         if tc["use_system_toolchain"]:
@@ -329,7 +328,7 @@ def _impl(mctx):
             gcc_version = toolchain_info["gcc_version"],
             cc_toolchain_config = toolchain_info["cc_toolchain_config"],
             cc_toolchain_flags = toolchain_info["cc_toolchain_flags"],
-            use_base_constraints_only = toolchain_info["use_base_constraints_only"]
+            use_base_constraints_only = toolchain_info["use_base_constraints_only"],
         )
 
 gcc = module_extension(

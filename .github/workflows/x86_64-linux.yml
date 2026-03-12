@@ -42,4 +42,3 @@ jobs:
       - name: Bazel Test
         run: |
           bazel test --config host_config_1 -- //...
-  

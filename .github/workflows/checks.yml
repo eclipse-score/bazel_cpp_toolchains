@@ -10,10 +10,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-project = "S-CORE Bazel C/C++ Toolchain configurations"
-project_url = "https://eclipse-score.github.io/bazel_cpp_toolchains"
-version = "0.1"
-extensions = [
-    "sphinxcontrib.plantuml",
-    "score_sphinx_bundle",
-]
+name: S-CORE CI Checks
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+jobs:
+  copyright-check:
+    uses: eclipse-score/cicd-workflows/.github/workflows/copyright.yml@main
+  formatting-check:
+    uses: eclipse-score/cicd-workflows/.github/workflows/format.yml@main
+  bzlmod-lock:
+    uses: eclipse-score/cicd-workflows/.github/workflows/bzlmod-lock-check.yml@c1c90b1a82a1fab0fc202979dde6686b2162d5a8 # v0.0.0
+    with:
+      working-directory: .

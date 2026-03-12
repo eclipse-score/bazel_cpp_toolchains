@@ -20,7 +20,7 @@ module(
 # *******************************************************************************
 # Common useful functions and rules for Bazel
 # *******************************************************************************
-bazel_dep(name = "bazel_skylib", version = "1.8.1")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
 
 # *******************************************************************************
 # Constraint values for specifying platforms and toolchains
@@ -32,3 +32,10 @@ bazel_dep(name = "score_bazel_platforms", version = "0.1.1")
 # C++ Rules for Bazel
 # *******************************************************************************
 bazel_dep(name = "rules_cc", version = "0.2.14")
+
+# *******************************************************************************
+# Needed by S-CORE CI Automatic checks
+# *******************************************************************************
+bazel_dep(name = "score_tooling", version = "1.1.2")
+bazel_dep(name = "aspect_rules_lint", version = "2.3.0")
+bazel_dep(name = "buildifier_prebuilt", version = "8.5.1")

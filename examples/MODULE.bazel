@@ -12,7 +12,7 @@
 # *******************************************************************************
 
 module(
-    name = "test_score_bazel_cpp_toolchains",
+    name = "score_test_bazel_cpp_toolchains",
     version = "0.1.0",
 )
 
@@ -63,9 +63,9 @@ gcc.toolchain(
     name = "score_gcc_toolchain_bp",
     target_cpu = "x86_64",
     target_os = "linux",
+    use_base_constraints_only = True,
     use_default_package = True,
     version = "12.2.0",
-    use_base_constraints_only = True,
 )
 
 # *******************************************************************************
@@ -143,14 +143,13 @@ gcc.toolchain(
     target_os = "linux",
     use_default_package = True,
 )
-
 use_repo(
     gcc,
     "my_toolchain",
-    "score_gcc_toolchain_bp",
     "score_aarch64_gcc_toolchain",
     "score_autosd_10_toolchain",
     "score_gcc_toolchain",
+    "score_gcc_toolchain_bp",
     "score_qcc_arm_toolchain",
     "score_qcc_toolchain",
 )

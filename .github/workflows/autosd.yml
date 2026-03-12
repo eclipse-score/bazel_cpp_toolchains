@@ -39,4 +39,3 @@ jobs:
       - name: Bazel Build (basic)
         run: |
           bazel build --config target_config_4 -- //:main_cpp //:main_pthread_cpp //:math_lib //:math_lib_shared
-  
