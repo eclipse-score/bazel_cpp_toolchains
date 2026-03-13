@@ -149,23 +149,22 @@ gcc.toolchain(
 # *******************************************************************************
 gcc.toolchain(
     name = "score_ebclfsa_toolchain",
-    target_os = "linux",
-    target_cpu = "aarch64",
     runtime_ecosystem = "ebclfsa",
     sdk_version = "0.1.0",
+    target_cpu = "aarch64",
+    target_os = "linux",
     use_default_package = True,
 )
-
 use_repo(
     gcc,
     "my_toolchain",
     "score_aarch64_gcc_toolchain",
     "score_autosd_10_toolchain",
+    "score_ebclfsa_toolchain",
     "score_gcc_toolchain",
     "score_gcc_toolchain_bp",
     "score_qcc_arm_toolchain",
     "score_qcc_toolchain",
-    "score_ebclfsa_toolchain",
 )
 
 # register_toolchains(
