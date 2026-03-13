@@ -49,11 +49,6 @@ filegroup(
 )
 
 filegroup(
-    name = "ld_library_paths",
-    srcs = [],
-)
-
-filegroup(
     name = "host_all",
     srcs = glob(["host/linux/x86_64/**/*"]),
 )

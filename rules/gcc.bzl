@@ -82,7 +82,6 @@ cc_toolchain_config(
     host_dir = "@{tc_pkg_repo}//:host_dir",
     target_dir = "@{tc_pkg_repo}//:target_dir",
     cxx_builtin_include_directories = "@{tc_pkg_repo}//:cxx_builtin_include_directories",
-    ld_library_path_dirs = "@{tc_pkg_repo}//:ld_library_paths",
     target_cpu = "{tc_cpu}",
     target_os = "{tc_os}",
     visibility = ["//visibility:public"],
