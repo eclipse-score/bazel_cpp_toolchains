@@ -179,8 +179,8 @@ VERSION_MATRIX = {
             "--no-canonical-prefixes",
         ],
         "strip_prefix": "fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64",
-        "sha256": "56ebcf0476d1cb7651304a42a7ac40b23a93655d075926ddb32fed316c22d811",
-        "url": "https://github.com/elektrobit-contrib/eclipse-score_toolchains_gcc/releases/download/0.6.0-beta/fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64.tar.gz",
+        "sha256": "f44286c28d831dc40acdac08ef49f38a2e9cbb057bea38c25834964693785287",
+        "url": "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta1/fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64.tar.gz",
     },
     "x86_64-qnx-sdp_8.0.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
