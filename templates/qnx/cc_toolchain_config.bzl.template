@@ -482,5 +482,6 @@ cc_toolchain_config = rule(
         "target_cpu": attr.string(mandatory = True),
         "target_os": attr.string(mandatory = True),
         "cxx_builtin_include_directories": attr.label(allow_files = True, mandatory = True),
+        "ld_library_path_dirs": attr.label(allow_files = True, default = None),
     },
 )
