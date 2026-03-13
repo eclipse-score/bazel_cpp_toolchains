@@ -11,13 +11,13 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-"""Build file for AutoSD 10 GCC toolchain package"""
+"""Build file for EBcLfSA 0.1.0 toolchain package"""
 
 package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "all_files",
-    srcs = glob(["*/**/*"]),
+    srcs = glob(["*/**/*"], exclude = ["usr/share/ca-certificates/**","usr/lib/ssl/certs/**", "lib/ssl/certs/**", "etc/ssl/certs/**", "usr/share/man/**", "usr/share/perl/**", "var/lib/**"]),
 )
 
 filegroup(
@@ -27,50 +27,41 @@ filegroup(
 
 filegroup(
     name = "ar",
-    srcs = ["usr/bin/ar"],
+    srcs = ["usr/bin/aarch64-linux-gnu-ar"],
 )
 
 filegroup(
     name = "cc",
-    srcs = ["usr/bin/gcc"],
+    srcs = ["usr/bin/aarch64-linux-gnu-gcc-13.bin"],
 )
 
 filegroup(
     name = "gcov",
-    srcs = ["usr/bin/gcov"],
+    srcs = ["usr/bin/aarch64-linux-gnu-gcov-13"],
 )
 
 filegroup(
     name = "cxx",
-    srcs = ["usr/bin/g++"],
+    srcs = ["usr/bin/aarch64-linux-gnu-g++-13.bin"],
 )
 
 filegroup(
     name = "strip",
-    srcs = ["usr/bin/strip"],
+    srcs = ["usr/bin/aarch64-linux-gnu-strip"],
+)
+
+filegroup(
+    name = "elf-enabler",
+    srcs = ["usr/bin/lisa-elf-enabler"],
 )
 
 filegroup(
     name = "ld_library_paths",
-    srcs = [],
+    srcs = ["usr/lib/x86_64-linux-gnu", "lib/x86_64-linux-gnu"],
 )
 
-# The sysroot for AutoSD is the entire extracted directory
-# since it contains usr/ and lib64/ at the root
+# The sysroot for EBcLfSA is the entire extracted directory
 filegroup(
     name = "sysroot_dir",
     srcs = ["."],
-)
-
-# Builtin include directories for the compiler
-# List directory paths directly (like QNX does)
-filegroup(
-    name = "cxx_builtin_include_directories",
-    srcs = [
-        "usr/lib/gcc/x86_64-redhat-linux/14/include",
-        "usr/include",
-        "usr/include/c++/14",
-        "usr/include/c++/14/x86_64-redhat-linux",
-        "usr/include/c++/14/backward",
-    ],
 )

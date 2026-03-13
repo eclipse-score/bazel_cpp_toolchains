@@ -44,6 +44,13 @@ bazel build --config=target_config_3 //:main_cpp
 bazel build --config=target_config_3 //:main_pthread_cpp
 ```
 
+**Build for EB corbos Linux for Safety Applications (ARM64):**
+```bash
+bazel build --config=aarch64-ebclfsa //:main_cpp
+bazel build --config=aarch64-ebclfsa //:main_pthread_cpp
+bazel test  --config=aarch64-ebclfsa //:math_lib_test # this works if you have qemu-user-static installed and configured correctly
+```
+
 ### QNX Target Builds
 
 > **Note:** Take care of license requirements when using these toolchains and dependencies in your projects.

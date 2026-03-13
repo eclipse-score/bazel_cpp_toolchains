@@ -50,6 +50,7 @@ cc_toolchain_config(
     cxx_binary = "@{tc_pkg_repo}//:cxx",
     gcov_binary = "@{tc_pkg_repo}//:gcov",
     strip_binary = "@{tc_pkg_repo}//:strip",
+    ld_library_path_dirs = "@{tc_pkg_repo}//:ld_library_paths",
     sysroot = "@{tc_pkg_repo}//:sysroot_dir",
     target_cpu = "{tc_cpu}",
     target_os = "{tc_os}",
