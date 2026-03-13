@@ -16,6 +16,8 @@
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
 load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "action_config",
+    "env_entry",
+    "env_set",
     "feature",
     "feature_set",
     "flag_group",
@@ -654,7 +656,27 @@ def _impl(ctx):
     sysroot = None
     if ctx.attr.sysroot != None:
         sysroot = ctx.attr.sysroot[DefaultInfo].files.to_list()[0].path
+    
+    # Get ld_library_paths from attribute if provided and set LD_LIBRARY_PATH environment variable for actions
+    if hasattr(ctx.attr, "ld_library_path_dirs") and ctx.attr.ld_library_path_dirs and ctx.attr.ld_library_path_dirs[DefaultInfo].files.to_list():
+        values = ["/proc/self/cwd/" + entry.path for entry in ctx.attr.ld_library_path_dirs[DefaultInfo].files.to_list()]
+        ld_library_path = ":".join(values)
 
+        sdk_env_feature = feature(
+            name = "sdk_env",
+            enabled = True,
+            env_sets = [
+                env_set(
+                    actions = all_actions,
+                    env_entries = [
+                        env_entry(key = "LD_LIBRARY_PATH", value = ld_library_path),
+                    ],
+                ),
+            ],
+        )
+
+        features.append(sdk_env_feature)
+    
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
         abi_version = "%{tc_abi_version}",
@@ -687,5 +709,6 @@ cc_toolchain_config = rule(
         "host_dir": attr.label(default = None),
         "target_dir": attr.label(default = None),
         "cxx_builtin_include_directories": attr.label(allow_files = True, default = None),
+        "ld_library_path_dirs": attr.label(allow_files = True, default = None),
     },
 )
