@@ -51,11 +51,6 @@ filegroup(
 )
 
 filegroup(
-    name = "ld_library_paths",
-    srcs = [],
-)
-
-filegroup(
     name = "sysroot_dir",
     srcs = ["x86_64-unknown-linux-gnu/sysroot"],
 )

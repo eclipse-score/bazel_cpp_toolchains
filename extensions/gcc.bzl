@@ -187,6 +187,7 @@ def _get_toolchains(tags):
             "sdk_version": tag.sdk_version,
             "sdp_to_link": tag.sdp_to_link,
             "sdp_version": tag.sdp_version,
+            "tc_compiler_library_search_paths": [],
             "tc_cpu": tag.target_cpu,
             "tc_extra_c_compile_flags": tag.extra_c_compile_flags,
             "tc_extra_compile_flags": tag.extra_compile_flags,
@@ -232,6 +233,8 @@ def _create_and_link_sdp(toolchain_info):
         toolchain_info["tc_extra_link_flags"] = matrix["extra_link_flags"]
     if "gcc_version" in matrix and not toolchain_info["gcc_version"]:
         toolchain_info["gcc_version"] = matrix["gcc_version"]
+    if "compiler_library_search_paths" in matrix:
+        toolchain_info["tc_compiler_library_search_paths"] = matrix["compiler_library_search_paths"]
 
     return {
         "build_file": matrix["build_file"],
@@ -324,6 +327,7 @@ def _impl(mctx):
             license_path = toolchain_info["tc_license_path"],
             sdk_version = toolchain_info["sdk_version"],
             sdp_version = toolchain_info["sdp_version"],
+            tc_compiler_library_search_paths = toolchain_info["tc_compiler_library_search_paths"],
             tc_cpu = toolchain_info["tc_cpu"],
             tc_identifier = toolchain_info["tc_identifier"],
             tc_os = toolchain_info["tc_os"],

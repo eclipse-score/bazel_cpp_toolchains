@@ -50,11 +50,6 @@ filegroup(
     srcs = ["usr/bin/strip"],
 )
 
-filegroup(
-    name = "ld_library_paths",
-    srcs = [],
-)
-
 # The sysroot for AutoSD is the entire extracted directory
 # since it contains usr/ and lib64/ at the root
 filegroup(
@@ -67,10 +62,10 @@ filegroup(
 filegroup(
     name = "cxx_builtin_include_directories",
     srcs = [
-        "usr/lib/gcc/x86_64-redhat-linux/14/include",
         "usr/include",
         "usr/include/c++/14",
-        "usr/include/c++/14/x86_64-redhat-linux",
         "usr/include/c++/14/backward",
+        "usr/include/c++/14/x86_64-redhat-linux",
+        "usr/lib/gcc/x86_64-redhat-linux/14/include",
     ],
 )

@@ -50,7 +50,6 @@ cc_toolchain_config(
     cxx_binary = "@{tc_pkg_repo}//:cxx",
     gcov_binary = "@{tc_pkg_repo}//:gcov",
     strip_binary = "@{tc_pkg_repo}//:strip",
-    ld_library_path_dirs = "@{tc_pkg_repo}//:ld_library_paths",
     sysroot = "@{tc_pkg_repo}//:sysroot_dir",
     target_cpu = "{tc_cpu}",
     target_os = "{tc_os}",
@@ -157,8 +156,11 @@ def _impl(rctx):
     extra_c_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_c_compile_flags))
     extra_cxx_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_cxx_compile_flags))
     extra_link_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_link_flags))
+    compiler_library_search_paths = replace_placeholder(rctx.attr.tc_compiler_library_search_paths)
 
     template_dict = {
+        "%{compiler_library_search_paths_switch}": "True" if len(rctx.attr.tc_compiler_library_search_paths) else "False",
+        "%{compiler_library_search_paths}": ":".join(["/proc/self/cwd/" + entry for entry in compiler_library_search_paths]),
         "%{extra_c_compile_flags_switch}": "True" if len(rctx.attr.extra_c_compile_flags) else "False",
         "%{extra_c_compile_flags}": extra_c_compile_flags,
         "%{extra_compile_flags_switch}": "True" if len(rctx.attr.extra_compile_flags) else "False",
@@ -230,6 +232,7 @@ gcc_toolchain = repository_rule(
         "license_path": attr.string(doc = "Lincese path"),
         "sdk_version": attr.string(doc = "SDK version string"),
         "sdp_version": attr.string(doc = "SDP version string"),
+        "tc_compiler_library_search_paths": attr.string_list(doc = "Additional search path which compiler needs."),
         "tc_cpu": attr.string(doc = "Target platform CPU."),
         "tc_identifier": attr.string(doc = "Constraint to be used for toolchain definition (e.g. gcc_12.2.0)."),
         "tc_os": attr.string(doc = "Target platform OS."),

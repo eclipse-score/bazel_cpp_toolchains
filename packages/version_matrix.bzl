@@ -178,6 +178,10 @@ VERSION_MATRIX = {
             "-static",
             "--no-canonical-prefixes",
         ],
+        "compiler_library_search_paths": [
+            "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
+            "external/%{toolchain_pkg}%/lib/x86_64-linux-gnu",
+        ],
         "strip_prefix": "fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64",
         "sha256": "f44286c28d831dc40acdac08ef49f38a2e9cbb057bea38c25834964693785287",
         "url": "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta1/fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64.tar.gz",

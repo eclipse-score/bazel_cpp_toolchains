@@ -17,7 +17,18 @@ package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "all_files",
-    srcs = glob(["*/**/*"], exclude = ["usr/share/ca-certificates/**","usr/lib/ssl/certs/**", "lib/ssl/certs/**", "etc/ssl/certs/**", "usr/share/man/**", "usr/share/perl/**", "var/lib/**"]),
+    srcs = glob(
+        ["*/**/*"],
+        exclude = [
+            "usr/share/ca-certificates/**",
+            "usr/lib/ssl/certs/**",
+            "lib/ssl/certs/**",
+            "etc/ssl/certs/**",
+            "usr/share/man/**",
+            "usr/share/perl/**",
+            "var/lib/**",
+        ],
+    ),
 )
 
 filegroup(
@@ -53,11 +64,6 @@ filegroup(
 filegroup(
     name = "elf-enabler",
     srcs = ["usr/bin/lisa-elf-enabler"],
-)
-
-filegroup(
-    name = "ld_library_paths",
-    srcs = ["usr/lib/x86_64-linux-gnu", "lib/x86_64-linux-gnu"],
 )
 
 # The sysroot for EBcLfSA is the entire extracted directory
