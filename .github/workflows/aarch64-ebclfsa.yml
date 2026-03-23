@@ -38,4 +38,4 @@ jobs:
           cache-save: ${{ github.event_name == 'push' }}
       - name: Bazel Build (basic)
         run: |
-          bazel build --config aarch64-ebclfsa -- //:main_cpp
+          bazel build --config target_config_5 -- //:main_cpp

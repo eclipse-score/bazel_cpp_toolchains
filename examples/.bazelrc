@@ -72,6 +72,6 @@ build:target_config_4 --extra_toolchains=@score_autosd_10_toolchain//:x86_64-lin
 # -------------------------------------------------------------------------------
 # Config dedicated to target platform CPU:aarch64 and OS:ebclfsa
 # -------------------------------------------------------------------------------
-build:aarch64-ebclfsa --config=shared
-build:aarch64-ebclfsa --platforms=@score_bazel_platforms//:aarch64-linux-sdk_0.1.0-ebclfsa
-build:aarch64-ebclfsa --extra_toolchains=@score_ebclfsa_toolchain//:aarch64-linux-sdk_0.1.0-ebclfsa
+build:target_config_5 --config=shared
+build:target_config_5 --platforms=@score_bazel_platforms//:aarch64-linux-sdk_0.1.0-ebclfsa
+build:target_config_5 --extra_toolchains=@score_ebclfsa_toolchain//:aarch64-linux-sdk_0.1.0-ebclfsa

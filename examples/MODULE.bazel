@@ -38,7 +38,7 @@ bazel_dep(name = "googletest", version = "1.17.0")
 # *******************************************************************************
 bazel_dep(
     name = "score_bazel_cpp_toolchains",
-    version = "0.3.0",
+    version = "0.4.0",
 )
 local_path_override(
     module_name = "score_bazel_cpp_toolchains",
@@ -166,12 +166,3 @@ use_repo(
     "score_qcc_arm_toolchain",
     "score_qcc_toolchain",
 )
-
-# register_toolchains(
-#     "@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0",
-#     "@my_toolchain//:x86_64-linux-gcc_12.2.0",
-#     "@score_qcc_toolchain//:x86_64-qnx-sdp_8.0.0",
-#     "@score_qcc_arm_toolchain//:aarch64-qnx-sdp_8.0.0",
-#     "@score_aarch64_gcc_toolchain//:aarch64-linux-gcc_12.2.0",
-#     "@score_autosd_10_toolchain//:x86_64-linux-autosd10",
-# )
