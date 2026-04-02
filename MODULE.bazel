@@ -11,11 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-module(
-    name = "score_bazel_cpp_toolchains",
-    version = "0.4.0",
-    compatibility_level = 0,
-)
+module(name = "score_bazel_cpp_toolchains")
 
 # *******************************************************************************
 # Common useful functions and rules for Bazel
