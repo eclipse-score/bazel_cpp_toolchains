@@ -180,7 +180,7 @@ def _impl(rctx):
             "%{license_info_value}": rctx.attr.license_info_value,
             "%{license_info_variable}": rctx.attr.license_info_variable,
             "%{license_path}": rctx.attr.license_path,
-            "%{sdp_version}": rctx.attr.sdp_version,
+            "%{sdp_version}": "8.0.0" if rctx.attr.sdp_version == "8.0.3" else rctx.attr.sdp_version,  # FIXME: currently we do not support constraint "8.0.3".
             "%{tc_cpu_cxx}": "aarch64le" if rctx.attr.tc_cpu == "aarch64" else rctx.attr.tc_cpu,
             "%{use_license_info}": "False" if rctx.attr.license_info_value == "" else "True",
         }

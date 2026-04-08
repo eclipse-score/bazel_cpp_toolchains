@@ -116,7 +116,7 @@ gcc.toolchain(
 # *******************************************************************************
 gcc.toolchain(
     name = "score_qcc_toolchain",
-    sdp_version = "8.0.0",
+    sdp_version = "8.0.3",
     target_cpu = "x86_64",
     target_os = "qnx",
     use_default_package = True,

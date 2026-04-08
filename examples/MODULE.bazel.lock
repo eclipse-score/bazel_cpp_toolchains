@@ -1044,8 +1044,8 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "TzOSvaP+r8IKPGkVGHmuI71W8WaOYcU99BEHlKf57XA=",
-        "usagesDigest": "/wUYFdM1xKTzS24yegCMuIO8ZBNPa2xMLcpzqWVKLWw=",
+        "bzlTransitiveDigest": "S0aCuoUpbFzRHKbvk3ttYtQovdrirCqH2Ba203MbQ5o=",
+        "usagesDigest": "unK8CU54SxQZb3A5+/fOy5ZHARy5jWDy5NpNfcCVyNA=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -1123,7 +1123,7 @@
                 "https://github.com/eclipse-score/inc_os_autosd/releases/download/continuous/autosd-toolchain-x86_64.tar.gz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/autosd/10.0:autosd.BUILD",
-              "sha256": "525dcca237dfdff3d6c8f3650a0db77a93638141e8c91252544b37447ef9108c",
+              "sha256": "bb5324ec04895eb70b1fcb1787d25856b137962b0381d11f5b3406c37ee15984",
               "strip_prefix": "sysroot"
             }
           },
@@ -1251,7 +1251,7 @@
               "license_info_value": "",
               "license_path": "/opt/score_qnx/license/licenses",
               "sdk_version": "",
-              "sdp_version": "8.0.0",
+              "sdp_version": "8.0.3",
               "tc_compiler_library_search_paths": [],
               "tc_cpu": "x86_64",
               "tc_identifier": "sdp_8.0.0",
