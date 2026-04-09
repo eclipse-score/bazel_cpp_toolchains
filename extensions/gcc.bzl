@@ -215,10 +215,22 @@ def _create_and_link_sdp(toolchain_info):
     """
     pkg_name = "{}_pkg".format(toolchain_info["name"])
 
+    # Resolve package identifier from original version fields, not the
+    # constraint-remapped tc_identifier. tc_identifier may differ from
+    # the actual version (e.g., sdp 8.0.3 is remapped to 8.0.0 for
+    # platform constraint compatibility), but the version matrix uses
+    # the real version.
+    if toolchain_info["sdk_version"] != "":
+        pkg_identifier = "sdk_{}".format(toolchain_info["sdk_version"])
+    elif toolchain_info["sdp_version"] != "":
+        pkg_identifier = "sdp_{}".format(toolchain_info["sdp_version"])
+    else:
+        pkg_identifier = toolchain_info["tc_identifier"]
+
     matrix_key = "{cpu}-{os}{identifier}{runtime_es}".format(
         cpu = toolchain_info["tc_cpu"],
         os = toolchain_info["tc_os"],
-        identifier = "-{}".format(toolchain_info["tc_identifier"]) if toolchain_info["tc_identifier"] != "" else "",
+        identifier = "-{}".format(pkg_identifier) if pkg_identifier != "" else "",
         runtime_es = "-{}".format(toolchain_info["tc_runtime_ecosystem"]) if toolchain_info["tc_runtime_ecosystem"] != "" else "",
     )
     matrix = VERSION_MATRIX[matrix_key]
