@@ -65,7 +65,6 @@ DEFAULT_ARM64_COMPILE_FLAGS = get_flag_group([
 
 # Default compile flags for C language when no specific build type is selected.
 DEFAULT_C_COMPILE_FLAGS = get_flag_group([
-    "-std=c11",
 ])
 
 # Default compile flags for C++ language when no specific build type is selected.

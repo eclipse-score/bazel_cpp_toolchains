@@ -85,6 +85,9 @@ def _impl(ctx):
     dbg_feature = feature(name = "dbg")
     opt_feature = feature(name = "opt")
 
+    # Temp solution until we do not add feature injection
+    gnu11_feature = feature(name = "gnu11")
+
     supports_dynamic_linker_feature = feature(name = "supports_dynamic_linker", enabled = True)
     supports_fission_feature = feature(name = "supports_fission", enabled = True)
 
@@ -206,7 +209,13 @@ def _impl(ctx):
             ),
             flag_set(
                 actions = all_c_compile_actions,
-                flag_groups = DEFAULT_C_COMPILE_FLAGS,
+                flag_groups = [flag_group(flags = ["-std=c11"])],
+                with_features = [with_feature_set(not_features = ["gnu11"])],
+            ),
+            flag_set(
+                actions = all_c_compile_actions,
+                flag_groups = [flag_group(flags = ["-std=gnu11"])],
+                with_features = [with_feature_set(features = ["gnu11"])],
             ),
             flag_set(
                 actions = all_cpp_compile_actions,
@@ -640,6 +649,7 @@ def _impl(ctx):
         ubsan_feature,
         dbg_feature,
         unfiltered_compile_flags_feature,
+        gnu11_feature,
         default_compile_flags_feature,
         default_link_flags_feature,
         sysroot_link_flags_feature,
