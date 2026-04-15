@@ -43,7 +43,7 @@ filegroup(
 
 filegroup(
     name = "cc",
-    srcs = ["usr/bin/aarch64-linux-gnu-gcc-13.bin"],
+    srcs = ["usr/bin/aarch64-linux-gnu-gcc-13"],
 )
 
 filegroup(
@@ -53,7 +53,7 @@ filegroup(
 
 filegroup(
     name = "cxx",
-    srcs = ["usr/bin/aarch64-linux-gnu-g++-13.bin"],
+    srcs = ["usr/bin/aarch64-linux-gnu-g++-13"],
 )
 
 filegroup(

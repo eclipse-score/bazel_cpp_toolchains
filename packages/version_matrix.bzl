@@ -189,9 +189,9 @@ VERSION_MATRIX = {
             "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
             "external/%{toolchain_pkg}%/lib/x86_64-linux-gnu",
         ],
-        "strip_prefix": "fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64",
-        "sha256": "f44286c28d831dc40acdac08ef49f38a2e9cbb057bea38c25834964693785287",
-        "url": "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta1/fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64.tar.gz",
+        "strip_prefix": "fastdev-sdk-ubuntu-ebclfsa-rpi4b",
+        "sha256": "7e253dfdc9756fc329973f12561ff816dfc0102420c881592451aea35e061800",
+        "url": "https://github.com/Eclipse-SDV-HackFest-Esslingen-2026/eb_corbos_toolkit-hackfest/releases/download/2.0.0-beta-hackfest/fastdev-sdk-ubuntu-ebclfsa-rpi4b.tar.gz",
     },
     "x86_64-qnx-sdp_8.0.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
