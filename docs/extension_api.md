@@ -72,6 +72,8 @@ Flag and runtime attributes:
 - `extra_c_compile_flags`
 - `extra_cxx_compile_flags`
 - `extra_link_flags`
+- `extra_known_features`
+- `extra_enabled_features`
 - `ld_library_paths`
 - `runtime_ecosystem`
 - `use_base_constraints_only`
@@ -92,6 +94,21 @@ attributes are:
 - `url`: url of the archive,
 - `sha256`: sha256 of the archive
 - `strip_prefix`: extraction prefix for packaged archives
+
+## Feature Injection
+
+`extra_known_features` and `extra_enabled_features` let a workspace add
+rule-based `cc_feature` targets (defined outside this repository) to the
+generated toolchain:
+
+- `extra_known_features` — registers external features so they can be toggled
+  per target via the `features` attribute or build-wide via `--features`.
+- `extra_enabled_features` — registers *and* enables external features by
+  default.
+
+Sanitizers are the primary use case: they are defined by the
+`score_cpp_policies` module and brought into the toolchain through these
+attributes. See [Toolchain features](features.md#sanitizers-linux-opt-in).
 
 
 ## Activation In A Workspace
@@ -120,5 +137,10 @@ behavior explicitly, see the
 - The extension is intended for the root module.
 - When `use_default_package` is enabled, the version matrix can inject extra
   include and link flags required by non-standard sysroot layouts.
+- Sanitizer features are not registered automatically. They are defined by the
+  `score_cpp_policies` module and made available through *feature injection* —
+  the `extra_known_features` / `extra_enabled_features` attributes on
+  `gcc.toolchain(...)`. See [Toolchain features](features.md#sanitizers-linux-opt-in)
+  for the injected feature names.
 - QNX toolchains use additional licensing and include-path parameters that do
   not apply to Linux toolchains.

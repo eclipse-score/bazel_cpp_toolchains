@@ -1368,7 +1368,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "Of8FuJrUjVWLtlJvJ7FWpS+D0OMsYxR4WbF89GzvPD8=",
+        "bzlTransitiveDigest": "yw9Re6dZy5Gs5l3byDyzu4qgBXBSZQbNHWm89ygsTPA=",
         "usagesDigest": "1UfIz7yPBC2LyOHghQlB2yltcJXkkGH7NQITjVhleH8=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -1468,6 +1468,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [],
               "license_info_variable": "",
               "license_info_value": "",
@@ -1493,6 +1495,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [],
               "license_info_variable": "",
               "license_info_value": "",
@@ -1518,6 +1522,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [],
               "license_info_variable": "",
               "license_info_value": "",
@@ -1543,6 +1549,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [
                 "-lpthread"
               ],
@@ -1570,6 +1578,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [],
               "license_info_variable": "",
               "license_info_value": "",
@@ -1595,6 +1605,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [],
               "license_info_variable": "",
               "license_info_value": "",
@@ -1639,6 +1651,8 @@
                 "-isystem",
                 "external/%{toolchain_pkg}%/usr/include"
               ],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [
                 "-B",
                 "external/%{toolchain_pkg}%/usr/bin",
@@ -1714,6 +1728,8 @@
                 "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
                 "--no-canonical-prefixes"
               ],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [
                 "-B",
                 "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/bin",

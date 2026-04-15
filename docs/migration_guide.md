@@ -97,13 +97,13 @@ toolchain, are summarized below.
 | `gcov` | **Supported, wiring** | `tool_paths` (`gcov_wrapper`) |
 | Warnings (e.g. `-Wall`) added by default | **Linux: opt-in · QNX: on by default** | `minimal_warnings` (includes `-Wall`) is enabled by default on QNX but disabled on Linux. `strict_warnings` / `all_wall_warnings` are opt-in on both. |
 | `-Werror` | **Not implicit — opt-in** | `warnings_as_errors` (disabled by default) |
-| Sanitizers (asan/lsan/tsan/ubsan) | **Not implicit — opt-in (Linux)** | `asan` / `lsan` / `tsan` / `ubsan` (disabled by default) |
+| Sanitizers (asan/lsan/tsan/ubsan) | **Not part of this toolchain — injected (Linux)** | Defined by `score_cpp_policies` (`score_asan` / `score_lsan` / `score_tsan` / `score_ubsan`) and brought in via `extra_known_features` / `extra_enabled_features` |
 | Fully static link (`-static`) | **Not implicit — opt-in** | `fully_static_link` (disabled by default) |
 | `-pthread` | **Not implicit — opt-in (Linux)** | `use_pthread` (disabled by default) |
 | Fission / split DWARF, linkstamps, strip, static-libgcc | **Supported, guarded** | Guarded features; no-ops until the relevant build mode is active |
 | Any other Bazel legacy default not listed above | **Not available** | Must be added explicitly (see below) |
 
-Two categories deserve special attention because they are the most frequent
+Three categories deserve special attention because they are the most frequent
 migration surprises:
 
 1. **Warnings differ by platform.** On **Linux**, all warning features are
@@ -111,8 +111,12 @@ migration surprises:
    **QNX**, `minimal_warnings` (which includes `-Wall`) is enabled by default,
    so those warnings do *not* disappear; `strict_warnings`,
    `all_wall_warnings`, and `-Werror` remain opt-in on both platforms.
-2. **`-pthread`, sanitizers, and fully-static linking are opt-in.** These emit
-   nothing until you enable the corresponding feature.
+2. **`-pthread` and fully-static linking are opt-in.** These emit nothing until
+   you enable the corresponding feature.
+3. **Sanitizers are not part of this toolchain.** They are defined by the
+   `score_cpp_policies` module and must first be injected via
+   `extra_known_features` / `extra_enabled_features` before they can be enabled.
+   See [Toolchain features](features.md#sanitizers-linux-opt-in).
 
 For the authoritative and complete list, always refer to
 [Toolchain features](features.md).
@@ -155,10 +159,12 @@ build:myconfig --host_features=use_pthread
 ### 3. Turn on an opt-in feature that already exists
 
 Many legacy-equivalent behaviors already ship as opt-in features (warnings,
-sanitizers, `fully_static_link`, `use_pthread`, `per_object_debug_info`, ...).
+`fully_static_link`, `use_pthread`, `per_object_debug_info`, ...).
 You do not need to modify the toolchain to use them — enable them with
 mechanism 1 or 2 above. See the *Opt-in* entries in
-[Toolchain features](features.md).
+[Toolchain features](features.md). (Sanitizers are the exception: they are
+defined by `score_cpp_policies` and must first be injected via
+`extra_known_features` / `extra_enabled_features`.)
 
 ### 4. Inject raw flags through the toolchain attributes
 

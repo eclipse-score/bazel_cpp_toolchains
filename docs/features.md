@@ -96,9 +96,18 @@ Opt-in / disabled by default unless noted otherwise.
 - **`warnings_as_errors`** (both) — Adds `-Werror`.
 
 ## Sanitizers (Linux, opt-in)
-- **`sanitizer`** — Base sanitizer feature.
-- **`asan`** / **`lsan`** / **`tsan`** / **`ubsan`** — Address / Leak / Thread /
-  Undefined-Behavior sanitizers; each implies `sanitizer`.
+Sanitizers are **not** defined by this toolchain. They are provided as
+rule-based `cc_feature` definitions by the `score_cpp_policies` module and made
+available through *feature injection* — the `extra_known_features` /
+`extra_enabled_features` attributes on `gcc.toolchain(...)`. Once injected they
+behave like any other opt-in feature.
+
+- **`score_asan`** — AddressSanitizer (`-fsanitize=address`).
+- **`score_lsan`** — LeakSanitizer (`-fsanitize=leak`).
+- **`score_tsan`** — ThreadSanitizer (`-fsanitize=thread`).
+- **`score_ubsan`** — UndefinedBehaviorSanitizer (`-fsanitize=undefined`).
+
+See the `score_cpp_policies` documentation for the authoritative list and usage.
 
 ## Threading
 - **`use_pthread`** (Linux) — Links with `-pthread`.
