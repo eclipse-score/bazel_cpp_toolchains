@@ -72,6 +72,8 @@ Flag and runtime attributes:
 - `extra_c_compile_flags`
 - `extra_cxx_compile_flags`
 - `extra_link_flags`
+- `extra_known_features`
+- `extra_enabled_features`
 - `ld_library_paths`
 - `runtime_ecosystem`
 - `use_base_constraints_only`
@@ -112,5 +114,9 @@ configurations for this activation step.
 - The extension is intended for the root module.
 - When `use_default_package` is enabled, the version matrix can inject extra
   include and link flags required by non-standard sysroot layouts.
+- Sanitizer features are not registered automatically. Workspaces that want
+  sanitizer support must provide the relevant rule-based `cc_feature`
+  definitions explicitly, typically from `score_cpp_policies`, through
+  `extra_known_features` or `extra_enabled_features`.
 - QNX toolchains use additional licensing and include-path parameters that do
   not apply to Linux toolchains.

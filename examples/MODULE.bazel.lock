@@ -165,8 +165,8 @@
     "https://bcr.bazel.build/modules/rules_cc/0.0.8/MODULE.bazel": "964c85c82cfeb6f3855e6a07054fdb159aced38e99a5eecf7bce9d53990afa3e",
     "https://bcr.bazel.build/modules/rules_cc/0.0.9/MODULE.bazel": "836e76439f354b89afe6a911a7adf59a6b2518fafb174483ad78a2a2fde7b1c5",
     "https://bcr.bazel.build/modules/rules_cc/0.1.1/MODULE.bazel": "2f0222a6f229f0bf44cd711dc13c858dad98c62d52bd51d8fc3a764a83125513",
-    "https://bcr.bazel.build/modules/rules_cc/0.2.14/MODULE.bazel": "353c99ed148887ee89c54a17d4100ae7e7e436593d104b668476019023b58df8",
-    "https://bcr.bazel.build/modules/rules_cc/0.2.14/source.json": "55d0a4587c5592fad350f6e698530f4faf0e7dd15e69d43f8d87e220c78bea54",
+    "https://bcr.bazel.build/modules/rules_cc/0.2.17/MODULE.bazel": "1849602c86cb60da8613d2de887f9566a6d354a6df6d7009f9d04a14402f9a84",
+    "https://bcr.bazel.build/modules/rules_cc/0.2.17/source.json": "3832f45d145354049137c0090df04629d9c2b5493dc5c2bf46f1834040133a07",
     "https://bcr.bazel.build/modules/rules_cc/0.2.4/MODULE.bazel": "1ff1223dfd24f3ecf8f028446d4a27608aa43c3f41e346d22838a4223980b8cc",
     "https://bcr.bazel.build/modules/rules_cc/0.2.8/MODULE.bazel": "f1df20f0bf22c28192a794f29b501ee2018fa37a3862a1a2132ae2940a23a642",
     "https://bcr.bazel.build/modules/rules_diff/1.0.0/MODULE.bazel": "1739509d8db9a6cd7d3584822340d3dfe1f9f27e62462fbca60aa061d88741b2",
@@ -423,7 +423,7 @@
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.0.8/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.0.9/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.1.1/MODULE.bazel": "not found",
-    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.2.14/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.2.17/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.2.4/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_cc/0.2.8/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_diff/1.0.0/MODULE.bazel": "not found",
@@ -1902,7 +1902,7 @@
     },
     "@@rules_rust+//crate_universe/private:internal_extensions.bzl%cu_nr": {
       "general": {
-        "bzlTransitiveDigest": "gVtgT7glGR1T+ubbYuYNuRDSxAQJ4d86ZafxsQchHhQ=",
+        "bzlTransitiveDigest": "pkKYmGmCmLXmfoskyn8tfyQRAqAIKifHQs9cZyYY5QE=",
         "usagesDigest": "dQ7SQZ7uSSL3vVKSMBKRxKJUm9OVrZZA+S1/QQfT570=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -2054,7 +2054,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "ffZnV0q7fvKZoTuHJha11Vgfd22yTEYU3paXbuFBu2M=",
+        "bzlTransitiveDigest": "bwOGkDfv3sSgJrEeLpjFYKtqAM/UCo4+wNAf+KhqurE=",
         "usagesDigest": "UGWjRneAyNFej8g6SWlPfmeiX8/dwQzCLxr5gub4nN4=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -2154,6 +2154,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [],
               "license_info_variable": "",
               "license_info_value": "",
@@ -2179,6 +2181,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [],
               "license_info_variable": "",
               "license_info_value": "",
@@ -2204,6 +2208,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [],
               "license_info_variable": "",
               "license_info_value": "",
@@ -2229,6 +2235,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [
                 "-lpthread"
               ],
@@ -2256,6 +2264,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [],
               "license_info_variable": "",
               "license_info_value": "",
@@ -2281,6 +2291,8 @@
               "extra_compile_flags": [],
               "extra_c_compile_flags": [],
               "extra_cxx_compile_flags": [],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [],
               "license_info_variable": "",
               "license_info_value": "",
@@ -2325,6 +2337,8 @@
                 "-isystem",
                 "external/%{toolchain_pkg}%/usr/include"
               ],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [
                 "-B",
                 "external/%{toolchain_pkg}%/usr/bin",
@@ -2400,6 +2414,8 @@
                 "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
                 "--no-canonical-prefixes"
               ],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
               "extra_link_flags": [
                 "-B",
                 "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/bin",

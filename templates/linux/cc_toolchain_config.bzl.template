@@ -27,6 +27,7 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "with_feature_set",
 )
 load("@rules_cc//cc:defs.bzl", "cc_common", "CcToolchainConfigInfo")
+load("@rules_cc//cc/toolchains:feature_injection.bzl", "convert_feature", "FeatureInfo")
 load(":flags.bzl",
     "UNFILTERED_COMPILE_FLAGS",
     "DEFAULT_COMPILE_FLAGS",
@@ -84,9 +85,6 @@ all_actions = all_compile_actions + all_link_actions + [
 def _impl(ctx):
     dbg_feature = feature(name = "dbg")
     opt_feature = feature(name = "opt")
-
-    # Temp solution until we do not add feature injection
-    gnu11_feature = feature(name = "gnu11")
 
     supports_dynamic_linker_feature = feature(name = "supports_dynamic_linker", enabled = True)
     supports_fission_feature = feature(name = "supports_fission", enabled = True)
@@ -208,16 +206,6 @@ def _impl(ctx):
                 flag_groups = target_cpu_flags,
             ),
             flag_set(
-                actions = all_c_compile_actions,
-                flag_groups = [flag_group(flags = ["-std=c11"])],
-                with_features = [with_feature_set(not_features = ["gnu11"])],
-            ),
-            flag_set(
-                actions = all_c_compile_actions,
-                flag_groups = [flag_group(flags = ["-std=gnu11"])],
-                with_features = [with_feature_set(features = ["gnu11"])],
-            ),
-            flag_set(
                 actions = all_cpp_compile_actions,
                 flag_groups = DEFAULT_CXX_COMPILE_FLAGS,
             ),
@@ -284,187 +272,6 @@ def _impl(ctx):
                     ),
                 ],
                 with_features = [with_feature_set(not_features = ["opt"])],
-            ),
-        ],
-    )
-
-    sanitizer_feature = feature(
-        name = "sanitizer",
-        flag_sets = [
-            flag_set(
-                actions = all_compile_actions,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-fno-omit-frame-pointer",
-                            "-fno-sanitize-recover=all", # TODO: Check if this is needed.
-                            "-g",
-                        ],
-                    ),
-                ],
-                with_features = [
-                    with_feature_set(
-                        features = [
-                            "asan",
-                            "lsan",
-                            "tsan",
-                            "ubsan",
-                        ],
-                        not_features = ["opt"],
-                    )
-                ],
-            ),
-        ],
-    )
-
-    asan_feature = feature(
-        name = "asan",
-        implies = ["sanitizer"],
-        flag_sets = [
-            flag_set(
-                actions = all_compile_actions,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-fsanitize=address",
-                            "-DADDRESS_SANITIZER",
-                            "-O0",
-                        ],
-                    ),
-                ],
-                with_features = [
-                    with_feature_set(
-                        not_features = ["opt"],
-                    )
-                ],
-            ),
-            flag_set(
-                actions = all_link_actions,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-fsanitize=address",
-                        ],
-                    ),
-                ],
-                with_features = [
-                    with_feature_set(
-                        not_features = ["opt"],
-                    )
-                ],
-            ),
-        ],
-    )
-
-    lsan_feature = feature(
-        name = "lsan",
-        implies = ["sanitizer"],
-        flag_sets = [
-            flag_set(
-                actions = all_compile_actions,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-fsanitize=leak",
-                            "-O0",
-                        ],
-                    ),
-                ],
-                with_features = [
-                    with_feature_set(
-                        not_features = ["opt"],
-                    )
-                ],
-            ),
-            flag_set(
-                actions = all_link_actions,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-fsanitize=leak",
-                        ],
-                    ),
-                ],
-                with_features = [
-                    with_feature_set(
-                        not_features = ["opt"],
-                    )
-                ],
-            ),
-        ],
-    )
-
-    tsan_feature = feature(
-        name = "tsan",
-        implies = ["sanitizer"],
-        flag_sets = [
-            flag_set(
-                actions = all_compile_actions,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-fsanitize=thread",
-                            "-O1",
-                        ],
-                    ),
-                ],
-                with_features = [
-                    with_feature_set(
-                        not_features = ["opt"],
-                    )
-                ],
-            ),
-            flag_set(
-                actions = all_link_actions,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-fsanitize=thread",
-                        ],
-                    ),
-                ],
-                with_features = [
-                    with_feature_set(
-                        not_features = ["opt"],
-                    )
-                ],
-            ),
-        ],
-    )
-
-    ubsan_feature = feature(
-        name = "ubsan",
-        implies = ["sanitizer"],
-        flag_sets = [
-            flag_set(
-                actions = all_compile_actions,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-fsanitize=undefined",
-                        ],
-                    ),
-                ],
-                with_features = [
-                    with_feature_set(
-                        not_features = ["opt"],
-                    )
-                ],
-            ),
-            flag_set(
-                actions = all_link_actions,
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-fsanitize=undefined",
-                        ],
-                    ),
-                ],
-                with_features = [
-                    with_feature_set(
-                        not_features = ["opt"],
-                    )
-                ],
             ),
         ],
     )
@@ -642,14 +449,8 @@ def _impl(ctx):
 
     features = [
         compiler_library_search_paths_feature,
-        sanitizer_feature,
-        asan_feature,
-        lsan_feature,
-        tsan_feature,
-        ubsan_feature,
         dbg_feature,
         unfiltered_compile_flags_feature,
-        gnu11_feature,
         default_compile_flags_feature,
         default_link_flags_feature,
         sysroot_link_flags_feature,
@@ -670,6 +471,9 @@ def _impl(ctx):
         coverage_feature,
         gcc_coverage_map_format_feature,
     ]
+
+    extra_rules_based_features = depset(ctx.attr.extra_enabled_features + ctx.attr.extra_known_features)
+    features.extend([convert_feature(extra_feature[FeatureInfo], enabled = extra_feature in ctx.attr.extra_enabled_features) for extra_feature in extra_rules_based_features.to_list()])
 
     # Get builtin include directories from attribute if provided
     cxx_builtin_include_directories = []
@@ -715,5 +519,23 @@ cc_toolchain_config = rule(
         "host_dir": attr.label(default = None),
         "target_dir": attr.label(default = None),
         "cxx_builtin_include_directories": attr.label(allow_files = True, default = None),
+        "extra_enabled_features": attr.label_list(
+            providers = [FeatureInfo],
+            default = [],
+            doc = """
+Extra `cc_feature` features to add to this toolchain in an initially enabled state.
+This attribute has limited integration with `cc_feature`, and does not run additional correctness checks or handle things like `data` files.
+This is only offered as a migration bridge for projects transitioning to rule-based toolchain configurations, or sharing of simple argument sets with older toolchains.
+""",
+        ),
+        "extra_known_features": attr.label_list(
+            providers = [FeatureInfo],
+            default = [],
+            doc = """
+Extra `cc_feature` features to add to this toolchain in an initially disabled state.
+This attribute has limited integration with `cc_feature`, and does not run additional correctness checks or handle things like `data` files.
+This is only offered as a migration bridge for projects transitioning to rule-based toolchain configurations, or sharing of simple argument sets with older toolchains.
+""",
+        ),
     },
 )
