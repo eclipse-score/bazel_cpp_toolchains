@@ -68,6 +68,24 @@ _attrs_tc = {
         default = [],
         doc = "List of additional flags to be passed to linker.",
     ),
+    "extra_enabled_features": attr.label_list(
+        mandatory = False,
+        doc = ("Extra `cc_feature` features to add to this toolchain in an initially " +
+               "enabled state. This attribute has limited integration with `cc_feature`, " +
+               "and does not run additional correctness checks or handle things like `data` " +
+               "files. This is only offered as a migration bridge for projects transitioning " +
+               "to rule-based toolchain configurations, or sharing of simple argument sets " +
+               "with older toolchains."),
+    ),
+    "extra_known_features": attr.label_list(
+        mandatory = False,
+        doc = ("Extra `cc_feature` features to add to this toolchain in an initially " +
+               "disabled state. This attribute has limited integration with `cc_feature`, " +
+               "and does not run additional correctness checks or handle things like `data` " +
+               "files. This is only offered as a migration bridge for projects transitioning " +
+               "to rule-based toolchain configurations, or sharing of simple argument sets " +
+               "with older toolchains."),
+    ),
     "license_info_url": attr.string(
         default = "",
         mandatory = False,
@@ -193,6 +211,8 @@ def _get_toolchains(tags):
             "tc_extra_compile_flags": tag.extra_compile_flags,
             "tc_extra_cxx_compile_flags": tag.extra_cxx_compile_flags,
             "tc_extra_link_flags": tag.extra_link_flags,
+            "tc_extra_known_features": tag.extra_known_features,
+            "tc_extra_enabled_features": tag.extra_enabled_features,
             "tc_license_info_url": tag.license_info_url,
             "tc_license_info_variable": tag.license_info_variable,
             "tc_license_path": tag.license_path,
@@ -333,6 +353,8 @@ def _impl(mctx):
             extra_compile_flags = toolchain_info["tc_extra_compile_flags"],
             extra_c_compile_flags = toolchain_info["tc_extra_c_compile_flags"],
             extra_cxx_compile_flags = toolchain_info["tc_extra_cxx_compile_flags"],
+            extra_known_features = toolchain_info["tc_extra_known_features"],
+            extra_enabled_features = toolchain_info["tc_extra_enabled_features"],
             extra_link_flags = toolchain_info["tc_extra_link_flags"],
             license_info_variable = toolchain_info["tc_license_info_variable"],
             license_info_value = toolchain_info["tc_license_info_url"],

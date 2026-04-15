@@ -45,3 +45,14 @@ def get_flag_group(flags):
             ),
         ]
     return []
+
+def label_list_to_string(input_list):
+    """ Small helper function to transform label list into string list
+
+    Args:
+        input_list (list[labels]): A list of Bazel labels.
+
+    Return:
+        str: Formated string
+    """
+    return "[{}]".format(", ".join(["\"{}\"".format(item) for item in input_list]))

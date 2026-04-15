@@ -14,7 +14,7 @@
 """ Module rule for defining GCC toolchains in Bazel.
 """
 
-load("@score_bazel_cpp_toolchains//rules:common.bzl", "get_flag_groups")
+load("@score_bazel_cpp_toolchains//rules:common.bzl", "get_flag_groups", "label_list_to_string")
 
 def dict_union(x, y):
     """ Helper function to merge 2 dict
@@ -53,12 +53,16 @@ cc_toolchain_config(
     sysroot = "@{tc_pkg_repo}//:sysroot_dir",
     target_cpu = "{tc_cpu}",
     target_os = "{tc_os}",
+    extra_known_features = {tc_extra_known_features},
+    extra_enabled_features = {tc_extra_enabled_features},
     visibility = ["//visibility:public"],
 )
 """.format(
         tc_pkg_repo = rctx.attr.tc_pkg_repo,
         tc_cpu = rctx.attr.tc_cpu,
         tc_os = rctx.attr.tc_os,
+        tc_extra_known_features = label_list_to_string(rctx.attr.extra_known_features),
+        tc_extra_enabled_features = label_list_to_string(rctx.attr.extra_enabled_features),
     )
 
 def _get_cc_config_qnx(rctx):
@@ -224,6 +228,8 @@ gcc_toolchain = repository_rule(
         "extra_c_compile_flags": attr.string_list(doc = "Extra/Additional C-specific compile flags."),
         "extra_compile_flags": attr.string_list(doc = "Extra/Additional compile flags."),
         "extra_cxx_compile_flags": attr.string_list(doc = "Extra/Additional C++-specific compile flags."),
+        "extra_known_features": attr.label_list(doc = "Extra/Additional C++ FeatureInfo provider list"),
+        "extra_enabled_features": attr.label_list(doc = "Extra/Additional C++ FeatureInfo provider list enabled by default"),
         "extra_link_flags": attr.string_list(doc = "Extra/Additional link flags."),
         "gcc_version": attr.string(doc = "GCC version string"),
         "use_base_constraints_only": attr.bool(doc = "Boolean flag to state only base constraints should be used for toolchain compatibility definition"),
