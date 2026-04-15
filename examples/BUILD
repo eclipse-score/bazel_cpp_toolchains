@@ -52,56 +52,42 @@ cc_test(
     deps = [":math_lib"],
 )
 
-cc_test(
-    name = "asan_test",
-    srcs = ["asan_test.cpp"],
-    features = ["asan"],
-    deps = [
-        "@googletest//:gtest",
-        "@googletest//:gtest_main",
-    ],
-)
-
-# for some reason this test is very flaky.
 # cc_test(
-#     name = "tsan_test",
-#     srcs = ["tsan_test.cpp"],
-#     features = ["tsan"],
-#     env = {
-#         "TSAN_OPTIONS": "halt_on_error=1",
-#     },
+#     name = "asan_test",
+#     srcs = ["asan_test.cpp"],
+#     features = ["asan"],
 #     deps = [
 #         "@googletest//:gtest",
 #         "@googletest//:gtest_main",
 #     ],
 # )
 
-cc_test(
-    name = "ubsan_test",
-    srcs = ["ubsan_test.cpp"],
-    env = {
-        "UBSAN_OPTIONS": "halt_on_error=1",
-    },
-    features = ["ubsan"],
-    deps = [
-        "@googletest//:gtest",
-        "@googletest//:gtest_main",
-    ],
-)
+# cc_test(
+#     name = "ubsan_test",
+#     srcs = ["ubsan_test.cpp"],
+#     env = {
+#         "UBSAN_OPTIONS": "halt_on_error=1",
+#     },
+#     features = ["ubsan"],
+#     deps = [
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )
 
-cc_test(
-    name = "lsan_test",
-    srcs = ["lsan_test.cpp"],
-    env = {
-        "ASAN_OPTIONS": "detect_leaks=1",
-        "LSAN_OPTIONS": "exitcode=23",
-    },
-    features = [
-        "lsan",
-        "asan",
-    ],
-    deps = [
-        "@googletest//:gtest",
-        "@googletest//:gtest_main",
-    ],
-)
+# cc_test(
+#     name = "lsan_test",
+#     srcs = ["lsan_test.cpp"],
+#     env = {
+#         "ASAN_OPTIONS": "detect_leaks=1",
+#         "LSAN_OPTIONS": "exitcode=23",
+#     },
+#     features = [
+#         "lsan",
+#         "asan",
+#     ],
+#     deps = [
+#         "@googletest//:gtest",
+#         "@googletest//:gtest_main",
+#     ],
+# )

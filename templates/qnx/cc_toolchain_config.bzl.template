@@ -449,6 +449,9 @@ def _impl(ctx):
         runtime_library_search_directories_feature,
     ]
 
+    extra_rules_based_features = depset(ctx.attr.extra_enabled_features + ctx.attr.extra_known_features)
+    features.extend([convert_feature(extra_feature[FeatureInfo], enabled = extra_feature in ctx.attr.extra_enabled_features) for extra_feature in extra_rules_based_features.to_list()])
+
     cxx_builtin_include_directories = [
         "/proc/self/cwd/{}".format(include_directory.path)
         for include_directory in ctx.files.cxx_builtin_include_directories
@@ -482,5 +485,23 @@ cc_toolchain_config = rule(
         "target_cpu": attr.string(mandatory = True),
         "target_os": attr.string(mandatory = True),
         "cxx_builtin_include_directories": attr.label(allow_files = True, mandatory = True),
+        "extra_enabled_features": attr.label_list(
+            providers = [FeatureInfo],
+            default = [],
+            doc = """
+Extra `cc_feature` features to add to this toolchain in an initially enabled state.
+This attribute has limited integration with `cc_feature`, and does not run additional correctness checks or handle things like `data` files.
+This is only offered as a migration bridge for projects transitioning to rule-based toolchain configurations, or sharing of simple argument sets with older toolchains.
+""",
+        ),
+        "extra_known_features": attr.label_list(
+            providers = [FeatureInfo],
+            default = [],
+            doc = """
+Extra `cc_feature` features to add to this toolchain in an initially disabled state.
+This attribute has limited integration with `cc_feature`, and does not run additional correctness checks or handle things like `data` files.
+This is only offered as a migration bridge for projects transitioning to rule-based toolchain configurations, or sharing of simple argument sets with older toolchains.
+""",
+        ),
     },
 )
