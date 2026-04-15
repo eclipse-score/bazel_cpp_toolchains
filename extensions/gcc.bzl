@@ -187,7 +187,7 @@ def _get_toolchains(tags):
             "sdk_version": tag.sdk_version,
             "sdp_to_link": tag.sdp_to_link,
             "sdp_version": tag.sdp_version,
-            "tc_compiler_library_search_paths": [],
+            "tc_compiler_library_search_paths": tag.ld_library_paths,
             "tc_cpu": tag.target_cpu,
             "tc_extra_c_compile_flags": tag.extra_c_compile_flags,
             "tc_extra_compile_flags": tag.extra_compile_flags,
