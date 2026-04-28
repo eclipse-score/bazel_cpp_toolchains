@@ -190,7 +190,7 @@ VERSION_MATRIX = {
             "external/%{toolchain_pkg}%/lib/x86_64-linux-gnu",
         ],
         "strip_prefix": "fastdev-sdk-ubuntu-ebclfsa-rpi4b",
-        "sha256": "7e253dfdc9756fc329973f12561ff816dfc0102420c881592451aea35e061800",
+        "sha256": "22f764e2eefe7d6e4891cb0ae55a24b55a3cd1f6e5dad122dff0569b2e1c68c8",
         "url": "https://github.com/Eclipse-SDV-HackFest-Esslingen-2026/eb_corbos_toolkit-hackfest/releases/download/2.0.0-beta-hackfest/fastdev-sdk-ubuntu-ebclfsa-rpi4b.tar.gz",
     },
     "x86_64-qnx-sdp_8.0.0": {
