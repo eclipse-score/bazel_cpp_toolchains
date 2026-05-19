@@ -20,6 +20,9 @@ filegroup(
     srcs = glob(
         ["*/**/*"],
         exclude = [
+            "dev/**",
+            "proc/**",
+            "sys/**",
             "usr/share/ca-certificates/**",
             "usr/lib/ssl/certs/**",
             "lib/ssl/certs/**",
