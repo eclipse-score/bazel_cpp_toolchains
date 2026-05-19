@@ -133,6 +133,9 @@ VERSION_MATRIX = {
     },
     "aarch64-linux-sdk_0.1.0-ebclfsa": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/ebclfsa/0.1.0:ebclfsa.BUILD",
+        "patch_cmds": [
+            "rm -rf dev proc sys",
+        ],
         "extra_c_compile_flags": [
             "-nostdinc",
             "-isystem",
