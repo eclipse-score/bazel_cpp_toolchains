@@ -44,11 +44,6 @@ _attrs_sdp = {
         default = "",
         doc = "Url to the toolchain archive.",
     ),
-    "patch_cmds": attr.string_list(
-        mandatory = False,
-        default = [],
-        doc = "Shell commands to run after archive extraction and patching.",
-    ),
 }
 
 # GCC interface API for toolchain tag class
@@ -166,7 +161,6 @@ def _get_packages(tags):
         packages.append({
             "build_file": tag.build_file,
             "name": tag.name,
-            "patch_cmds": tag.patch_cmds,
             "sha256": tag.sha256,
             "strip_prefix": tag.strip_prefix,
             "url": tag.url,
@@ -257,7 +251,6 @@ def _create_and_link_sdp(toolchain_info):
     return {
         "build_file": matrix["build_file"],
         "name": pkg_name,
-        "patch_cmds": matrix.get("patch_cmds", []),
         "sha256": matrix["sha256"],
         "strip_prefix": matrix["strip_prefix"],
         "url": matrix["url"],
@@ -330,7 +323,6 @@ def _impl(mctx):
             name = archive_info["name"],
             urls = [archive_info["url"]],
             build_file = archive_info["build_file"],
-            patch_cmds = archive_info["patch_cmds"],
             sha256 = archive_info["sha256"],
             strip_prefix = archive_info["strip_prefix"],
         )
