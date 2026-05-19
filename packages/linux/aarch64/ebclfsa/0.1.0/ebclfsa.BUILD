@@ -74,18 +74,3 @@ filegroup(
     name = "sysroot_dir",
     srcs = ["."],
 )
-
-filegroup(
-    name = "sysroot_safe_for_build_scripts",
-    srcs = glob(
-        ["usr/**"],
-        exclude = [
-            "usr/share/ca-certificates/**",
-            "usr/lib/ssl/certs/**",
-            "usr/share/man/**",
-            "usr/share/perl/**",
-            "usr/share/doc/**",
-            "usr/share/locale/**",
-        ],
-    ),
-)
