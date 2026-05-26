@@ -2,25 +2,25 @@
 
 def _qnx_software_center_repository_impl(repository_ctx):
     """Implementation of the QNX Software Center repository rule."""
-    
+
     installer_label = repository_ctx.attr.installer
     install_dir = repository_ctx.path("qnx_software_center")
-    
+
     # Check if QNX Software Center is already installed
     qnxsoftwarecenter_clt = repository_ctx.path("qnxsoftwarecenter/qnxsoftwarecenter_clt")
-    
+
     if not qnxsoftwarecenter_clt.exists:
         # Download/symlink the installer file
         installer_path = repository_ctx.path(installer_label)
-        
+
         # Make installer executable
         repository_ctx.execute(["chmod", "+x", str(installer_path)])
-        
+
         # Run the installer
         result = repository_ctx.execute(
             [
                 str(installer_path),
-		"--nox11",
+                "--nox11",
                 "force-override disable-auto-start agree-to-license-terms",
                 "disable-auto-start",
                 "agree-to-license-terms",
@@ -32,7 +32,7 @@ def _qnx_software_center_repository_impl(repository_ctx):
 
         if result.return_code != 0:
             fail("Failed to extract QNX Software Center: %s\nStderr: %s" % (result.stdout, result.stderr))
-    
+
     # Create a BUILD file that exports the qnxsoftwarecenter_clt binary
     # Note: The installer extracts to ./qnxsoftwarecenter (not qnx_software_center/qnxsoftwarecenter)
     repository_ctx.file("BUILD", """

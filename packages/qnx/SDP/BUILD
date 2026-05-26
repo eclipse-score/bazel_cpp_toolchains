@@ -34,4 +34,3 @@ sh_binary(
     srcs = ["qnxsoftwarecenter_clt.sh"],
     visibility = ["//visibility:private"],
 )
-
