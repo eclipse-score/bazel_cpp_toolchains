@@ -2,16 +2,16 @@
 
 def _qnx_sdp_distribution_impl(ctx):
     """Implementation of the QNX SDP distribution rule."""
-    
+
     patchset = ctx.file.patchset
     qnxsoftwarecenter_clt = ctx.executable.qnxsoftwarecenter_clt
-    
+
     # Output directory for the SDP distribution
     output_dir = ctx.actions.declare_directory(ctx.attr.name)
-    
+
     # Create a script to run the qnxsoftwarecenter_clt command
     script = ctx.actions.declare_file(ctx.attr.name + "_install.sh")
-    
+
     script_content = """#!/bin/bash
 set -e
 
@@ -19,6 +19,9 @@ set -e
 QNXSOFTWARECENTER_CLT="{qnxsoftwarecenter_clt}"
 PKG_PATCHLIST="{patchset}"
 INSTALL_DIR="{install_dir}"
+
+echo "srini - Installing QNX SDP from patchset $PKG_PATCHLIST using $QNXSOFTWARECENTER_CLT"
+echo "srini - Output directory: $INSTALL_DIR"
 
 # Create output directory
 mkdir -p "$INSTALL_DIR"
@@ -48,13 +51,13 @@ echo "QNX SDP distribution created successfully in $INSTALL_DIR"
         patchset = patchset.path,
         install_dir = output_dir.path,
     )
-    
+
     ctx.actions.write(
         output = script,
         content = script_content,
         is_executable = True,
     )
-    
+
     # Run the installation script
     ctx.actions.run(
         inputs = [patchset, qnxsoftwarecenter_clt],
@@ -67,7 +70,7 @@ echo "QNX SDP distribution created successfully in $INSTALL_DIR"
             "no-sandbox": "1",  # May need to run without sandbox for installer
         },
     )
-    
+
     return [
         DefaultInfo(
             files = depset([output_dir]),
