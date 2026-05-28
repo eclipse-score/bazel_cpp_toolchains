@@ -2054,7 +2054,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "CMQBPgKbvivB4Ck+r1BjukX5I9fIG+1nDvljk9tx4dE=",
+        "bzlTransitiveDigest": "S3P8j4x4Dv6bMa6UG1VGbWiXBX2JINdnL5NIbj36NsA=",
         "usagesDigest": "unK8CU54SxQZb3A5+/fOy5ZHARy5jWDy5NpNfcCVyNA=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},

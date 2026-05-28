@@ -52,7 +52,7 @@ VERSION_MATRIX = {
             "-L",
             "external/%{toolchain_pkg}%/lib",
             "-L",
-            "external/%{toolchain_pkg}%/usr/lib/gcc/x86_64-redhat-linux/14",
+            "external/%{toolchain_pkg}%/usr/lib/gcc/aarch64-redhat-linux/14",
             "-L",
             "external/%{toolchain_pkg}%/usr/lib64",
             "-L",
