@@ -272,7 +272,7 @@ def _resolve_identifier(toolchain_info):
         version = toolchain_info["sdk_version"]
     elif toolchain_info["sdp_version"] != "":
         identifier = "sdp"
-        version = "8.0.0" if toolchain_info["sdp_version"] == "8.0.3" else toolchain_info["sdp_version"]  # FIXME: currently we do not support constraint "8.0.3".
+        version = "8.0.0" if toolchain_info["sdp_version"] == "8.0.4" else toolchain_info["sdp_version"]  # FIXME: currently we do not support constraint "8.0.4".
 
     return "{}_{}".format(identifier, version)
 

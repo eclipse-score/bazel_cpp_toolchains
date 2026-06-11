@@ -2054,8 +2054,8 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "S3P8j4x4Dv6bMa6UG1VGbWiXBX2JINdnL5NIbj36NsA=",
-        "usagesDigest": "unK8CU54SxQZb3A5+/fOy5ZHARy5jWDy5NpNfcCVyNA=",
+        "bzlTransitiveDigest": "iHllDaAh23UGIAhthWRzzGTXxg8CEpo6eu2u8j8xep0=",
+        "usagesDigest": "UGWjRneAyNFej8g6SWlPfmeiX8/dwQzCLxr5gub4nN4=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -2108,10 +2108,10 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
               "urls": [
-                "https://www.qnx.com/download/download/87174/installation_qnx_803_260305.tar.xz"
+                "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
-              "sha256": "9039fd6a4a639f06ea977afb93963a6fe8f8c46db727066709370d999c7232e0",
+              "sha256": "146312c0bf22aab66e8294a06403f2ec6cfeeb074d8fa11549faffd84b7fe778",
               "strip_prefix": ""
             }
           },
@@ -2261,7 +2261,7 @@
               "license_info_value": "",
               "license_path": "/opt/score_qnx/license/licenses",
               "sdk_version": "",
-              "sdp_version": "8.0.3",
+              "sdp_version": "8.0.4",
               "tc_compiler_library_search_paths": [],
               "tc_cpu": "x86_64",
               "tc_identifier": "sdp_8.0.0",

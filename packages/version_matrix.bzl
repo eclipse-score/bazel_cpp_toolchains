@@ -73,11 +73,11 @@ VERSION_MATRIX = {
         "url": "https://www.qnx.com/download/download/79858/installation.tgz",
         "gcc_version": "12.2.0",
     },
-    "aarch64-qnx-sdp_8.0.3": {
+    "aarch64-qnx-sdp_8.0.4": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/aarch64/sdp/8.0.0:sdp.BUILD",
-        "sha256": "9039fd6a4a639f06ea977afb93963a6fe8f8c46db727066709370d999c7232e0",
+        "sha256": "146312c0bf22aab66e8294a06403f2ec6cfeeb074d8fa11549faffd84b7fe778",
         "strip_prefix": "",
-        "url": "https://www.qnx.com/download/download/87174/installation_qnx_803_260305.tar.xz",
+        "url": "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz",
         "gcc_version": "12.2.0",
     },
     "x86_64-linux-gcc_12.2.0": {
@@ -200,11 +200,11 @@ VERSION_MATRIX = {
         "url": "https://www.qnx.com/download/download/79858/installation.tgz",
         "gcc_version": "12.2.0",
     },
-    "x86_64-qnx-sdp_8.0.3": {
+    "x86_64-qnx-sdp_8.0.4": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
-        "sha256": "9039fd6a4a639f06ea977afb93963a6fe8f8c46db727066709370d999c7232e0",
+        "sha256": "146312c0bf22aab66e8294a06403f2ec6cfeeb074d8fa11549faffd84b7fe778",
         "strip_prefix": "",
-        "url": "https://www.qnx.com/download/download/87174/installation_qnx_803_260305.tar.xz",
+        "url": "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz",
         "gcc_version": "12.2.0",
     },
 }
