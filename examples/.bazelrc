@@ -15,6 +15,12 @@
 common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
 common --registry=https://bcr.bazel.build
 
+
+startup 
+--host_jvm_args=-Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts 
+--host_jvm_args=-Djavax.net.ssl.trustStorePassword=changeit 
+--host_jvm_args=-Djavax.net.ssl.trustStoreType=PKCS12
+
 # Shared configuration for simple test execution
 build:shared --incompatible_strict_action_env
 build:shared --sandbox_writable_path=/var/tmp

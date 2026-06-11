@@ -23,21 +23,21 @@ qnx_sdp_distribution(
     visibility = ["//visibility:public"],
 )
 
-# Package the SDP as a tarball for distribution (optional)
-genrule(
-    name = "qnx_sdp_tar",
-    srcs = [":qnx_sdp"],
-    outs = ["qnx803-sdp.tar.gz"],
-    cmd = "tar -czf $@ -C $$(dirname $(location :qnx_sdp)) $$(basename $(location :qnx_sdp))",
-    visibility = ["//visibility:public"],
-)
+# # Package the SDP as a tarball for distribution (optional)
+# genrule(
+#     name = "qnx_sdp_tar",
+#     srcs = [":qnx_sdp"],
+#     outs = ["qnx803-sdp.tar.gz"],
+#     cmd = "tar -czf $@ -C $$(dirname $(location :qnx_sdp)) $$(basename $(location :qnx_sdp))",
+#     visibility = ["//visibility:public"],
+# )
 
 # Create a filegroup that references the output directory
-filegroup(
-    name = "qnx_sdp_files",
-    srcs = [":qnx_sdp"],
-    visibility = ["//visibility:public"],
-)
+# filegroup(
+#     name = "qnx_sdp_files",
+#     srcs = [":qnx_sdp"],
+#     visibility = ["//visibility:public"],
+# )
 
 # Local stub for qnxsoftwarecenter_clt so the package can be built inside this
 # repository for testing. Replace with the real installer binary when integrating
