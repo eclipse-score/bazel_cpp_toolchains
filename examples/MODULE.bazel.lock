@@ -2463,6 +2463,33 @@
         ]
       }
     },
+    "@@score_bazel_cpp_toolchains+//extensions:qnxsoftwarecentre_clt.bzl%qnxsoftwarecentre_clt": {
+      "general": {
+        "bzlTransitiveDigest": "oBeS4wjA6cAUahYXFbW15Pi6xyC21RYA8dEJIxzjIUQ=",
+        "usagesDigest": "wsJaKFV56kCMb0WUN3bWEsnaWpUPxD30Q4OcOGnwlbY=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "qnx_swc_clt": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
+            "attributes": {
+              "url": "https://www.qnx.com/download/download/79441/qnx-setup-2.0.4-202501021438-linux.run",
+              "sha256": "5695a0ec8a1fd91840753b2cba86a9325f6052d4f69c757166cc61b09bcbe507",
+              "executable": true,
+              "downloaded_file_path": "qnx-swc-setup.run"
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "score_bazel_cpp_toolchains+",
+            "bazel_tools",
+            "bazel_tools"
+          ]
+        ]
+      }
+    },
     "@@tar.bzl+//tar:extensions.bzl%toolchains": {
       "general": {
         "bzlTransitiveDigest": "/2afh6fPjq/rcyE/jztQDK3ierehmFFngfvmqyRv72M=",
