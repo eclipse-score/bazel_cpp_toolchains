@@ -19,6 +19,7 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "env_entry",
     "env_set",
     "feature",
+    "feature_set",
     "flag_group",
     "flag_set",
     "tool",
@@ -424,6 +425,31 @@ def _impl(ctx):
         ],
     )
 
+    coverage_feature = feature(name = "coverage")
+    gcc_coverage_map_format_feature = feature(
+        name = "gcc_coverage_map_format",
+        provides = ["profile"],
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.preprocess_assemble,
+                ],
+                flag_groups = [flag_group(
+                    expand_if_available = "gcov_gcno_file",
+                    flags = ["-fprofile-arcs", "-ftest-coverage"],
+                )],
+            ),
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [flag_group(flags = ["-lgcov"])],
+            ),
+        ],
+        requires = [feature_set(features = ["coverage"])],
+    )
+
     # The order of the features is relevant, they are applied in this specific order.
     # A command line parameter from a feature at the end of the list will appear
     # after a command line parameter from a feature at the beginning of the list.
@@ -447,12 +473,17 @@ def _impl(ctx):
         supports_dynamic_linker_feature,
         supports_pic_feature,
         runtime_library_search_directories_feature,
+        coverage_feature,
+        gcc_coverage_map_format_feature,
     ]
 
     cxx_builtin_include_directories = [
         "/proc/self/cwd/{}".format(include_directory.path)
         for include_directory in ctx.files.cxx_builtin_include_directories
     ]
+
+    # TODO: Once https://github.com/bazelbuild/rules_cc/issues/351 is fixed remove this.
+    tool_paths = [tool_path(name = "gcov", path = "gcov_wrapper")]
 
     return cc_common.create_cc_toolchain_config_info(
         ctx = ctx,
@@ -467,6 +498,7 @@ def _impl(ctx):
         target_cpu =  "%{tc_cpu}",
         target_libc = "unknown",
         toolchain_identifier = "%{tc_cpu}-qnx%{sdp_version}",
+        tool_paths = tool_paths,
     )
 
 cc_toolchain_config = rule(
@@ -476,6 +508,7 @@ cc_toolchain_config = rule(
         "ar_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
         "cc_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
         "cxx_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "gcov_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
         "strip_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
         "host_dir": attr.label(allow_single_file = True, mandatory = True),
         "target_dir": attr.label(allow_single_file = True, mandatory = True),
