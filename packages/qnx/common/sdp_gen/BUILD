@@ -1,5 +1,5 @@
 # *******************************************************************************
-# Copyright (c) 2025 Contributors to the Eclipse Foundation
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -11,10 +11,12 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-load("@rules_python//python:defs.bzl", "py_binary")
+""" TODO: Write docstring
+"""
 
-py_binary(
-    name = "qnx_sdp_install",
-    srcs = ["qnx_sdp_install.py"],
-    visibility = ["//visibility:public"],
-)
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "qnx_sdp_install.py",
+    "patchset-qnx803-virtio.plist",
+])

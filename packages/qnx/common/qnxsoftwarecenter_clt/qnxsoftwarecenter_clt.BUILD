@@ -14,14 +14,17 @@ package(default_visibility = [
     "//visibility:public",
 ])
 
-filegroup(
-    name = "qnxsoftwarecenter_clt",
-    srcs = ["qnxsoftwarecenter/qnxsoftwarecenter_clt"],
-)
+exports_files(["qnxsoftwarecenter/qnxsoftwarecenter_clt"])
+
+# filegroup(
+#     name = "qnxsoftwarecenter_clt",
+#     srcs = ["qnxsoftwarecenter/qnxsoftwarecenter_clt"],
+# )
 
 filegroup(
     name = "all_files",
-    srcs = glob(["qnxsoftwarecenter/**"], 
+    srcs = glob(
+        ["qnxsoftwarecenter/**"],
         exclude = ["qnxsoftwarecenter/qnxsoftwarecenter_clt"],
     ),
 )

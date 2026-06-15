@@ -17,6 +17,7 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@score_bazel_cpp_toolchains//packages:version_matrix.bzl", "VERSION_MATRIX")
 load("@score_bazel_cpp_toolchains//rules:gcc.bzl", "gcc_toolchain")
+load("@score_bazel_cpp_toolchains//rules:qnx_sdp_gen.bzl", "qnx_sdp_gen")
 
 # GCC interface API for archive tag class
 _attrs_sdp = {
@@ -43,6 +44,17 @@ _attrs_sdp = {
         mandatory = False,
         default = "",
         doc = "Url to the toolchain archive.",
+    ),
+    "qnxsoftwarecenter_clt": attr.label(
+        mandatory = False,
+        default = None,
+        doc = "Label pointing to the qnxsoftwarecenter_clt installer target.",
+    ),
+    "patchset": attr.label(
+        allow_single_file = True,
+        mandatory = False,
+        default = None,
+        doc = "The patchset file that defines the QNX SDP distribution.",
     ),
 }
 
@@ -164,6 +176,8 @@ def _get_packages(tags):
             "sha256": tag.sha256,
             "strip_prefix": tag.strip_prefix,
             "url": tag.url,
+            "qnxsoftwarecenter_clt": tag.qnxsoftwarecenter_clt,
+            "patchset": tag.patchset,
         })
     return packages
 
@@ -319,13 +333,23 @@ def _impl(mctx):
     """
     toolchains, archives = _get_info(mctx)
     for archive_info in archives:
-        http_archive(
-            name = archive_info["name"],
-            urls = [archive_info["url"]],
-            build_file = archive_info["build_file"],
-            sha256 = archive_info["sha256"],
-            strip_prefix = archive_info["strip_prefix"],
-        )
+        if "qnxsoftwarecenter_clt" in archive_info and archive_info["qnxsoftwarecenter_clt"] != None:
+            # If qnxsoftwarecenter_clt is provided, it means that the archive should be created from the QNX Software Center installer.
+            # The qnxsoftwarecenter_clt rule will handle the download and extraction of the installer, so we don't need to create an http_archive for it.
+            qnx_sdp_gen(
+                name = archive_info["name"],
+                qnxsoftwarecenter_clt = archive_info["qnxsoftwarecenter_clt"],
+                patchset = archive_info["patchset"],
+                build_file = archive_info["build_file"],
+            )
+        else:
+            http_archive(
+                name = archive_info["name"],
+                urls = [archive_info["url"]],
+                build_file = archive_info["build_file"],
+                sha256 = archive_info["sha256"],
+                strip_prefix = archive_info["strip_prefix"],
+            )
 
     for toolchain_info in toolchains:
         gcc_toolchain(
