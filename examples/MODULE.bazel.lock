@@ -2063,8 +2063,8 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "R/6FvhjzrDDjCDc6n3/BQz4d46VZCeL+DJb8j1uug6Y=",
-        "usagesDigest": "+5GIzhh62hgyBDSjDpbNP7rgJav0DTrSXrV2ScN2NhY=",
+        "bzlTransitiveDigest": "NCPT/ox6NqLrAr6SE77/ecgT7qQBqugqcvnu1+2LETY=",
+        "usagesDigest": "gM1HpykXXuxKgAGffkCUtrV8rcL1ePVdqjkvNUAjWNw=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -2084,7 +2084,7 @@
             "repoRuleId": "@@score_bazel_cpp_toolchains+//rules:qnx_sdp_gen.bzl%qnx_sdp_gen",
             "attributes": {
               "qnxsoftwarecenter_clt": "@@score_bazel_cpp_toolchains++qnxsoftwarecentre+qnx_swc//:qnxsoftwarecenter/qnxsoftwarecenter_clt",
-              "patchset": "@@score_bazel_cpp_toolchains+//packages/qnx/common/sdp_gen:patchset-qnx803-virtio.plist",
+              "patchset": "@@score_bazel_cpp_toolchains+//packages/qnx/common/sdp_gen:patchset.plist",
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD"
             }
           },
@@ -2512,7 +2512,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:qnxsoftwarecentre.bzl%qnxsoftwarecentre": {
       "general": {
-        "bzlTransitiveDigest": "2YihH9/5oKhaCMh/Xw/LEhKVE0L8DIcLg47SArmOf0E=",
+        "bzlTransitiveDigest": "qWaBUr+ERdL2lkzQLdnqsq//iyzFPIYD0Tk38TeI/I8=",
         "usagesDigest": "/wD/VzOsXDDbiKTVDho6i0xYjVaIfmccvoYyMgzAaNw=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},

@@ -159,22 +159,13 @@ gcc.toolchain(
 # *******************************************************************************
 # Setting local build SDP GCC (CPU:x86_64|OS:Linux|V:12.2.0|ES:posix)
 # *******************************************************************************
-qnxsoftwarecentre = use_extension("@score_bazel_cpp_toolchains//extensions:qnxsoftwarecentre.bzl", "qnxsoftwarecentre", dev_dependency = True)
-qnxsoftwarecentre.installer(
-    name = "qnx_swc",
-    sha256 = "5695a0ec8a1fd91840753b2cba86a9325f6052d4f69c757166cc61b09bcbe507",
-    url = "https://www.qnx.com/download/download/79441/qnx-setup-2.0.4-202501021438-linux.run",
-)
-use_repo(
-    qnxsoftwarecentre,
-    "qnx_swc",
-)
-
 gcc.sdp(
     name = "score_local_sdp",
+    buiild_sdp = True,
     build_file = "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
-    patchset = "@score_bazel_cpp_toolchains//packages/qnx/common/sdp_gen:patchset-qnx803-virtio.plist",
-    qnxsoftwarecenter_clt = "@qnx_swc//:qnxsoftwarecenter/qnxsoftwarecenter_clt",
+    patchset = "@score_bazel_cpp_toolchains//packages/qnx/common/sdp_gen:patchset.plist",
+    sha256 = "5695a0ec8a1fd91840753b2cba86a9325f6052d4f69c757166cc61b09bcbe507",
+    url = "https://www.qnx.com/download/download/79441/qnx-setup-2.0.4-202501021438-linux.run",
 )
 gcc.toolchain(
     name = "score_gcc_toolchain_local_sdp",

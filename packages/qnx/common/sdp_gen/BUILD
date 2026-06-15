@@ -18,5 +18,5 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files([
     "qnx_sdp_install.py",
-    "patchset-qnx803-virtio.plist",
+    "patchset.plist",
 ])

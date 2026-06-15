@@ -50,6 +50,12 @@ def _qnxsoftwarecenter_clt_impl(rctx):
         {},
     )
 
+    rctx.file(
+        "qnxsoftwarecenter/local_sdp/.keep",
+        "",
+        executable = False,
+    )
+
 qnxsoftwarecenter_clt = repository_rule(
     implementation = _qnxsoftwarecenter_clt_impl,
     attrs = {

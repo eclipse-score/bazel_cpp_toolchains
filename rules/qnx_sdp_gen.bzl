@@ -15,21 +15,21 @@
 """
 
 def _qnx_sdp_gen_impl(rctx):
-    result = rctx.execute(
-        [
-            str(rctx.path(rctx.attr.qnx_sdp_gen_script)),
-            "--qnxsoftwarecenter-clt",
-            str(rctx.path(rctx.attr.qnxsoftwarecenter_clt)),
-            "--patchset",
-            str(rctx.path(rctx.attr.patchset)),
-            "--install-dir",
-            ".",
-        ],
-        timeout = 300,  # 5 minutes timeout
-        quiet = False,
-    )
-    if result.return_code != 0:
-        fail("Failed to extract build SDP: %s\nStderr: %s" % (result.stdout, result.stderr))
+    # result = rctx.execute(
+    #     [
+    #         str(rctx.path(rctx.attr.qnx_sdp_gen_script)),
+    #         "--qnxsoftwarecenter-clt",
+    #         str(rctx.path(rctx.attr.qnxsoftwarecenter_clt)),
+    #         "--patchset",
+    #         str(rctx.path(rctx.attr.patchset)),
+    #         "--install-dir",
+    #         "./local_sdp",
+    #     ],
+    #     timeout = 300,  # 5 minutes timeout
+    #     quiet = False,
+    # )
+    # if result.return_code != 0:
+    #     fail("Failed to extract build SDP: %s\nStderr: %s" % (result.stdout, result.stderr))
 
     rctx.template(
         "BUILD",
