@@ -52,7 +52,7 @@ qnxsoftwarecentre.installer(
     sha256 = "5695a0ec8a1fd91840753b2cba86a9325f6052d4f69c757166cc61b09bcbe507",
 )
 use_repo(
-    qnxsoftwarecentre_clt,
+    qnxsoftwarecentre,
     "qnx_swc",
 )
 # *******************************************************************************

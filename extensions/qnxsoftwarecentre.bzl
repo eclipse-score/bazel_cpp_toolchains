@@ -14,6 +14,7 @@
 """Bazel module extension for QNX repositories."""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+load("@score_bazel_cpp_toolchains//rules:qnxsoftwarecenter_clt.bzl", "qnxsoftwarecenter_clt")
 
 _attrs_qnx_swc = {
     "name": attr.string(
@@ -22,7 +23,7 @@ _attrs_qnx_swc = {
     ),
     "build_file": attr.label(
         mandatory = False,
-        default = "@score_bazel_cpp_toolchains//packages/qnx/common/qnxsoftwarecenter_clt/qnxsoftwarecenter_clt.BUILD",
+        default = "@score_bazel_cpp_toolchains//packages/qnx/common/qnxsoftwarecenter_clt:qnxsoftwarecenter_clt.BUILD",
         doc = "The path to the BUILD file of qnxsoftwarecentre_clt.",
     ),
     "sha256": attr.string(
@@ -65,22 +66,15 @@ def _qnx_software_centre_impl(mctx):
     qnx_swc_infos = _get_swc_info(root.tags.installer)
 
     # Download the QNX installer
-    for qnx_swc_info in qnx_swc_infos:
-        print(qnx_swc_info["name"])
-        http_file(
-            name = qnx_swc_info["name"],
+    for qnx_swc_info in qnx_swc_infos:   
+        # Create the QNX Software Center repository
+        print("{}".format(qnx_swc_info["name"]))
+        qnxsoftwarecenter_clt(
+            name = "{}".format(qnx_swc_info["name"]),
             url = qnx_swc_info["url"],
+            build_file = qnx_swc_info["build_file"],
             sha256 = qnx_swc_info["sha256"],
-            executable = True,
-            downloaded_file_path = "qnx-swc-setup.run",
         )
-
-    # Create the QNX Software Center repository
-    qnxsoftwarecenter_clt(
-        name = "qnxsoftwarecenter_clt",
-        installer = "@{}//file".format(qnx_swc_info["name"]),
-        build_file = qnx_swc_info["build_file"],
-    )
 
 qnxsoftwarecentre = module_extension(
     implementation = _qnx_software_centre_impl,
