@@ -62,13 +62,12 @@ def _qnx_software_centre_impl(mctx):
         if not mod.is_root:
             fail("Only the root module can use the 'gcc' extension!")
         root = mod
-    
+
     qnx_swc_infos = _get_swc_info(root.tags.installer)
 
     # Download the QNX installer
-    for qnx_swc_info in qnx_swc_infos:   
+    for qnx_swc_info in qnx_swc_infos:
         # Create the QNX Software Center repository
-        print("{}".format(qnx_swc_info["name"]))
         qnxsoftwarecenter_clt(
             name = "{}".format(qnx_swc_info["name"]),
             url = qnx_swc_info["url"],

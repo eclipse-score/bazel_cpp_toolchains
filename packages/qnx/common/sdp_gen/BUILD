@@ -11,14 +11,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-# QNX SDP Distribution Build
+load("@rules_python//python:defs.bzl", "py_binary")
 
-load(":qnx_sdp.bzl", "qnx_sdp_distribution")
-
-# Create the QNX SDP distribution from the patchset file
-qnx_sdp_gen(
-    name = "qnx_sdp",
-    patchset = "patchset-qnx803-virtio.plist",
-    qnxsoftwarecenter_clt = ":qnxsoftwarecenter_clt",
+py_binary(
+    name = "qnx_sdp_install",
+    srcs = ["qnx_sdp_install.py"],
     visibility = ["//visibility:public"],
 )
