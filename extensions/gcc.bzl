@@ -33,7 +33,7 @@ _attrs_sdp = {
     "sha256": attr.string(
         mandatory = False,
         default = "",
-        doc = "Checksum of the archive.",
+        doc = "Checksum of the archive or QNX Software Center installer script.",
     ),
     "strip_prefix": attr.string(
         mandatory = False,
@@ -43,18 +43,22 @@ _attrs_sdp = {
     "url": attr.string(
         mandatory = False,
         default = "",
-        doc = "Url to the toolchain archive.",
-    ),
-    "qnxsoftwarecenter_clt": attr.label(
-        mandatory = False,
-        default = None,
-        doc = "Label pointing to the qnxsoftwarecenter_clt installer target.",
+        doc = "Url to the toolchain archive or QNX Software Center installer script.",
     ),
     "patchset": attr.label(
         allow_single_file = True,
         mandatory = False,
         default = None,
         doc = "The patchset file that defines the QNX SDP distribution.",
+    ),
+    "build_sdp": attr.bool(
+        default = False,
+        doc = "Whether to build the QNX SDP.",
+    ),
+    "target_cpu": attr.string(
+        mandatory = False,
+        default = "",
+        doc = "Target platform CPU - use only when building QNX SDP."
     ),
 }
 
@@ -176,8 +180,9 @@ def _get_packages(tags):
             "sha256": tag.sha256,
             "strip_prefix": tag.strip_prefix,
             "url": tag.url,
-            "qnxsoftwarecenter_clt": tag.qnxsoftwarecenter_clt,
             "patchset": tag.patchset,
+            "build_sdp": tag.build_sdp,
+            "target_cpu": tag.target_cpu,
         })
     return packages
 
@@ -333,14 +338,16 @@ def _impl(mctx):
     """
     toolchains, archives = _get_info(mctx)
     for archive_info in archives:
-        if "qnxsoftwarecenter_clt" in archive_info and archive_info["qnxsoftwarecenter_clt"] != None:
-            # If qnxsoftwarecenter_clt is provided, it means that the archive should be created from the QNX Software Center installer.
-            # The qnxsoftwarecenter_clt rule will handle the download and extraction of the installer, so we don't need to create an http_archive for it.
+        if "build_sdp" in archive_info and archive_info["build_sdp"]:
+            # If build_sdp is True, it means that the archive should be created from the QNX Software Center installer.
+            # The qnx_sdp_gen rule will handle the download and extraction of the installer, so we don't need to create an http_archive for it.
             qnx_sdp_gen(
                 name = archive_info["name"],
-                qnxsoftwarecenter_clt = archive_info["qnxsoftwarecenter_clt"],
+                url = archive_info["url"],
+                sha256 = archive_info["sha256"],
                 patchset = archive_info["patchset"],
                 build_file = archive_info["build_file"],
+                target_cpu = archive_info["target_cpu"],
             )
         else:
             http_archive(

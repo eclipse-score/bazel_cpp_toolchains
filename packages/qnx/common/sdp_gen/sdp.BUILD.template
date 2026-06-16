@@ -1,0 +1,74 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+package(default_visibility = [
+    "//visibility:public",
+])
+
+filegroup(
+    name = "all_files",
+    srcs = glob(["*/**/*"]),
+)
+
+filegroup(
+    name = "cxx_builtin_include_directories",
+    srcs = [
+        "%{install_dir}/host/linux/x86_64/usr/lib/gcc/%{target}-pc-nto-qnx8.0.0/12.2.0/include",
+        "%{install_dir}/target/qnx/usr/include",
+        "%{install_dir}/target/qnx/usr/include/c++/v1",
+    ],
+)
+
+filegroup(
+    name = "ar",
+    srcs = ["%{install_dir}/host/linux/x86_64/usr/bin/%{target}-pc-nto-qnx8.0.0-ar"],
+)
+
+filegroup(
+    name = "cc",
+    srcs = ["%{install_dir}/host/linux/x86_64/usr/bin/qcc"],
+)
+
+filegroup(
+    name = "cxx",
+    srcs = ["%{install_dir}/host/linux/x86_64/usr/bin/q++"],
+)
+
+filegroup(
+    name = "strip",
+    srcs = ["%{install_dir}/host/linux/x86_64/usr/bin/%{target}-pc-nto-qnx8.0.0-strip"],
+)
+
+filegroup(
+    name = "host_all",
+    srcs = glob(["%{install_dir}/host/linux/x86_64/**/*"]),
+)
+
+filegroup(
+    name = "host_dir",
+    srcs = ["%{install_dir}/host/linux/x86_64"],
+)
+
+filegroup(
+    name = "target_all",
+    srcs = glob(["%{install_dir}/target/qnx/**/*"]),
+)
+
+filegroup(
+    name = "target_dir",
+    srcs = ["%{install_dir}/target/qnx"],
+)
+
+filegroup(
+    name = "mkifs",
+    srcs = ["%{install_dir}/host/linux/x86_64/usr/bin/mkifs"],
+)

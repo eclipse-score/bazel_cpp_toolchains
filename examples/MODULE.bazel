@@ -161,19 +161,40 @@ gcc.toolchain(
 # *******************************************************************************
 gcc.sdp(
     name = "score_local_sdp",
-    buiild_sdp = True,
-    build_file = "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
+    build_sdp = True,
+    build_file = "@score_bazel_cpp_toolchains//packages/qnx/common/sdp_gen:sdp.BUILD.template",
     patchset = "@score_bazel_cpp_toolchains//packages/qnx/common/sdp_gen:patchset.plist",
     sha256 = "5695a0ec8a1fd91840753b2cba86a9325f6052d4f69c757166cc61b09bcbe507",
     url = "https://www.qnx.com/download/download/79441/qnx-setup-2.0.4-202501021438-linux.run",
+    target_cpu = "x86_64",
 )
 gcc.toolchain(
     name = "score_gcc_toolchain_local_sdp",
     sdp_to_link = "score_local_sdp",
+    target_os = "qnx",
     target_cpu = "x86_64",
-    target_os = "linux",
     version = "12.2.0",
+    sdp_version = "8.0.0",
 )
+
+gcc.sdp(
+    name = "score_local_sdp_arm64",
+    build_sdp = True,
+    build_file = "@score_bazel_cpp_toolchains//packages/qnx/common/sdp_gen:sdp.BUILD.template",
+    patchset = "@score_bazel_cpp_toolchains//packages/qnx/common/sdp_gen:patchset.plist",
+    sha256 = "5695a0ec8a1fd91840753b2cba86a9325f6052d4f69c757166cc61b09bcbe507",
+    url = "https://www.qnx.com/download/download/79441/qnx-setup-2.0.4-202501021438-linux.run",
+    target_cpu = "aarch64",
+)
+gcc.toolchain(
+    name = "score_gcc_toolchain_local_sdp_arm64",
+    sdp_to_link = "score_local_sdp_arm64",
+    target_os = "qnx",
+    target_cpu = "aarch64",
+    version = "12.2.0",
+    sdp_version = "8.0.0",
+)
+
 use_repo(
     gcc,
     "my_toolchain",
@@ -184,6 +205,8 @@ use_repo(
     "score_gcc_toolchain_bp",
     "score_gcc_toolchain_local_sdp",
     "score_local_sdp",
+    "score_gcc_toolchain_local_sdp_arm64",
+    "score_local_sdp_arm64",
     "score_qcc_arm_toolchain",
     "score_qcc_toolchain",
 )

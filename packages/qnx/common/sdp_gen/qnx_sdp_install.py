@@ -71,10 +71,10 @@ def main() -> None:
     install_dir = Path(args.install_dir)
 
     print(
-        f"srini - Installing QNX SDP from patchset {patchset} "
+        f"Installing QNX SDP from patchset {patchset} "
         f"using {qnxsoftwarecenter_clt}"
     )
-    print(f"srini - Output directory: {install_dir}")
+    print(f"Output directory: {install_dir}")
 
     install_dir.mkdir(parents=True, exist_ok=True)
 

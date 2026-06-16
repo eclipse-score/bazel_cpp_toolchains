@@ -15,26 +15,58 @@
 """
 
 def _qnx_sdp_gen_impl(rctx):
-    # result = rctx.execute(
-    #     [
-    #         str(rctx.path(rctx.attr.qnx_sdp_gen_script)),
-    #         "--qnxsoftwarecenter-clt",
-    #         str(rctx.path(rctx.attr.qnxsoftwarecenter_clt)),
-    #         "--patchset",
-    #         str(rctx.path(rctx.attr.patchset)),
-    #         "--install-dir",
-    #         "./local_sdp",
-    #     ],
-    #     timeout = 300,  # 5 minutes timeout
-    #     quiet = False,
-    # )
-    # if result.return_code != 0:
-    #     fail("Failed to extract build SDP: %s\nStderr: %s" % (result.stdout, result.stderr))
+
+    output = rctx.download(
+        url = rctx.attr.url,
+        output = "qnx-swc-setup.run",
+        sha256 = rctx.attr.sha256,
+        executable = True,
+    )
+
+    # Make installer executable
+    rctx.execute(["chmod", "+x", "./qnx-swc-setup.run"], quiet = True)
+
+    # Run the installer
+    result = rctx.execute(
+        [
+            "./qnx-swc-setup.run",
+            "--nox11",
+            "force-override disable-auto-start agree-to-license-terms",
+            "disable-auto-start",
+            "agree-to-license-terms",
+            ".",
+        ],
+        timeout = 300,  # 5 minutes timeout
+        quiet = False,
+    )
+    if result.return_code != 0:
+        fail("Failed to extract QNX Software Center: %s\nStderr: %s" % (result.stdout, result.stderr))
+
+    
+    rctx.execute(["mkdir", "install"], quiet = True)
+    result = rctx.execute(
+    [
+        str(rctx.path(rctx.attr.qnx_sdp_gen_script)),
+        "--qnxsoftwarecenter-clt",
+        "./qnxsoftwarecenter/qnxsoftwarecenter_clt",
+        "--patchset",
+        str(rctx.path(rctx.attr.patchset)),
+        "--install-dir",
+        "./install",
+    ],
+        timeout = 300,  # 5 minutes timeout
+        quiet = False,
+    )
+    if result.return_code != 0:
+        fail("Failed to extract build SDP: %s\nStderr: %s" % (result.stdout, result.stderr))
 
     rctx.template(
         "BUILD",
         rctx.attr.build_file,
-        {},
+        {
+            "%{install_dir}": "install",
+            "%{target_cpu}": rctx.attr.target_cpu,
+        },
     )
 
 qnx_sdp_gen = repository_rule(
@@ -50,10 +82,21 @@ qnx_sdp_gen = repository_rule(
             mandatory = True,
             doc = "The patchset file that defines the QNX SDP distribution",
         ),
-        "qnxsoftwarecenter_clt": attr.label(
+        "url": attr.string(
+            mandatory = True,
+            doc = "URL pointing to the QNX Software Center installer script.",
+        ),
+        "sha256": attr.string(
+            mandatory = True,
+            doc = "SHA256 checksum of the QNX Software Center installer script.",
+        ),
+        "target_cpu": attr.string(
             mandatory = False,
-            default = None,
-            doc = "Label pointing to the qnxsoftwarecenter_clt installer target.",
+            default = "x86_64",
+            values = [
+                "x86_64",
+                "aarch64",
+            ],
         ),
         "qnx_sdp_gen_script": attr.label(
             allow_single_file = True,

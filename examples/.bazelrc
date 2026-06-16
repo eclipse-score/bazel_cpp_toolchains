@@ -75,3 +75,17 @@ build:target_config_4 --extra_toolchains=@score_autosd_10_toolchain//:x86_64-lin
 build:target_config_5 --config=shared
 build:target_config_5 --platforms=@score_bazel_platforms//:aarch64-linux-sdk_0.1.0-ebclfsa
 build:target_config_5 --extra_toolchains=@score_ebclfsa_toolchain//:aarch64-linux-sdk_0.1.0-ebclfsa
+
+# -------------------------------------------------------------------------------
+# Toolchain configuration for x86_64-qnx (target)
+# -------------------------------------------------------------------------------
+build:target_config_6 --config=host_config_1
+build:target_config_6 --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:target_config_6 --extra_toolchains=@score_gcc_toolchain_local_sdp//:x86_64-qnx-sdp_8.0.0
+
+# -------------------------------------------------------------------------------
+# Toolchain configuration for aarch64-qnx (target)
+# -------------------------------------------------------------------------------
+build:target_config_7 --config=host_config_1
+build:target_config_7 --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
+build:target_config_7 --extra_toolchains=@score_gcc_toolchain_local_sdp_arm64//:aarch64-qnx-sdp_8.0.0

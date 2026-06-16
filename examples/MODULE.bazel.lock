@@ -2063,8 +2063,8 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "NCPT/ox6NqLrAr6SE77/ecgT7qQBqugqcvnu1+2LETY=",
-        "usagesDigest": "gM1HpykXXuxKgAGffkCUtrV8rcL1ePVdqjkvNUAjWNw=",
+        "bzlTransitiveDigest": "dys20NERx5PBT+YbT92ksFCyKlUYtUdWbwzI1BvWOu4=",
+        "usagesDigest": "BNl4qPUw/XcqrrexXNSH5qOyVZZIRl2HudccZdm+srw=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -2083,9 +2083,21 @@
           "score_local_sdp": {
             "repoRuleId": "@@score_bazel_cpp_toolchains+//rules:qnx_sdp_gen.bzl%qnx_sdp_gen",
             "attributes": {
-              "qnxsoftwarecenter_clt": "@@score_bazel_cpp_toolchains++qnxsoftwarecentre+qnx_swc//:qnxsoftwarecenter/qnxsoftwarecenter_clt",
+              "url": "https://www.qnx.com/download/download/79441/qnx-setup-2.0.4-202501021438-linux.run",
+              "sha256": "5695a0ec8a1fd91840753b2cba86a9325f6052d4f69c757166cc61b09bcbe507",
               "patchset": "@@score_bazel_cpp_toolchains+//packages/qnx/common/sdp_gen:patchset.plist",
-              "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD"
+              "build_file": "@@score_bazel_cpp_toolchains+//packages/qnx/common/sdp_gen:sdp.BUILD.template",
+              "target_cpu": "x86_64"
+            }
+          },
+          "score_local_sdp_arm64": {
+            "repoRuleId": "@@score_bazel_cpp_toolchains+//rules:qnx_sdp_gen.bzl%qnx_sdp_gen",
+            "attributes": {
+              "url": "https://www.qnx.com/download/download/79441/qnx-setup-2.0.4-202501021438-linux.run",
+              "sha256": "5695a0ec8a1fd91840753b2cba86a9325f6052d4f69c757166cc61b09bcbe507",
+              "patchset": "@@score_bazel_cpp_toolchains+//packages/qnx/common/sdp_gen:patchset.plist",
+              "build_file": "@@score_bazel_cpp_toolchains+//packages/qnx/common/sdp_gen:sdp.BUILD.template",
+              "target_cpu": "aarch64"
             }
           },
           "score_gcc_toolchain_bp_pkg": {
@@ -2466,27 +2478,47 @@
               "license_info_value": "",
               "license_path": "/opt/score_qnx/license/licenses",
               "sdk_version": "",
-              "sdp_version": "",
+              "sdp_version": "8.0.0",
               "tc_compiler_library_search_paths": [],
               "tc_cpu": "x86_64",
-              "tc_identifier": "gcc_12.2.0",
-              "tc_os": "linux",
+              "tc_identifier": "sdp_8.0.0",
+              "tc_os": "qnx",
               "tc_pkg_repo": "score_local_sdp",
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "",
               "gcc_version": "12.2.0",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_config.bzl.template",
+              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_flags.bzl.template",
+              "use_base_constraints_only": false
+            }
+          },
+          "score_gcc_toolchain_local_sdp_arm64": {
+            "repoRuleId": "@@score_bazel_cpp_toolchains+//rules:gcc.bzl%gcc_toolchain",
+            "attributes": {
+              "extra_compile_flags": [],
+              "extra_c_compile_flags": [],
+              "extra_cxx_compile_flags": [],
+              "extra_link_flags": [],
+              "license_info_variable": "",
+              "license_info_value": "",
+              "license_path": "/opt/score_qnx/license/licenses",
+              "sdk_version": "",
+              "sdp_version": "8.0.0",
+              "tc_compiler_library_search_paths": [],
+              "tc_cpu": "aarch64",
+              "tc_identifier": "sdp_8.0.0",
+              "tc_os": "qnx",
+              "tc_pkg_repo": "score_local_sdp_arm64",
+              "tc_system_toolchain": false,
+              "tc_runtime_ecosystem": "",
+              "gcc_version": "12.2.0",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_config.bzl.template",
+              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_flags.bzl.template",
               "use_base_constraints_only": false
             }
           }
         },
         "recordedRepoMappingEntries": [
-          [
-            "",
-            "qnx_swc",
-            "score_bazel_cpp_toolchains++qnxsoftwarecentre+qnx_swc"
-          ],
           [
             "",
             "score_bazel_cpp_toolchains",
@@ -2497,37 +2529,6 @@
             "rules_cc",
             "rules_cc+"
           ],
-          [
-            "score_bazel_cpp_toolchains+",
-            "bazel_tools",
-            "bazel_tools"
-          ],
-          [
-            "score_bazel_cpp_toolchains+",
-            "score_bazel_cpp_toolchains",
-            "score_bazel_cpp_toolchains+"
-          ]
-        ]
-      }
-    },
-    "@@score_bazel_cpp_toolchains+//extensions:qnxsoftwarecentre.bzl%qnxsoftwarecentre": {
-      "general": {
-        "bzlTransitiveDigest": "qWaBUr+ERdL2lkzQLdnqsq//iyzFPIYD0Tk38TeI/I8=",
-        "usagesDigest": "/wD/VzOsXDDbiKTVDho6i0xYjVaIfmccvoYyMgzAaNw=",
-        "recordedFileInputs": {},
-        "recordedDirentsInputs": {},
-        "envVariables": {},
-        "generatedRepoSpecs": {
-          "qnx_swc": {
-            "repoRuleId": "@@score_bazel_cpp_toolchains+//rules:qnxsoftwarecenter_clt.bzl%qnxsoftwarecenter_clt",
-            "attributes": {
-              "url": "https://www.qnx.com/download/download/79441/qnx-setup-2.0.4-202501021438-linux.run",
-              "build_file": "@@score_bazel_cpp_toolchains+//packages/qnx/common/qnxsoftwarecenter_clt:qnxsoftwarecenter_clt.BUILD",
-              "sha256": "5695a0ec8a1fd91840753b2cba86a9325f6052d4f69c757166cc61b09bcbe507"
-            }
-          }
-        },
-        "recordedRepoMappingEntries": [
           [
             "score_bazel_cpp_toolchains+",
             "bazel_tools",

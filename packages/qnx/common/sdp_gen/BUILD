@@ -19,4 +19,5 @@ package(default_visibility = ["//visibility:public"])
 exports_files([
     "qnx_sdp_install.py",
     "patchset.plist",
+    "sdp.BUILD.template",
 ])
