@@ -10,10 +10,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+import importlib.util
+
 project = "S-CORE Bazel C/C++ Toolchain configurations"
 project_url = "https://eclipse-score.github.io/bazel_cpp_toolchains"
 version = "0.1"
-extensions = [
+
+_optional_extensions = [
     "sphinxcontrib.plantuml",
     "score_sphinx_bundle",
+]
+
+extensions = [
+    ext for ext in _optional_extensions if importlib.util.find_spec(ext) is not None
 ]
