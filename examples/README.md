@@ -1,67 +1,136 @@
 # Bazel C++ Toolchains Examples
 
-This directory contains example C++ projects demonstrating how to use the SCORE Bazel C++ toolchains with various target platforms and configurations.
+This directory contains a small C++ workspace used to smoke-test the toolchain
+configurations declared in `.bazelrc`.
 
-## Configuration Details
+## Workspace Layout
 
-The toolchain configurations are defined in:
-- **`.bazelrc`** - Build configurations and platform settings
-- **`MODULE.bazel`** - Toolchain dependencies and setup
+- `.bazelrc` declares the example toolchain configurations.
+- `MODULE.bazel` wires the example workspace to this repository through `local_path_override`.
+- `tests/toolchain_smoke_tests.sh` is the source of truth for the toolchain smoke-test matrix.
+- `test.sh` is a thin compatibility wrapper around the test runner.
 
-## Building Targets
+## Default Targets
 
-### Default Toolchain
+Run the example targets with the default toolchain:
 
-Build a specific target with the default toolchain:
 ```bash
 bazel build //:main_cpp
 bazel test //:math_lib_test
 ```
 
-### x86_64 Linux Builds
+## Toolchain Smoke Tests
 
-**Using the default GCC toolchain with pthread support:**
+List the available smoke-test cases:
+
+```bash
+./tests/toolchain_smoke_tests.sh --list
+```
+
+Run the full matrix:
+
+```bash
+./test.sh
+```
+
+Run a subset of configurations:
+
+```bash
+./test.sh host_config_1 target_config_3
+```
+
+Keep running after a failure to collect the full result set:
+
+```bash
+./test.sh --keep-going
+```
+
+The runner isolates Bazel output per configuration outside the workspace under
+`${XDG_CACHE_HOME:-$HOME/.cache}/score-bazel-cpp-toolchains/examples/` by default,
+so the checks do not depend on `bazel clean --expunge` between cases. Set
+`TOOLCHAIN_TEST_OUTPUT_ROOT` if you want to redirect that state.
+
+## Smoke-Test Coverage
+
+| Config | Coverage |
+| --- | --- |
+| `host_config_1` | Build `//:main_pthread_cpp`, run `//:math_lib_test` |
+| `host_config_2` | Build `//:main_cpp`, run `//:math_lib_test` |
+| `host_config_3` | Build `//:main_cpp`, run `//:math_lib_test` |
+| `target_config_1` | Build `//:main_cpp` |
+| `target_config_2` | Build `//:main_cpp` |
+| `target_config_3` | Build `//:main_cpp`, build `//:main_pthread_cpp` |
+| `target_config_4` | Build `//:main_cpp` |
+| `target_config_5` | Build `//:main_cpp`, build `//:main_pthread_cpp` |
+| `target_config_6` | Build `//:main_cpp` |
+| `target_config_7` | Build `//:main_cpp` |
+
+## Manual Commands By Platform
+
+### x86_64 Linux
+
+Default GCC host toolchain with pthread support:
+
 ```bash
 bazel build --config=host_config_1 //:main_pthread_cpp
 bazel test --config=host_config_1 //:math_lib_test
 ```
 
-**Using the custom GCC toolchain:**
+Custom GCC host toolchain:
+
 ```bash
 bazel build --config=host_config_2 //:main_cpp
+bazel test --config=host_config_2 //:math_lib_test
 ```
 
-**Using the base platform configuration:**
+Base-platform host toolchain:
+
 ```bash
-bazel build --config=x86_64-linux //:main_cpp
+bazel build --config=host_config_3 //:main_cpp
+bazel test --config=host_config_3 //:math_lib_test
 ```
 
 ### aarch64 Linux Cross-Compilation
 
-**Build for ARM64 Linux:**
+Generic ARM64 Linux toolchain:
+
 ```bash
 bazel build --config=target_config_3 //:main_cpp
 bazel build --config=target_config_3 //:main_pthread_cpp
 ```
 
-**Build for EB corbos Linux for Safety Applications (ARM64):**
+EB corbos Linux for Safety Applications toolchain:
+
 ```bash
-bazel build --config=aarch64-ebclfsa //:main_cpp
-bazel build --config=aarch64-ebclfsa //:main_pthread_cpp
-bazel test  --config=aarch64-ebclfsa //:math_lib_test # this works if you have qemu-user-static installed and configured correctly
+bazel build --config=target_config_5 //:main_cpp
+bazel build --config=target_config_5 //:main_pthread_cpp
 ```
 
 ### QNX Target Builds
 
-> **Note:** Take care of license requirements when using these toolchains and dependencies in your projects.
-            See main README.md for details.
+Take care of license requirements when using these toolchains and dependencies in
+your projects. See the repository README for details.
 
-**Build for x86_64 QNX:**
+Packaged x86_64 QNX toolchain:
+
 ```bash
 bazel build --config=target_config_1 //:main_cpp
 ```
 
-**Build for aarch64 QNX:**
+Packaged aarch64 QNX toolchain:
+
 ```bash
 bazel build --config=target_config_2 //:main_cpp
+```
+
+Local-SDP x86_64 QNX toolchain:
+
+```bash
+bazel build --config=target_config_6 //:main_cpp
+```
+
+Local-SDP aarch64 QNX toolchain:
+
+```bash
+bazel build --config=target_config_7 //:main_cpp
 ```
