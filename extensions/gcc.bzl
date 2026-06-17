@@ -51,14 +51,20 @@ _attrs_sdp = {
         default = None,
         doc = "The patchset file that defines the QNX SDP distribution.",
     ),
-    "build_sdp": attr.bool(
-        default = False,
-        doc = "Whether to build the QNX SDP.",
+    # Build mode
+    "mode": attr.string(
+        mandatory = False,
+        default = "archive",
+        values = [
+            "archive",
+            "build",
+        ],
+        doc = "Build mode :: How the SDP is obtained: `archive` downloads/unpacks it, `build` builds it locally.",
     ),
     "target_cpu": attr.string(
         mandatory = False,
         default = "",
-        doc = "Target platform CPU - use only when building QNX SDP."
+        doc = "Build mode :: Target platform CPU for which the SDP should be built, required if mode is set to `build`.",
     ),
 }
 
@@ -181,7 +187,7 @@ def _get_packages(tags):
             "strip_prefix": tag.strip_prefix,
             "url": tag.url,
             "patchset": tag.patchset,
-            "build_sdp": tag.build_sdp,
+            "mode": tag.mode,
             "target_cpu": tag.target_cpu,
         })
     return packages
@@ -223,6 +229,33 @@ def _get_toolchains(tags):
         toolchains.append(toolchain)
     return toolchains
 
+def _apply_matrix_overrides(matrix, toolchain_info):
+    """Applies overrides from the version matrix to the toolchain information.
+
+    Args:
+        matrix: A dict containing version matrix information.
+        toolchain_info: A dict holding toolchain information.
+
+    Returns:
+        dict: Updated toolchain information with applied overrides.
+    """
+    mappings = [
+        ("extra_c_compile_flags", "tc_extra_c_compile_flags", False),
+        ("extra_cxx_compile_flags", "tc_extra_cxx_compile_flags", False),
+        ("extra_link_flags", "tc_extra_link_flags", False),
+        ("gcc_version", "gcc_version", False),
+        ("compiler_library_search_paths", "tc_compiler_library_search_paths", True),
+    ]
+
+    for matrix_key, toolchain_key, overwrite in mappings:
+        if matrix_key not in matrix:
+            continue
+
+        if overwrite or not toolchain_info[toolchain_key]:
+            toolchain_info[toolchain_key] = matrix[matrix_key]
+
+    return toolchain_info
+
 def _create_and_link_sdp(toolchain_info):
     """ Create new archive based on information provided in extension.
 
@@ -255,17 +288,10 @@ def _create_and_link_sdp(toolchain_info):
     matrix = VERSION_MATRIX[matrix_key]
     toolchain_info["sdp_to_link"] = pkg_name
 
-    # TODO: Put this in separate function so that we can easy extend it (if needed).
-    if "extra_c_compile_flags" in matrix and not toolchain_info["tc_extra_c_compile_flags"]:
-        toolchain_info["tc_extra_c_compile_flags"] = matrix["extra_c_compile_flags"]
-    if "extra_cxx_compile_flags" in matrix and not toolchain_info["tc_extra_cxx_compile_flags"]:
-        toolchain_info["tc_extra_cxx_compile_flags"] = matrix["extra_cxx_compile_flags"]
-    if "extra_link_flags" in matrix and not toolchain_info["tc_extra_link_flags"]:
-        toolchain_info["tc_extra_link_flags"] = matrix["extra_link_flags"]
-    if "gcc_version" in matrix and not toolchain_info["gcc_version"]:
-        toolchain_info["gcc_version"] = matrix["gcc_version"]
-    if "compiler_library_search_paths" in matrix:
-        toolchain_info["tc_compiler_library_search_paths"] = matrix["compiler_library_search_paths"]
+    toolchain_info = _apply_matrix_overrides(
+        matrix,
+        toolchain_info,
+    )
 
     return {
         "build_file": matrix["build_file"],
@@ -273,6 +299,7 @@ def _create_and_link_sdp(toolchain_info):
         "sha256": matrix["sha256"],
         "strip_prefix": matrix["strip_prefix"],
         "url": matrix["url"],
+        "mode": "archive",
     }
 
 def _resolve_identifier(toolchain_info):
@@ -338,9 +365,7 @@ def _impl(mctx):
     """
     toolchains, archives = _get_info(mctx)
     for archive_info in archives:
-        if "build_sdp" in archive_info and archive_info["build_sdp"]:
-            # If build_sdp is True, it means that the archive should be created from the QNX Software Center installer.
-            # The qnx_sdp_gen rule will handle the download and extraction of the installer, so we don't need to create an http_archive for it.
+        if archive_info["mode"] == "build":
             qnx_sdp_gen(
                 name = archive_info["name"],
                 url = archive_info["url"],
@@ -349,7 +374,7 @@ def _impl(mctx):
                 build_file = archive_info["build_file"],
                 target_cpu = archive_info["target_cpu"],
             )
-        else:
+        elif archive_info["mode"] == "archive":
             http_archive(
                 name = archive_info["name"],
                 urls = [archive_info["url"]],
@@ -357,6 +382,8 @@ def _impl(mctx):
                 sha256 = archive_info["sha256"],
                 strip_prefix = archive_info["strip_prefix"],
             )
+        else:
+            fail("Invalid mode '{}' for archive '{}'. Supported modes are 'archive' and 'build'.".format(archive_info["mode"], archive_info["name"]))
 
     for toolchain_info in toolchains:
         gcc_toolchain(

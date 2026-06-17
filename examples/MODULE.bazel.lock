@@ -2063,8 +2063,8 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "dys20NERx5PBT+YbT92ksFCyKlUYtUdWbwzI1BvWOu4=",
-        "usagesDigest": "BNl4qPUw/XcqrrexXNSH5qOyVZZIRl2HudccZdm+srw=",
+        "bzlTransitiveDigest": "xdJXjuoayOOxBYA/UzbOObUr22sSQPVLH414BZFeB6A=",
+        "usagesDigest": "zoS2lB0OfzidSFTtH/iiog5wsIn4o56wcz5EMjKeof4=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},

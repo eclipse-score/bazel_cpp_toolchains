@@ -63,6 +63,10 @@ def main() -> None:
         required=True,
         help="Output installation directory.",
     )
+    parser.add_argument(
+        "--http-proxy",
+        help="HTTP proxy URL to use for qnxsoftwarecenter_clt, e.g. http://host:port.",
+    )
 
     args = parser.parse_args()
 
@@ -78,16 +82,22 @@ def main() -> None:
 
     install_dir.mkdir(parents=True, exist_ok=True)
 
-    proxy_host, proxy_port = parse_proxy(os.environ.get("http_proxy", ""))
+    proxy_host, proxy_port = parse_proxy(args.http_proxy or os.environ.get("http_proxy", ""))
 
     qnx_user, qnx_password = get_qnx_credentials()
 
     cmd = [
         str(qnxsoftwarecenter_clt),
-        "-proxy.host",
-        proxy_host,
-        "-proxy.port",
-        proxy_port,
+    ]
+    if proxy_host and proxy_port:
+        cmd += [
+            "-proxy.host",
+            proxy_host,
+            "-proxy.port",
+            proxy_port,
+        ]
+
+    cmd += [
         "-myqnx.user",
         qnx_user,
         "-myqnx.password",
