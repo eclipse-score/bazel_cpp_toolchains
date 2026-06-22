@@ -63,8 +63,8 @@ different.
 A standalone Bazel workspace used as an integration surface. It declares
 representative toolchain configurations and validates them with a smoke-test
 runner.
-> NOTE: This tests are just for sanity check. They should not be used as reference
-> poinst for platform development.
+> NOTE: These tests are just a sanity check. They should not be used as reference
+> points for platform development.
 
 `tools/`
 
