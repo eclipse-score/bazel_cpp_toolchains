@@ -69,6 +69,7 @@ filegroup(
     name = "all_files",
     srcs = [
         "@{tc_pkg_repo}//:all_files",
+        "gcov_wrapper",
     ]
 )
 
@@ -77,6 +78,7 @@ cc_toolchain_config(
     ar_binary = "@{tc_pkg_repo}//:ar",
     cc_binary = "@{tc_pkg_repo}//:cc",
     cxx_binary = "@{tc_pkg_repo}//:cxx",
+    gcov_binary = "@{tc_pkg_repo}//:gcov",
     strip_binary = "@{tc_pkg_repo}//:strip",
     host_dir = "@{tc_pkg_repo}//:host_dir",
     target_dir = "@{tc_pkg_repo}//:target_dir",
@@ -180,7 +182,7 @@ def _impl(rctx):
             "%{license_info_value}": rctx.attr.license_info_value,
             "%{license_info_variable}": rctx.attr.license_info_variable,
             "%{license_path}": rctx.attr.license_path,
-            "%{sdp_version}": "8.0.0" if rctx.attr.sdp_version == "8.0.3" else rctx.attr.sdp_version,  # FIXME: currently we do not support constraint "8.0.3".
+            "%{sdp_version}": "8.0.0" if rctx.attr.sdp_version == "8.0.4" else rctx.attr.sdp_version,  # FIXME: currently we do not support constraint "8.0.4".
             "%{tc_cpu_cxx}": "aarch64le" if rctx.attr.tc_cpu == "aarch64" else rctx.attr.tc_cpu,
             "%{use_license_info}": "False" if rctx.attr.license_info_value == "" else "True",
         }
@@ -208,6 +210,24 @@ def _impl(rctx):
                 "%{tc_gcov_path}": "external/score_bazel_cpp_toolchains++gcc+{repo}/bin/{cpu}-unknown-linux-gnu-gcov".format(
                     repo = rctx.attr.tc_pkg_repo,
                     cpu = "aarch64le" if rctx.attr.tc_cpu == "aarch64" else rctx.attr.tc_cpu,
+                ),
+            },
+        )
+    elif rctx.attr.tc_os == "qnx":
+        # Generate gcov wrapper for QNX toolchains to enable `bazel coverage`.
+        # See: https://github.com/bazelbuild/rules_cc/issues/351
+        sdp_version = "8.0.0" if rctx.attr.sdp_version == "8.0.4" else rctx.attr.sdp_version  # FIXME: currently we do not support constraint "8.0.4".
+        if rctx.attr.tc_cpu == "aarch64":
+            gcov_triple = "aarch64-unknown-nto-qnx{sdp}".format(sdp = sdp_version)
+        else:
+            gcov_triple = "{cpu}-pc-nto-qnx{sdp}".format(cpu = rctx.attr.tc_cpu, sdp = sdp_version)
+        rctx.template(
+            "gcov_wrapper",
+            rctx.attr._cc_gcov_wrapper_script,
+            {
+                "%{tc_gcov_path}": "external/score_bazel_cpp_toolchains++gcc+{repo}/host/linux/x86_64/usr/bin/{triple}-gcov".format(
+                    repo = rctx.attr.tc_pkg_repo,
+                    triple = gcov_triple,
                 ),
             },
         )
