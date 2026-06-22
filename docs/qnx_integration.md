@@ -28,7 +28,7 @@ Relevant `gcc.toolchain(...)` attributes are:
 - `license_info_url`
 
 The default shared license path is `/opt/score_qnx/license/licenses`. This has been
-agreed with all modules owners and platform developers.
+agreed with all module owners and platform developers.
 
 ## Credential Helper
 
