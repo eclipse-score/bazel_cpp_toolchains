@@ -56,7 +56,7 @@ Holds the template files used by repository rules. These templates are
 rendered into the generated toolchain repository and differ between Linux and
 QNX because the execution environment, sysroot layout, and licensing model are
 different.
-> NOTE: Future plan is to have single template for toolchain configuiration.
+> NOTE: Future plan is to have a single template for toolchain configuration.
 
 `examples/`
 
