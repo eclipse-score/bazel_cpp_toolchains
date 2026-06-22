@@ -27,7 +27,8 @@ Relevant `gcc.toolchain(...)` attributes are:
 - `license_info_variable`
 - `license_info_url`
 
-The default shared license path is `/opt/score_qnx/license/licenses`.
+The default shared license path is `/opt/score_qnx/license/licenses`. This has been
+agreed with all modules owners and platform developers.
 
 ## Credential Helper
 
@@ -36,7 +37,7 @@ Authenticated QNX downloads are handled by the standalone script
 
 Its purpose is to translate locally available QNX credentials into the cookie
 header format expected by `qnx.com` download endpoints. Bazel executes it via
-`--credential_helper`; it is not referenced as a Bazel target.
+`--credential_helper`;
 
 Supported registration patterns include:
 

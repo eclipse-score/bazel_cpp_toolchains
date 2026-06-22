@@ -56,24 +56,17 @@ Holds the template files used by repository rules. These templates are
 rendered into the generated toolchain repository and differ between Linux and
 QNX because the execution environment, sysroot layout, and licensing model are
 different.
+> NOTE: Future plan is to have single template for toolchain configuiration.
 
 `examples/`
 
 A standalone Bazel workspace used as an integration surface. It declares
 representative toolchain configurations and validates them with a smoke-test
 runner.
+> NOTE: This tests are just for sanity check. They should not be used as reference
+> poinst for platform development.
 
 `tools/`
 
 Contains utility scripts that Bazel executes directly, most notably the QNX
 credential helper used for authenticated downloads from `qnx.com`.
-
-## How These Pieces Relate
-
-Each directory is part of a single flow:
-
-- `packages/` defines *what* to fetch,
-- `templates/` define *what to generate*,
-- `rules/` define *how to generate it*,
-- `extensions/` define *how consumers ask for it*,
-- `examples/` prove that the generated result actually works.

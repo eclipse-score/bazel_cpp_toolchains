@@ -44,11 +44,11 @@ them as `cc_toolchain` targets:
 
 The current repository surface supports these platform families:
 
-- Linux `x86_64` with packaged GCC toolchains
-- Linux `aarch64` with packaged GCC toolchains
-- Linux runtime-specific variants such as AutoSD and EB corbos Linux for Safety Applications
-- QNX `x86_64` with packaged or locally built SDP-based toolchains
-- QNX `aarch64` with packaged or locally built SDP-based toolchains
+- Linux AMD64 (`x86_64-linux`) with packaged GCC toolchains
+- Linux ARM64 (`aarch64-linux`) with packaged GCC toolchains
+- Linux runtime-specific variants (`x86_64-linux`, `aarch64-linux`) such as `AutoSD` and `EB corbos Linux for Safety Applications`
+- QNX AMD64 (`x86_64-qnx`) with packaged or locally built SDP-based toolchains
+- QNX ARM64 (`aarch64-qnx`) with packaged or locally built SDP-based toolchains
 
 ## Core Design Model
 

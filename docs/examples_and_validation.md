@@ -24,6 +24,12 @@ It demonstrates how consumers declare toolchains while also serving as the main
 smoke-test surface for validating that the generated toolchains can build and,
 where appropriate, run example targets.
 
+These examples are intended only for sanity testing global changes on the
+module extension side. They are not a reference point for full platform setup.
+For a proper build on a dedicated platform, consumers must consult the
+relevant platform developers and owners rather than relying on these examples
+as a platform configuration guide.
+
 ## Important Files
 
 `examples/MODULE.bazel`
@@ -69,7 +75,7 @@ cd examples
 
 ## What The Tests Prove
 
-The example workspace is not intended to be an exhaustive compiler correctness
+As stated before, the example workspace is not intended to be an exhaustive compiler correctness
 suite. Instead, it answers a narrower question: did the configuration
 repository produce a usable toolchain definition for each supported scenario?
 
