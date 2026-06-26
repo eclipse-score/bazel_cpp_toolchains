@@ -70,14 +70,19 @@ Shared template:
 
 - Some package definitions rely on the `%{toolchain_pkg}%` placeholder, which
   is rewritten to the canonical Bzlmod repository name during repository-rule
-  generation.
+  generation. This is handled by the `_get_canonical_pkg_name()` helper in
+  `rules/gcc.bzl`.
 - QNX `aarch64` is mapped internally to `aarch64le` where required by the
-  underlying SDK layout.
-- SDP version `8.0.4` is normalized to `8.0.0` in the generated toolchain
-  configuration because platform constraint support currently uses the older
-  identifier.
+  underlying SDK layout. This normalization is a QNX-specific convention,
+  centralized in the `_normalize_cpu()` helper. Linux toolchain binaries use
+  the CPU name unchanged (e.g., `aarch64-unknown-linux-gnu-gcov`).
+- SDP version mapping is handled through the `_SDP_VERSION_MAPPING` configuration
+  in `rules/gcc.bzl`. Currently, SDP version `8.0.4` is mapped to `8.0.0` because
+  platform constraint support uses the older identifier. This mapping is
+  configurable for future extensibility.
 - Linux toolchains generate an extra `gcov_wrapper` script to work around the
-  current `rules_cc` coverage integration behavior.
+  current `rules_cc` coverage integration behavior. The gcov path uses the
+  `{cpu}-unknown-linux-gnu-gcov` naming convention.
 
 ## Version Matrix Responsibilities
 

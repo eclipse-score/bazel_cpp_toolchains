@@ -16,7 +16,17 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@score_bazel_cpp_toolchains//packages:version_matrix.bzl", "VERSION_MATRIX")
+load("@score_bazel_cpp_toolchains//rules:common.bzl", "SDP_VERSION_MAPPING")
 load("@score_bazel_cpp_toolchains//rules:gcc.bzl", "gcc_toolchain")
+
+# Constants
+_PACKAGE_SUFFIX = "_pkg"
+_IDENTIFIER_GCC = "gcc"
+_IDENTIFIER_SDK = "sdk"
+_IDENTIFIER_SDP = "sdp"
+_SUPPORTED_CPUS = ["x86_64", "aarch64"]
+_SUPPORTED_OSS = ["linux", "qnx"]
+_SDP_VERSION_MAPPING = SDP_VERSION_MAPPING
 
 # GCC interface API for archive tag class
 _attrs_sdp = {
@@ -113,18 +123,12 @@ _attrs_tc = {
     ),
     "target_cpu": attr.string(
         mandatory = True,
-        values = [
-            "x86_64",
-            "aarch64",
-        ],
+        values = _SUPPORTED_CPUS,
         doc = "Target platform CPU",
     ),
     "target_os": attr.string(
         mandatory = True,
-        values = [
-            "linux",
-            "qnx",
-        ],
+        values = _SUPPORTED_OSS,
         doc = "Target platform OS",
     ),
     "use_default_package": attr.bool(
@@ -148,13 +152,13 @@ _attrs_tc = {
 }
 
 def _get_packages(tags):
-    """Gets archive information from given tags.
+    """Converts archive tags to package dictionaries.
 
     Args:
-        tags: A list of tags containing archive information.
+        tags: list of archive tag objects containing package information.
 
     Returns:
-        dict: A dictionary with archive information.
+        list of dict: Each dict contains 'build_file', 'name', 'sha256', 'strip_prefix', 'url'.
     """
     packages = []
     for tag in tags:
@@ -168,13 +172,13 @@ def _get_packages(tags):
     return packages
 
 def _get_toolchains(tags):
-    """Gets toolchain information from given tags.
+    """Converts toolchain tags to toolchain configuration dictionaries.
 
     Args:
-        tags: A list of tags containing toolchain information.
+        tags: list of toolchain tag objects containing toolchain configuration.
 
     Returns:
-        dict: A dictionary with toolchain information.
+        list of dict: Each dict contains processed toolchain configuration with normalized keys.
     """
     toolchains = []
     for tag in tags:
@@ -204,39 +208,13 @@ def _get_toolchains(tags):
         toolchains.append(toolchain)
     return toolchains
 
-def _create_and_link_sdp(toolchain_info):
-    """ Create new archive based on information provided in extension.
+def _apply_matrix_defaults(toolchain_info, matrix):
+    """Applies default values from version matrix to toolchain configuration.
 
     Args:
-        toolchain_info: A dict of holding toolchain information.
-
-    Returns:
-        dict: A dict with archive information.
+        toolchain_info: dict holding current toolchain information (modified in-place).
+        matrix: dict containing default values from VERSION_MATRIX.
     """
-    pkg_name = "{}_pkg".format(toolchain_info["name"])
-
-    # Resolve package identifier from original version fields, not the
-    # constraint-remapped tc_identifier. tc_identifier may differ from
-    # the actual version (e.g., sdp 8.0.3 is remapped to 8.0.0 for
-    # platform constraint compatibility), but the version matrix uses
-    # the real version.
-    if toolchain_info["sdk_version"] != "":
-        pkg_identifier = "sdk_{}".format(toolchain_info["sdk_version"])
-    elif toolchain_info["sdp_version"] != "":
-        pkg_identifier = "sdp_{}".format(toolchain_info["sdp_version"])
-    else:
-        pkg_identifier = toolchain_info["tc_identifier"]
-
-    matrix_key = "{cpu}-{os}{identifier}{runtime_es}".format(
-        cpu = toolchain_info["tc_cpu"],
-        os = toolchain_info["tc_os"],
-        identifier = "-{}".format(pkg_identifier) if pkg_identifier != "" else "",
-        runtime_es = "-{}".format(toolchain_info["tc_runtime_ecosystem"]) if toolchain_info["tc_runtime_ecosystem"] != "" else "",
-    )
-    matrix = VERSION_MATRIX[matrix_key]
-    toolchain_info["sdp_to_link"] = pkg_name
-
-    # TODO: Put this in separate function so that we can easy extend it (if needed).
     if "extra_c_compile_flags" in matrix and not toolchain_info["tc_extra_c_compile_flags"]:
         toolchain_info["tc_extra_c_compile_flags"] = matrix["extra_c_compile_flags"]
     if "extra_cxx_compile_flags" in matrix and not toolchain_info["tc_extra_cxx_compile_flags"]:
@@ -248,6 +226,56 @@ def _create_and_link_sdp(toolchain_info):
     if "compiler_library_search_paths" in matrix:
         toolchain_info["tc_compiler_library_search_paths"] = matrix["compiler_library_search_paths"]
 
+def _create_and_link_sdp(toolchain_info):
+    """Creates archive package information from toolchain configuration using version matrix.
+
+    Resolves package identifiers, looks up version matrix entries, and applies defaults.
+
+    Args:
+        toolchain_info: dict holding toolchain information (modified in-place with sdp_to_link).
+
+    Returns:
+        dict: Archive information with 'build_file', 'name', 'sha256', 'strip_prefix', 'url'.
+
+    Fails:
+        If the resolved matrix key is not found in VERSION_MATRIX.
+    """
+    pkg_name = "{}{}".format(toolchain_info["name"], _PACKAGE_SUFFIX)
+
+    # Resolve package identifier from original version fields, not the
+    # constraint-remapped tc_identifier. tc_identifier may differ from
+    # the actual version (e.g., sdp 8.0.4 is remapped to 8.0.0 for
+    # platform constraint compatibility), but the version matrix uses
+    # the real version.
+    if toolchain_info["sdk_version"] != "":
+        pkg_identifier = "{}_{}".format(_IDENTIFIER_SDK, toolchain_info["sdk_version"])
+    elif toolchain_info["sdp_version"] != "":
+        pkg_identifier = "{}_{}".format(_IDENTIFIER_SDP, toolchain_info["sdp_version"])
+    else:
+        pkg_identifier = toolchain_info["tc_identifier"]
+
+    matrix_key = "{cpu}-{os}{identifier}{runtime_es}".format(
+        cpu = toolchain_info["tc_cpu"],
+        os = toolchain_info["tc_os"],
+        identifier = "-{}".format(pkg_identifier) if pkg_identifier != "" else "",
+        runtime_es = "-{}".format(toolchain_info["tc_runtime_ecosystem"]) if toolchain_info["tc_runtime_ecosystem"] != "" else "",
+    )
+
+    # Validate and retrieve matrix entry
+    if matrix_key not in VERSION_MATRIX:
+        available = sorted(VERSION_MATRIX.keys())
+        preview = available[:20]
+        suffix = " (showing first {}, {} total)".format(len(preview), len(available)) if len(available) > len(preview) else ""
+        fail("Version matrix entry not found for key: {}. Available keys: {}{}".format(
+            matrix_key,
+            ", ".join(preview),
+            suffix,
+        ))
+
+    matrix = VERSION_MATRIX[matrix_key]
+    toolchain_info["sdp_to_link"] = pkg_name
+    _apply_matrix_defaults(toolchain_info, matrix)
+
     return {
         "build_file": matrix["build_file"],
         "name": pkg_name,
@@ -257,33 +285,47 @@ def _create_and_link_sdp(toolchain_info):
     }
 
 def _resolve_identifier(toolchain_info):
-    """ Create new archive based on information provided in extension.
+    """Resolves the toolchain identifier from version fields.
+
+    Determines which identifier type (gcc, sdk, or sdp) and version to use,
+    applying any necessary version mappings.
 
     Args:
-        toolchain_info: A dict of holding toolchain information.
+        toolchain_info: dict holding toolchain configuration with version fields.
 
     Returns:
-        dict: A dict with archive information.
+        str: Identifier in format '{type}_{version}' (e.g., 'sdp_8.0.0', 'gcc_12.2.0').
     """
-    identifier = "gcc"
+    identifier = _IDENTIFIER_GCC
     version = toolchain_info["gcc_version"]
+
     if toolchain_info["sdk_version"] != "":
-        identifier = "sdk"
+        identifier = _IDENTIFIER_SDK
         version = toolchain_info["sdk_version"]
     elif toolchain_info["sdp_version"] != "":
-        identifier = "sdp"
-        version = "8.0.0" if toolchain_info["sdp_version"] == "8.0.4" else toolchain_info["sdp_version"]  # FIXME: currently we do not support constraint "8.0.4".
+        identifier = _IDENTIFIER_SDP
+        version = toolchain_info["sdp_version"]
+
+        # Apply version mapping for constraint compatibility
+        version = _SDP_VERSION_MAPPING.get(version, version)
 
     return "{}_{}".format(identifier, version)
 
 def _get_info(mctx):
-    """Gets raw info from module ctx about toolchain properties.
+    """Extracts and validates toolchain and package information from module configuration.
+
+    Ensures that only the root module uses this extension and processes all tags.
 
     Args:
-        mctx: A bazel object holding module information.
+        mctx: ModuleContext object holding module information.
 
     Returns:
-        list: A list of dictionaries with toolchain and archive information.
+        tuple: (toolchains, packages) where:
+            - toolchains: list of dict with normalized toolchain configuration
+            - packages: list of dict with archive information
+
+    Fails:
+        If a non-root module attempts to use the gcc extension.
     """
     root = None
     for mod in mctx.modules:
@@ -311,11 +353,13 @@ def _get_info(mctx):
     return toolchains, packages
 
 def _impl(mctx):
-    """Extracts information about toolchain and instantiates nessesary rules for toolchain declaration.
+    """Implementation of the gcc module extension.
+
+    Processes toolchain and package configurations, instantiates http_archive rules
+    for dependencies, and creates gcc_toolchain rules with proper configuration.
 
     Args:
-       mctx: A bazel object holding module information.
-
+        mctx: ModuleContext object holding module information.
     """
     toolchains, archives = _get_info(mctx)
     for archive_info in archives:
