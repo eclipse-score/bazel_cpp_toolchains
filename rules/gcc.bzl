@@ -14,17 +14,29 @@
 """ Module rule for defining GCC toolchains in Bazel.
 """
 
-load("@score_bazel_cpp_toolchains//rules:common.bzl", "get_flag_groups")
+load("@score_bazel_cpp_toolchains//rules:common.bzl", "SDP_VERSION_MAPPING", "get_flag_groups")
+
+# Constants
+_OS_QNX = "qnx"
+_OS_LINUX = "linux"
+_CPU_AARCH64 = "aarch64"
+_CPU_AARCH64LE = "aarch64le"
+_SDP_VERSION_MAPPING = SDP_VERSION_MAPPING
+_CANONICAL_REPO_SEPARATOR = "++"
+_CANONICAL_REPO_TAG_SEPARATOR = "+"
+_PLACEHOLDER_TOOLCHAIN_PKG = "%{toolchain_pkg}%"
+_TRIPLE_AARCH64_QNX_FMT = "aarch64-unknown-nto-qnx{sdp}"
+_TRIPLE_GENERIC_QNX_FMT = "{cpu}-pc-nto-qnx{sdp}"
 
 def dict_union(x, y):
-    """ Helper function to merge 2 dict
+    """Merges two dictionaries into a new dictionary.
 
     Args:
-        x: The 1st dict
-        y: The 2nd dict
+        x: dict, the first dictionary to merge.
+        y: dict, the second dictionary to merge (values override x on conflicts).
 
     Returns:
-        z: Merged dict
+        dict: A new dictionary containing merged values from both x and y.
     """
     z = {}
     z.update(x)
@@ -32,7 +44,13 @@ def dict_union(x, y):
     return z
 
 def _get_cc_config_linux(rctx):
-    """ Write configuration invocation function for Linux.
+    """Generates cc_toolchain_config filegroup and rule content for Linux targets.
+
+    Args:
+        rctx: RepositoryContext object with toolchain attributes.
+
+    Returns:
+        str: BUILD file content defining filegroup and cc_toolchain_config for Linux.
     """
     return """
 filegroup(
@@ -62,7 +80,13 @@ cc_toolchain_config(
     )
 
 def _get_cc_config_qnx(rctx):
-    """ Write configuration invocation function for QNX.
+    """Generates cc_toolchain_config filegroup and rule content for QNX targets.
+
+    Args:
+        rctx: RepositoryContext object with toolchain attributes.
+
+    Returns:
+        str: BUILD file content defining filegroup and cc_toolchain_config for QNX.
     """
     return """
 filegroup(
@@ -93,21 +117,79 @@ cc_toolchain_config(
         tc_os = rctx.attr.tc_os,
     )
 
-def _impl(rctx):
-    """ Implementation of the gcc_toolchain repository rule.
+def _normalize_cpu(cpu):
+    """Converts CPU name to its normalized form for toolchain paths.
+
+    Maps aarch64 to aarch64le for use in GCC triple names. Other CPUs pass through unchanged.
 
     Args:
-        rctx: The repository context.
+        cpu: str, the CPU architecture name.
+
+    Returns:
+        str: Normalized CPU name suitable for GCC triple.
+    """
+    return _CPU_AARCH64LE if cpu == _CPU_AARCH64 else cpu
+
+def _apply_sdp_version_mapping(sdp_version):
+    """Applies version mapping for SDP compatibility constraints.
+
+    Maps certain SDP versions to constraint-compatible versions for platform definitions.
+
+    Args:
+        sdp_version: str, the original SDP version.
+
+    Returns:
+        str: Mapped SDP version, or original if no mapping exists.
+    """
+    return _SDP_VERSION_MAPPING.get(sdp_version, sdp_version)
+
+def _get_canonical_pkg_name(rctx):
+    """Resolves the canonical repository name for the toolchain package.
+
+    In bzlmod, repos created by module extensions follow the pattern:
+    module++extension+repo_name. This function extracts the canonical name
+    for the package repository.
+
+    Args:
+        rctx: RepositoryContext object.
+
+    Returns:
+        str: Canonical package repository name.
+    """
+    my_canonical_name = rctx.name
+    if _CANONICAL_REPO_SEPARATOR in my_canonical_name:
+        parts = my_canonical_name.rsplit(_CANONICAL_REPO_TAG_SEPARATOR, 1)
+        prefix = parts[0] + _CANONICAL_REPO_TAG_SEPARATOR
+        return prefix + rctx.attr.tc_pkg_repo
+    else:
+        return rctx.attr.tc_pkg_repo
+
+def _impl(rctx):
+    """Implementation of the gcc_toolchain repository rule.
+
+    Creates toolchain configuration by instantiating templates with proper substitutions.
+    Handles both Linux and QNX target platforms with platform-specific configuration.
+
+    Args:
+        rctx: RepositoryContext object providing access to rule attributes and methods.
+
+    Fails:
+        If an unsupported OS (not Linux or QNX) is specified in tc_os attribute.
     """
     tc_identifier = rctx.attr.tc_identifier
 
-    if rctx.attr.tc_os == "qnx":
+    if rctx.attr.tc_os == _OS_QNX:
         cc_toolchain_config = _get_cc_config_qnx(rctx)
-    elif rctx.attr.tc_os == "linux":
+    elif rctx.attr.tc_os == _OS_LINUX:
         cc_toolchain_config = _get_cc_config_linux(rctx)
     else:
-        fail("Unsupported OS detected!")
+        fail("Unsupported OS '{}' detected! Supported values: {}, {}".format(
+            rctx.attr.tc_os,
+            _OS_LINUX,
+            _OS_QNX,
+        ))
 
+    # Build constraint identifiers for toolchain registration
     tc_identifier_short_1 = ""
     tc_identifier_long_1 = "[]"
     tc_identifier_short_2 = ""
@@ -139,20 +221,11 @@ def _impl(rctx):
     )
 
     # Get canonical repository name for the toolchain package
-    # In bzlmod, repos created by module extensions follow the pattern: module++extension+repo_name
-    # Get our own canonical name (e.g., "score_bazel_cpp_toolchains++gcc+score_autosd_10_toolchain")
-    # and replace our repo name with the package repo name
-    my_canonical_name = rctx.name
-    if "++" in my_canonical_name:
-        parts = my_canonical_name.rsplit("+", 1)
-        prefix = parts[0] + "+"
-        canonical_pkg_name = prefix + rctx.attr.tc_pkg_repo
-    else:
-        canonical_pkg_name = rctx.attr.tc_pkg_repo
+    canonical_pkg_name = _get_canonical_pkg_name(rctx)
 
     # Replace %{toolchain_pkg}% placeholder in extra flags with canonical name
     def replace_placeholder(flags):
-        return [flag.replace("%{toolchain_pkg}%", canonical_pkg_name) for flag in flags]
+        return [flag.replace(_PLACEHOLDER_TOOLCHAIN_PKG, canonical_pkg_name) for flag in flags]
 
     extra_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_compile_flags))
     extra_c_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_c_compile_flags))
@@ -171,19 +244,20 @@ def _impl(rctx):
         "%{extra_cxx_compile_flags}": extra_cxx_compile_flags,
         "%{extra_link_flags_switch}": "True" if len(rctx.attr.extra_link_flags) else "False",
         "%{extra_link_flags}": extra_link_flags,
-        "%{tc_cpu}": "aarch64le" if rctx.attr.tc_cpu == "aarch64" else rctx.attr.tc_cpu,
+        "%{tc_cpu}": _normalize_cpu(rctx.attr.tc_cpu),
         "%{tc_identifier}": "gcc",
         "%{tc_runtime_es}": rctx.attr.tc_runtime_ecosystem,
         "%{tc_version}": rctx.attr.gcc_version,
     }
 
-    if rctx.attr.tc_os == "qnx":
+    if rctx.attr.tc_os == _OS_QNX:
+        mapped_sdp_version = _apply_sdp_version_mapping(rctx.attr.sdp_version)
         extra_template_dict = {
             "%{license_info_value}": rctx.attr.license_info_value,
             "%{license_info_variable}": rctx.attr.license_info_variable,
             "%{license_path}": rctx.attr.license_path,
-            "%{sdp_version}": "8.0.0" if rctx.attr.sdp_version == "8.0.4" else rctx.attr.sdp_version,  # FIXME: currently we do not support constraint "8.0.4".
-            "%{tc_cpu_cxx}": "aarch64le" if rctx.attr.tc_cpu == "aarch64" else rctx.attr.tc_cpu,
+            "%{sdp_version}": mapped_sdp_version,
+            "%{tc_cpu_cxx}": _normalize_cpu(rctx.attr.tc_cpu),
             "%{use_license_info}": "False" if rctx.attr.license_info_value == "" else "True",
         }
         template_dict = dict_union(template_dict, extra_template_dict)
@@ -200,33 +274,33 @@ def _impl(rctx):
         {},
     )
 
-    if rctx.attr.tc_os == "linux":
+    if rctx.attr.tc_os == _OS_LINUX:
         # There is an issue with gcov and cc_toolchain config.
         # See: https://github.com/bazelbuild/rules_cc/issues/351
         rctx.template(
             "gcov_wrapper",
             rctx.attr._cc_gcov_wrapper_script,
             {
-                "%{tc_gcov_path}": "external/score_bazel_cpp_toolchains++gcc+{repo}/bin/{cpu}-unknown-linux-gnu-gcov".format(
-                    repo = rctx.attr.tc_pkg_repo,
-                    cpu = "aarch64le" if rctx.attr.tc_cpu == "aarch64" else rctx.attr.tc_cpu,
+                "%{tc_gcov_path}": "external/{canonical_pkg}/bin/{cpu}-unknown-linux-gnu-gcov".format(
+                    canonical_pkg = canonical_pkg_name,
+                    cpu = rctx.attr.tc_cpu,
                 ),
             },
         )
-    elif rctx.attr.tc_os == "qnx":
+    elif rctx.attr.tc_os == _OS_QNX:
         # Generate gcov wrapper for QNX toolchains to enable `bazel coverage`.
         # See: https://github.com/bazelbuild/rules_cc/issues/351
-        sdp_version = "8.0.0" if rctx.attr.sdp_version == "8.0.4" else rctx.attr.sdp_version  # FIXME: currently we do not support constraint "8.0.4".
-        if rctx.attr.tc_cpu == "aarch64":
-            gcov_triple = "aarch64-unknown-nto-qnx{sdp}".format(sdp = sdp_version)
+        mapped_sdp_version = _apply_sdp_version_mapping(rctx.attr.sdp_version)
+        if rctx.attr.tc_cpu == _CPU_AARCH64:
+            gcov_triple = _TRIPLE_AARCH64_QNX_FMT.format(sdp = mapped_sdp_version)
         else:
-            gcov_triple = "{cpu}-pc-nto-qnx{sdp}".format(cpu = rctx.attr.tc_cpu, sdp = sdp_version)
+            gcov_triple = _TRIPLE_GENERIC_QNX_FMT.format(cpu = rctx.attr.tc_cpu, sdp = mapped_sdp_version)
         rctx.template(
             "gcov_wrapper",
             rctx.attr._cc_gcov_wrapper_script,
             {
-                "%{tc_gcov_path}": "external/score_bazel_cpp_toolchains++gcc+{repo}/host/linux/x86_64/usr/bin/{triple}-gcov".format(
-                    repo = rctx.attr.tc_pkg_repo,
+                "%{tc_gcov_path}": "external/{canonical_pkg}/host/linux/x86_64/usr/bin/{triple}-gcov".format(
+                    canonical_pkg = canonical_pkg_name,
                     triple = gcov_triple,
                 ),
             },
