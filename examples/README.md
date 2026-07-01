@@ -10,6 +10,17 @@ The toolchain configurations are defined in:
 
 ## Building Targets
 
+## Sanitizer Feature Registration
+
+Sanitizer features are no longer included by default by the example toolchain
+declarations. Targets that request features such as `score_asan` require the
+workspace to register those feature definitions explicitly, for example from
+`score_cpp_policies` via `extra_known_features` or `extra_enabled_features` on
+the corresponding `gcc.toolchain(...)` declaration.
+
+Without that explicit registration, sanitizer-specific example targets are not
+expected to build.
+
 ### Default Toolchain
 
 Build a specific target with the default toolchain:

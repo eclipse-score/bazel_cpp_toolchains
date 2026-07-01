@@ -45,7 +45,8 @@ platforms.
 `examples/BUILD`
 
 Contains small C++ targets used to verify compilation, linking, pthread
-support, and sanitizer integration.
+support, and optional sanitizer integration when sanitizer features are
+registered explicitly.
 
 `examples/test.sh`
 
@@ -86,3 +87,11 @@ In practice this means checking among other things:
 - basic linking behavior,
 - feature coverage such as pthread-enabled builds,
 - optional sanitizer feature wiring for the local Linux toolchain path.
+
+## Sanitizer Note
+
+Sanitizer features are not included by default by the generated toolchains.
+If a workspace wants to use targets such as `asan_test`, it must first
+register the sanitizer `cc_feature` definitions explicitly, for example via
+`extra_known_features` or `extra_enabled_features` when declaring the
+toolchain and by providing the feature definitions from `score_cpp_policies`.
