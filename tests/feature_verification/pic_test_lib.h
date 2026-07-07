@@ -10,18 +10,27 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include <gtest/gtest.h>
-#include <climits>
 
-static int ubsan_buggy() {
-    volatile int x = INT_MAX;
-    volatile int y = 1;
+#ifndef PIC_TEST_LIB_H
+#define PIC_TEST_LIB_H
 
-    // Signed overflow is UB.
-    return x + y;
+void increment_global();
+int get_call_count();
+int compute_position_safe(int value);
+
+class PICAwareClass {
+public:
+    virtual ~PICAwareClass() = default;
+    virtual int getValue() { return 42; }
+};
+
+class DerivedPICClass : public PICAwareClass {
+public:
+    int getValue() override;
+};
+
+extern "C" {
+    int pic_c_function(int x);
 }
 
-TEST(UbsanBugReproTest, SignedOverflow_ShouldCrashUnderUndefinedBehaviorSanitizer) {
-    // Requires -fno-sanitize-recover=undefined or UBSAN_OPTIONS=halt_on_error=1
-    ASSERT_DEATH({ (void)ubsan_buggy(); }, ".*");
-}
+#endif // PIC_TEST_LIB_H

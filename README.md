@@ -23,7 +23,7 @@ packages reproducibly.
 
 The documentation below is organized around the main subsystems of the
 repository: how consumers declare toolchains, how Bazel repositories are
-generated, how platform packages are described, how the example workspace
+generated, how platform packages are described, how the test workspace
 validates the setup, and how QNX-specific authentication and licensing fit in.
 
 ## Documentation
@@ -34,6 +34,7 @@ validates the setup, and how QNX-specific authentication and licensing fit in.
 - [Generation flow](docs/generation_flow.md)
 - [Examples and validation](docs/examples_and_validation.md)
 - [QNX integration](docs/qnx_integration.md)
+- [Test Suite](docs/test_suite.md) - Comprehensive test documentation
 - [Maintenance](docs/maintenance.md)
 
 ## Quick Summary
@@ -44,11 +45,11 @@ validates the setup, and how QNX-specific authentication and licensing fit in.
 
 **Primary consumer entry point:** `@score_bazel_cpp_toolchains//extensions:gcc.bzl`
 
-**Main validation surface:** `examples/` smoke-test workspace
+**Main validation surface:** `tests/` smoke-test workspace
 
 ## Key Capabilities
 
 - Define Linux and QNX toolchains through a Bzlmod extension.
 - Resolve default package metadata through `packages/version_matrix.bzl`.
 - Generate toolchain repositories from platform-specific templates.
-- Validate toolchain selections through the example workspace test matrix.
+- Validate toolchain selections through the workspace test matrix.

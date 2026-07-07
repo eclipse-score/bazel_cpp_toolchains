@@ -10,15 +10,12 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "math_lib.h"
 
-int add(int a, int b) {
-    return a + b;
-}
+#ifndef WHOLE_ARCHIVE_LIB_H
+#define WHOLE_ARCHIVE_LIB_H
 
-int sub(int a, int b) {
-    if (a >= b) {
-        return a - b;
-    }
-    return b - a;  // branch to demonstrate partial coverage
-}
+void unused_utility_function();
+int utility_add(int a, int b);
+int utility_multiply(int a, int b);
+
+#endif // WHOLE_ARCHIVE_LIB_H

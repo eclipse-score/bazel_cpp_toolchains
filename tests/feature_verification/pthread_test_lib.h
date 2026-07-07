@@ -10,7 +10,15 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#pragma once
 
-int add(int a, int b);
-int sub(int a, int b);
+#ifndef PTHREAD_TEST_LIB_H
+#define PTHREAD_TEST_LIB_H
+
+// Test for: pthread feature (POSIX threads linking)
+// This library demonstrates pthread functionality
+
+int get_sum_from_threads();
+int get_thread_count();
+void reset_thread_state();
+
+#endif // PTHREAD_TEST_LIB_H

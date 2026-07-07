@@ -10,27 +10,24 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include <iostream>
-#include <pthread.h>
 
-void* say_hello(void* arg) {
-    std::cout << "Hello from thread!" << std::endl;
-    return nullptr;
+// Part 2: Vector utilities
+
+#include "multifile_lib.h"
+#include <cmath>
+
+double VectorUtils::dotProduct(double x1, double y1, double x2, double y2) {
+    return x1 * x2 + y1 * y2;
 }
 
-int main() {
-    pthread_t thread;
+double VectorUtils::magnitude(double x, double y) {
+    return std::sqrt(x * x + y * y);
+}
 
-    if (pthread_create(&thread, nullptr, say_hello, nullptr) != 0) {
-        std::cerr << "Error creating thread" << std::endl;
-        return 1;
+void VectorUtils::normalize(double& x, double& y) {
+    double mag = magnitude(x, y);
+    if (mag > 1e-9) {
+        x /= mag;
+        y /= mag;
     }
-
-    if (pthread_join(thread, nullptr) != 0) {
-        std::cerr << "Error joining thread" << std::endl;
-        return 2;
-    }
-
-    std::cout << "Hello from main!" << std::endl;
-    return 0;
 }

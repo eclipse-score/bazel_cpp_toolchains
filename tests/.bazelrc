@@ -22,56 +22,56 @@ build:shared --sandbox_writable_path=/var/tmp
 # -------------------------------------------------------------------------------
 # Different toolchain configuration for x86_64-linux (host)
 # -------------------------------------------------------------------------------
-build:host_config_1 --config=shared
-build:host_config_1 --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
-build:host_config_1 --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0
-build:host_config_1 --host_features=use_pthread
+build:x86_64-linux --config=shared
+build:x86_64-linux --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
+build:x86_64-linux --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0
+build:x86_64-linux --host_features=use_pthread
 
 # -------------------------------------------------------------------------------
 # Different toolchain configuration for x86_64-linux (host)
 # -------------------------------------------------------------------------------
-build:host_config_2 --config=shared
-build:host_config_2 --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
-build:host_config_2 --extra_toolchains=@my_toolchain//:x86_64-linux-gcc_12.2.0
+build:x86_64-linux-custom --config=shared
+build:x86_64-linux-custom --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
+build:x86_64-linux-custom --extra_toolchains=@my_toolchain//:x86_64-linux-gcc_12.2.0
 
 # -------------------------------------------------------------------------------
 # Different toolchain configuration for x86_64-linux (host)
 # -------------------------------------------------------------------------------
-build:host_config_3 --config=shared
-build:host_config_3 --host_platform=@score_bazel_platforms//:x86_64-linux
-build:host_config_3 --extra_toolchains=@score_gcc_toolchain_bp//:x86_64-linux
+build:x86_64-linux-bp --config=shared
+build:x86_64-linux-bp --host_platform=@score_bazel_platforms//:x86_64-linux
+build:x86_64-linux-bp --extra_toolchains=@score_gcc_toolchain_bp//:x86_64-linux
 
 # -------------------------------------------------------------------------------
 # Toolchain configuration for x86_64-qnx (target)
 # -------------------------------------------------------------------------------
-build:target_config_1 --config=host_config_1
-build:target_config_1 --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
-build:target_config_1 --extra_toolchains=@score_qcc_toolchain//:x86_64-qnx-sdp_8.0.0
+build:x86_64-qnx --config=x86_64-linux
+build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:x86_64-qnx --extra_toolchains=@score_qcc_toolchain//:x86_64-qnx-sdp_8.0.0
 
 # -------------------------------------------------------------------------------
 # Toolchain configuration for aarch64-qnx (target)
 # -------------------------------------------------------------------------------
-build:target_config_2 --config=host_config_1
-build:target_config_2 --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
-build:target_config_2 --extra_toolchains=@score_qcc_arm_toolchain//:aarch64-qnx-sdp_8.0.0
+build:aarch64-qnx --config=x86_64-linux
+build:aarch64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
+build:aarch64-qnx --extra_toolchains=@score_qcc_arm_toolchain//:aarch64-qnx-sdp_8.0.0
 
 # -------------------------------------------------------------------------------
 # Toolchain configuration for aarch64-linux (target)
 # -------------------------------------------------------------------------------
-build:target_config_3 --config=host_config_1
-build:target_config_3 --platforms=@score_bazel_platforms//:aarch64-linux-gcc_12.2.0-posix
-build:target_config_3 --extra_toolchains=@score_aarch64_gcc_toolchain//:aarch64-linux-gcc_12.2.0
+build:aarch64-linux --config=x86_64-linux
+build:aarch64-linux --platforms=@score_bazel_platforms//:aarch64-linux-gcc_12.2.0-posix
+build:aarch64-linux --extra_toolchains=@score_aarch64_gcc_toolchain//:aarch64-linux-gcc_12.2.0
 
 # -------------------------------------------------------------------------------
 # Toolchain configuration for x86_64-linux-autosd10 (target)
 # -------------------------------------------------------------------------------
-build:target_config_4 --config=host_config_1
-build:target_config_4 --platforms=@score_bazel_platforms//:x86_64-linux-autosd10
-build:target_config_4 --extra_toolchains=@score_autosd_10_toolchain//:x86_64-linux-autosd10
+build:x86_64-linux-autosd10 --config=x86_64-linux
+build:x86_64-linux-autosd10 --platforms=@score_bazel_platforms//:x86_64-linux-autosd10
+build:x86_64-linux-autosd10 --extra_toolchains=@score_autosd_10_toolchain//:x86_64-linux-autosd10
 
 # -------------------------------------------------------------------------------
 # Config dedicated to target platform CPU:aarch64 and OS:ebclfsa
 # -------------------------------------------------------------------------------
-build:target_config_5 --config=shared
-build:target_config_5 --platforms=@score_bazel_platforms//:aarch64-linux-sdk_0.1.0-ebclfsa
-build:target_config_5 --extra_toolchains=@score_ebclfsa_toolchain//:aarch64-linux-sdk_0.1.0-ebclfsa
+build:aarch64-linux-ebclfsa --config=shared
+build:aarch64-linux-ebclfsa --platforms=@score_bazel_platforms//:aarch64-linux-sdk_0.1.0-ebclfsa
+build:aarch64-linux-ebclfsa --extra_toolchains=@score_ebclfsa_toolchain//:aarch64-linux-sdk_0.1.0-ebclfsa

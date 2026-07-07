@@ -10,22 +10,21 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include <gtest/gtest.h>
-#include <cstdlib>
 
-static void lsan_buggy() {
-    int* leaked = new int[100];
-    leaked[0] = 42;
+// Test for: libraries_to_link with whole-archive support
+// This library provides utility functions that should always be linked
 
-    // Drop the last visible reference so LSan can't find it on the stack.
-    leaked = nullptr;
-
-    std::exit(0);
+// This symbol might not be referenced directly, but should be linked with whole-archive
+void unused_utility_function() {
+    // This function demonstrates that even unreferenced symbols are linked
+    // when whole-archive is used
 }
 
-TEST(LsanBugReproTest, MemoryLeak_ShouldBeReportedByLeakSanitizer) {
-    EXPECT_EXIT(
-        { lsan_buggy(); },
-        ::testing::ExitedWithCode(23),
-        ".*");
+// Export a simple utility
+int utility_add(int a, int b) {
+    return a + b;
+}
+
+int utility_multiply(int a, int b) {
+    return a * b;
 }

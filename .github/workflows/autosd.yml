@@ -21,11 +21,11 @@ on:
     types: [checks_requested]
   workflow_call:
 jobs:
-  target_config_4:
+  x86_64-linux-autosd10:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./examples
+        working-directory: ./tests
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -38,4 +38,4 @@ jobs:
           cache-save: ${{ github.event_name == 'push' }}
       - name: Bazel Build (basic)
         run: |
-          bazel build --lockfile_mode=error --config target_config_4 -- //:main_cpp //:main_pthread_cpp //:math_lib //:math_lib_shared
+          bazel build --lockfile_mode=error --config=x86_64-linux-autosd10 -- //:language_and_standards_tests //:feature_verification_tests

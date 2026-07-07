@@ -10,15 +10,20 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "math_lib.h"
-#include <iostream>
-#include <cassert>
 
-int main() {
-    assert(add(2, 3) == 5);
-    assert(sub(5, 3) == 2);
-    std::cout << "add(2, 3) = " << add(2, 3) << std::endl;
+// Part 3: Geometry utilities
 
-    // Note: sub(3, 5) is NOT tested → coverage will show a missed branch
-    return 0;
+#include "multifile_lib.h"
+#include <cmath>
+
+bool Geometry::arePointsEqual(double x1, double y1, double x2, double y2, double epsilon) {
+    double dx = x1 - x2;
+    double dy = y1 - y2;
+    return (dx * dx + dy * dy) < (epsilon * epsilon);
+}
+
+double Geometry::distanceSquared(double x1, double y1, double x2, double y2) {
+    double dx = x1 - x2;
+    double dy = y1 - y2;
+    return dx * dx + dy * dy;
 }

@@ -21,11 +21,11 @@ on:
     types: [checks_requested]
   workflow_call:
 jobs:
-  host_config_1:
+  generic-x86_64-linux:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./examples
+        working-directory: ./tests
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -38,7 +38,7 @@ jobs:
           cache-save: ${{ github.event_name == 'push' }}
       - name: Bazel Build (basic)
         run: |
-          bazel build --lockfile_mode=error --config host_config_1 -- //...
+          bazel build --lockfile_mode=error --config=x86_64-linux -- //:language_and_standards_tests //:feature_verification_tests
       - name: Bazel Test
         run: |
-          bazel test --config host_config_1 -- //...
+          bazel test --config=x86_64-linux -- //:language_and_standards_tests //:feature_verification_tests
