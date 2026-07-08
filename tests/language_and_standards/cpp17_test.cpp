@@ -17,8 +17,10 @@
 #include <iostream>
 #include <cassert>
 #include <optional>
-#include <variant>
+#include <string>
 #include <string_view>
+#include <type_traits>
+#include <variant>
 
 // Test 1: Structured bindings
 struct Point {

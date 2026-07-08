@@ -17,6 +17,7 @@
 #include <iostream>
 #include <cassert>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 // Test 1: Auto return type deduction
