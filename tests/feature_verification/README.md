@@ -8,13 +8,13 @@ This directory contains tests for verifying that specific C++ toolchain features
 
 ```bash
 # Run all feature tests
-bazel test --config host_config_1 //tests/feature_verification:feature_verification_tests
+bazel test --config x86_64-linux //:feature_verification_tests
 
 # Run individual test
-bazel test --config host_config_1 //tests/feature_verification:defines_test
+bazel test --config x86_64-linux //feature_verification:defines_test
 
 # Build for cross-compilation (no execution)
-bazel build --config target_config_1 //tests/feature_verification:defines_test
+bazel build --config aarch64-qnx //feature_verification:defines_test
 ```
 
 ## See Also

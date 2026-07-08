@@ -104,7 +104,7 @@ configuration such as:
 --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0
 ```
 
-The example workspace under `examples/` provides complete `.bazelrc`
+The test workspace under `tests/` provides complete `.bazelrc`
 configurations for this activation step.
 
 ## Behavior Notes
