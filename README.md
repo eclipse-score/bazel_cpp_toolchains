@@ -32,6 +32,8 @@ validates the setup, and how QNX-specific authentication and licensing fit in.
 - [Repository layout](docs/repository_layout.md)
 - [Extension API](docs/extension_api.md)
 - [Generation flow](docs/generation_flow.md)
+- [Linux toolchain feature set](docs/linux_toolchain_feature_set.md)
+- [QNX toolchain feature set](docs/qnx_toolchain_feature_set.md)
 - [Tests and validation](docs/tests_and_validation.md)
 - [QNX integration](docs/qnx_integration.md)
 - [Test Suite](docs/test_suite.md)
