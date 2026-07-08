@@ -32,9 +32,9 @@ validates the setup, and how QNX-specific authentication and licensing fit in.
 - [Repository layout](docs/repository_layout.md)
 - [Extension API](docs/extension_api.md)
 - [Generation flow](docs/generation_flow.md)
-- [Examples and validation](docs/examples_and_validation.md)
+- [Tests and validation](docs/tests_and_validation.md)
 - [QNX integration](docs/qnx_integration.md)
-- [Test Suite](docs/test_suite.md) - Comprehensive test documentation
+- [Test Suite](docs/test_suite.md)
 - [Maintenance](docs/maintenance.md)
 
 ## Quick Summary

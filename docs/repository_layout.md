@@ -22,7 +22,7 @@ The repository is organized by subsystem rather than by platform product:
 ```text
 .
 |- docs/        Markdown documentation sources
-|- examples/    Example workspace and smoke tests
+|- tests/       Test workspace and validation suites
 |- extensions/  Bzlmod extension entry points
 |- packages/    Toolchain package descriptors and version matrix
 |- rules/       Repository rules and shared helpers
@@ -58,13 +58,13 @@ QNX because the execution environment, sysroot layout, and licensing model are
 different.
 > NOTE: Future plan is to have a single template for toolchain configuration.
 
-`examples/`
+`tests/`
 
-A standalone Bazel workspace used as an integration surface. It declares
-representative toolchain configurations and validates them with a smoke-test
-runner.
-> NOTE: These tests are just a sanity check. They should not be used as reference
-> points for platform development.
+A standalone Bazel workspace used as the integration and validation surface. It
+declares representative toolchain configurations and validates them with
+feature-verification and language-standard test suites.
+> NOTE: These tests validate toolchain generation. They should not be used as
+> reference points for platform development.
 
 `tools/`
 

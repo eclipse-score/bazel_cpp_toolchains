@@ -17,9 +17,11 @@ These tests verify that specific toolchain features are correctly implemented
 and functioning. Each test targets a particular feature or group of features
 from the C++ toolchain configuration.
 
-Tests are marked 'manual' for cross-compilation targets (QNX) to prevent
-execution attempts on incompatible architectures. For native Linux builds,
-tests can execute on the host machine.
+Tests are executed by running `bazel test` on the matching target platform.
+When the host equals the target (for example the x86_64-linux config on an
+x86_64 Linux host) the tests build and run directly on the host. For other
+target platforms (such as QNX), build the tests on the host to verify
+compilation and linking, then execute them on the corresponding target.
 """
 
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")

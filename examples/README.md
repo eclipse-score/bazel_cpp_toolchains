@@ -19,17 +19,19 @@ For comprehensive test documentation, including:
 
 Run all tests:
 ```bash
-bazel test --config host_config_1 //tests/...
+bazel test --config x86_64-linux //...
 ```
 
 Run specific test suites:
 ```bash
 # Feature verification tests
-bazel test --config host_config_1 //tests/feature_verification:feature_verification_tests
+bazel test --config x86_64-linux //:feature_verification_tests
 
 # Language and standards tests
-bazel test --config host_config_1 //tests/language_and_standards:language_and_standards_tests
+bazel test --config x86_64-linux //:language_and_standards_tests
 ```
+
+> NOTE: Run these commands from the `tests/` directory (it is a separate Bazel workspace).
 
 ## Configuration
 

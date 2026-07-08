@@ -18,7 +18,9 @@ These tests verify that the toolchain correctly supports:
 - C++11, C++14, C++17, and C++20 language features
 - Correct compilation flags for each standard version
 
-All tests can execute on the host machine (Linux x86_64).
+Tests are executed by running `bazel test` on the matching target platform.
+When the host equals the target (e.g. the x86_64-linux config on an x86_64
+Linux host) they build and run directly on the host.
 """
 
 load("@rules_cc//cc:defs.bzl", "cc_test")
@@ -33,6 +35,7 @@ load("@rules_cc//cc:defs.bzl", "cc_test")
 cc_test(
     name = "c_lang_test",
     srcs = ["c_lang_test.c"],
+    copts = ["-std=c99"],
 )
 
 # ============================================================================

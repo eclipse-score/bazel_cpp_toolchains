@@ -18,7 +18,9 @@
 #include <cassert>
 #include <span>
 #include <concepts>
+#include <exception>
 #include <ranges>
+#include <type_traits>
 #include <vector>
 
 // Test 1: Concepts (simplified - basic constraint checking)

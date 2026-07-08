@@ -24,8 +24,8 @@ It exists to answer three practical needs:
 
 - provide a single Bazel-native way to declare Linux and QNX C/C++ toolchains,
 - keep package provenance, compiler flags, and platform constraints consistent,
-- validate those toolchains through an example workspace instead of relying on
-  ad hoc local setup.
+- validate those toolchains through a dedicated test workspace instead of
+  relying on ad hoc local setup.
 
 ## What The Repository Contains
 
@@ -38,7 +38,7 @@ them as `cc_toolchain` targets:
 - package metadata in `packages/`
 - generated-file templates in `templates/`
 - authentication helpers in `tools/`
-- an example validation workspace in `examples/`
+- a dedicated test workspace in `tests/`
 
 ## Supported Platform Families
 

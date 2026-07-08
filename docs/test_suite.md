@@ -13,15 +13,17 @@ All tests are located in the `tests/` directory of the repository.
 
 ## Quick Start
 
+All tests are defined in a separate Bazel workspace; therefore, Bazel commands must be run from the `tests/` directory.
+
 Run all tests:
 ```bash
-bazel test --config host_config_1 //tests/...
+bazel test --config x86_64-linux //...
 ```
 
 Run specific test suites:
 ```bash
-bazel test --config host_config_1 //tests/feature_verification:feature_verification_tests
-bazel test --config host_config_1 //tests/language_and_standards:language_and_standards_tests
+bazel test --config x86_64-linux //:feature_verification_tests
+bazel test --config x86_64-linux //:language_and_standards_tests
 ```
 
 ## Test Categories
@@ -48,7 +50,7 @@ These tests verify that specific toolchain features are correctly implemented an
 4. **`coverage_test`** - Code coverage instrumentation
    - Verifies code coverage instrumentation flags are applied
    - Provides multiple code paths for coverage analysis
-   - Can be analyzed with: `bazel coverage --combined_report=lcov //tests/feature_verification:coverage_test`
+   - Can be analyzed with: `bazel coverage --combined_report=lcov //feature_verification:coverage_test`
 
 5. **`pic_test`** - Position-Independent Code (`-fPIC`)
    - Tests -fPIC flag is correctly applied
@@ -73,12 +75,12 @@ These tests verify that specific toolchain features are correctly implemented an
 
 ```bash
 # All feature verification tests
-bazel test --config host_config_1 //tests/feature_verification:feature_verification_tests
+bazel test --config x86_64-linux //:feature_verification_tests
 
 # Individual tests
-bazel test --config host_config_1 //tests/feature_verification:defines_test
-bazel test --config host_config_1 //tests/feature_verification:pic_test
-bazel test --config host_config_1 //tests/feature_verification:pthread_test
+bazel test --config x86_64-linux //feature_verification:defines_test
+bazel test --config x86_64-linux //feature_verification:pic_test
+bazel test --config x86_64-linux //feature_verification:pthread_test
 ```
 
 #### Feature Coverage
@@ -159,12 +161,12 @@ These tests verify support for different programming languages and C++ standard 
 
 ```bash
 # All language and standards tests
-bazel test --config host_config_1 //tests/language_and_standards:language_and_standards_tests
+bazel test --config x86_64-linux //:language_and_standards_tests
 
 # Individual tests
-bazel test --config host_config_1 //tests/language_and_standards:c_lang_test
-bazel test --config host_config_1 //tests/language_and_standards:cpp11_test
-bazel test --config host_config_1 //tests/language_and_standards:cpp20_test
+bazel test --config x86_64-linux //language_and_standards:c_lang_test
+bazel test --config x86_64-linux //language_and_standards:cpp11_test
+bazel test --config x86_64-linux //language_and_standards:cpp20_test
 ```
 
 #### Compilation Flags
@@ -173,7 +175,7 @@ Each test is compiled with specific flags to enable the corresponding language s
 
 | Test | Compilation Flag | GCC Version Required |
 |------|------------------|----------------------|
-| c_lang_test | (default C) | Any (C99 support) |
+| c_lang_test | -std=c99 | Any (C99 support) |
 | cpp11_test | -std=c++11 | GCC 4.8+ |
 | cpp14_test | -std=c++14 | GCC 5+ |
 | cpp17_test | -std=c++17 | GCC 7+ |
@@ -185,56 +187,84 @@ Each test is compiled with specific flags to enable the corresponding language s
 
 ```bash
 # Run all tests
-bazel test --config host_config_1 //tests/...
+bazel test --config x86_64-linux //...
 
 # Run with verbose output
-bazel test --config host_config_1 --test_output=all //tests/feature_verification:defines_test
+bazel test --config x86_64-linux --test_output=all //feature_verification:defines_test
 
 # Run specific test directory
-bazel test --config host_config_1 //tests/feature_verification/...
-bazel test --config host_config_1 //tests/language_and_standards/...
+bazel test --config x86_64-linux //feature_verification/...
+bazel test --config x86_64-linux //language_and_standards/...
 ```
 
 ### Platform-Specific Testing
 
-#### Linux x86_64 (Default Host)
+Bazel `test` compiles a test binary **and executes it**. A binary built for a
+target platform can only be executed on that target platform (or a
+binary-compatible one). This has a direct consequence for how the suites are
+run:
+
+- **`bazel test` is only valid when the execution machine matches the target
+  platform.** When the host equals the target — for example running the
+  `x86_64-linux` config on an `x86_64` Linux host — the binaries build and run
+  directly on the host.
+- **For every other configuration the tests must be executed on the
+  corresponding target platform.** On a non-matching host, use `bazel build` to
+  verify only compilation and linking, then deploy and run the resulting
+  binaries on the target — or invoke `bazel test` directly from that target
+  platform.
+
+#### Host equals target (e.g. Linux x86_64)
 
 ```bash
-# All tests can execute on Linux host
-bazel test --config host_config_1 //tests/...
+# Host is the target: binaries build and execute locally
+bazel test --config x86_64-linux //...
 ```
 
-#### Cross-Compilation (QNX ARM)
+#### Cross configurations (QNX, aarch64-linux, runtime-specific)
 
-Feature verification tests are marked with `tags = ["manual"]` to prevent execution attempts on incompatible architectures:
+Configs such as `x86_64-qnx`, `aarch64-qnx`, `aarch64-linux`,
+`x86_64-linux-autosd10`, and `aarch64-linux-ebclfsa` target platforms that
+differ from a typical x86_64 Linux host. Do **not** run `bazel test` for these
+configs on the host — the produced binaries are not executable there.
 
 ```bash
-# Compile (don't execute) for QNX ARM
-bazel build --config target_config_1 //tests/feature_verification:defines_test
-bazel build --config target_config_1 //tests/feature_verification:include_paths_test
+# On the host: verify compilation and linking only (no execution)
+bazel build --config x86_64-qnx //...
+bazel build --config aarch64-qnx //...
+bazel build --config aarch64-linux //...
 
-# Run only executable (native) tests on QNX config
-bazel test --config target_config_1 //tests/language_and_standards:language_and_standards_tests
+# On the matching target platform: build and execute the tests
+bazel test --config x86_64-qnx //...
 ```
+
+> IMPORTANT: `x86_64-qnx` tests must be executed on an `x86_64` QNX system,
+> `aarch64-qnx` tests on an `aarch64` QNX system, `aarch64-linux` tests on an
+> `aarch64` Linux system, and so on. Running them on a mismatched host will
+> fail because the test binaries cannot be executed there.
 
 ## Expected Test Results
 
-### Successful Run
+The counts below assume execution on a matching target platform (or the host
+when the host equals the target).
+
+### All tests on the host (`//...`)
 ```
 Executed 13 tests: 13 passed
 ```
 
 ### Feature Verification Tests
-- All 8 tests compile and link successfully
-- Cross-compilation tests marked as "manual" to prevent execution on incompatible hosts
-- Expected output:
+- The `feature_verification_tests` suite aggregates 7 tests. `warnings_test`
+  is defined separately and is picked up by wildcard targets such as
+  `//feature_verification/...`.
+- Expected output for the suite:
   ```
-  Executed 8 tests: 8 passed
+  Executed 7 tests: 7 passed
   ```
 
 ### Language and Standards Tests
-- All 5 tests execute and pass on Linux x86_64
-- Each test verifies the appropriate language features and standard version
+- All 5 tests pass when executed on a matching target platform.
+- Each test verifies the appropriate language features and standard version.
 - Expected output:
   ```
   Executed 5 tests: 5 passed
@@ -292,10 +322,16 @@ g++ --version
 
 **Issue:** Cross-compilation tests fail with architecture mismatch
 
+This happens when `bazel test` is run for a target platform on a mismatched
+host. Build only on the host, then execute the tests on the matching target
+platform:
+
 ```bash
-# Solution: Use bazel build instead of bazel test, or skip manual tests
-bazel build --config target_config_1 //tests/feature_verification:defines_test
-bazel test --config host_config_1 --test_tag_filters=-manual //tests/...
+# On the host: build only (no execution)
+bazel build --config aarch64-qnx //...
+
+# On the matching target platform: build and execute
+bazel test --config aarch64-qnx //...
 ```
 
 ### Test Execution Failures
@@ -304,7 +340,7 @@ bazel test --config host_config_1 --test_tag_filters=-manual //tests/...
 
 ```bash
 # Solution: Get detailed timeout information
-bazel test --config host_config_1 --test_verbose_timeout_warnings //tests/...
+bazel test --config x86_64-linux --test_verbose_timeout_warnings //...
 ```
 
 **Issue:** Cannot find pthread library
@@ -318,7 +354,7 @@ sudo apt-get install libpthread-stubs0-dev
 
 ```bash
 # Solution: Run with full output for debugging
-bazel test --config host_config_1 --test_output=all //tests/language_and_standards:cpp20_test
+bazel test --config x86_64-linux --test_output=all //language_and_standards:cpp20_test
 ```
 
 ### Compiler Version Issues
@@ -347,7 +383,6 @@ g++ --version
        name = "my_feature_test",
        srcs = ["my_feature_test.cpp"],
        copts = ["-DTEST_FEATURE=1"],
-       tags = ["manual"],  # For cross-compilation targets
        deps = [":feature_test_lib"],
    )
    ```
@@ -374,11 +409,11 @@ The test suite can be integrated into continuous integration pipelines:
 
 ```bash
 # Full validation (native + cross-compilation builds)
-bazel test --config host_config_1 //tests/language_and_standards/...
-bazel build --config target_config_1 //tests/feature_verification/...
+bazel test --config x86_64-linux //language_and_standards/...
+bazel build --config aarch64-qnx //feature_verification/...
 
 # Generate test reports
-bazel test --config host_config_1 --test_summary=detailed //tests/...
+bazel test --config x86_64-linux --test_summary=detailed //...
 ```
 
 ## Performance Characteristics
@@ -390,6 +425,5 @@ bazel test --config host_config_1 --test_summary=detailed //tests/...
 ## Further Reading
 
 - [Bazel C++ Toolchain Overview](overview.md)
-- [Toolchain Features](features.md)
 - [Toolchain Generation Flow](generation_flow.md)
 - [Repository Layout](repository_layout.md)

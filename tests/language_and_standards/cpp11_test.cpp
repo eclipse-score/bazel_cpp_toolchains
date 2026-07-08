@@ -17,6 +17,7 @@
 #include <iostream>
 #include <memory>
 #include <cassert>
+#include <utility>
 #include <vector>
 
 // Test 1: auto keyword
