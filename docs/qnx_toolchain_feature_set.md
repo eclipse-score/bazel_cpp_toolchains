@@ -65,7 +65,7 @@ injection. Every feature below is in one of three states:
 
 | Feature | Purpose | Required | Classification | Notes |
 |---|---|---|---|---|
-| `default_link_flags` | Hardening, `--as-needed`, conditional `-lqnxnoexcept`, libc++/libm | Yes | Explicit | In `features` list. |
+| `default_link_flags` | Hardening, `--as-needed`, libc++/libm | Yes | Explicit | In `features` list. |
 | `runtime_library_search_directories` | Emit `-Wl,-rpath,$EXEC_ORIGIN/...` | Yes | Explicit | Custom rpath handling in `features` list. |
 | `user_link_flags` | Pass through per-target `linkopts` | Yes | **Injected** | Legacy default. Distinct from our `extra_link_flags`. |
 | `output_execpath_flags` | `-o` for link output | Yes | **Injected** | Legacy default. |
@@ -108,7 +108,7 @@ injection. Every feature below is in one of three states:
 | Feature | Purpose | Required | Classification | Notes |
 |---|---|---|---|---|
 | `dbg` / `opt` | Build-mode selectors | Yes | Explicit | |
-| `qnx_license_env_info` | Inject QNX license environment info | Yes | Explicit | `use_license_env_info` feature. |
+| `qnx_license_env_info` | Inject QNX license environment info | Yes | Explicit | `qnx_license_env_info` feature. |
 | `extra_compile_flags` / `extra_link_flags` | Injection point for user-supplied flags | Yes | Explicit | |
 | `minimal_warnings` / `strict_warnings` / `all_wall_warnings` / `warnings_as_errors` | Warning-level control | Optional | Explicit | |
 

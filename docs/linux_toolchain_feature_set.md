@@ -46,7 +46,7 @@ features we declare. Every feature below is therefore in one of three states:
 
 | Feature | Purpose | Required | Classification | Notes |
 |---|---|---|---|---|
-| `default_compile_flags` | Base compile flags (`-fPIC`, hardening, arch, build-mode variants) | Yes | Explicit | In `features` list. |
+| `default_compile_flags` | Base compile flags (hardening, arch, build-mode variants) | Yes | Explicit | In `features` list. |
 | `unfiltered_compile_flags` | Redact `__DATE__`/`__TIME__`/`__TIMESTAMP__` for reproducibility | Yes | Explicit | In `features` list. |
 | `include_paths` | Emit `-I`, `-iquote`, `-isystem` | Yes | **Injected** | Legacy default. |
 | `preprocessor_defines` | Emit `-D` defines | Yes | **Injected** | Legacy default. |
@@ -54,14 +54,14 @@ features we declare. Every feature below is therefore in one of three states:
 | `compiler_input_flags` | `-c` and source input | Yes | **Injected** | Legacy default. |
 | `compiler_output_flags` | `-o` / `-S` / `-E` output | Yes | **Injected** | Legacy default. |
 | `dependency_file` | Generate `.d` header deps (`-MD`) | Yes | **Injected** | Legacy default. Required for correct incremental builds. |
-| `pic` | Emit `-fPIC` from the `pic` build variable | Yes | **Injected** + Implicit | Legacy default; `-fPIC` is also baked into `default_compile_flags`. |
+| `pic` | Emit `-fPIC` from the `pic` build variable | Yes | **Injected** | Legacy default. |
 | `random_seed` | Deterministic `-frandom-seed` per output | Optional | Not provided | No feature; relies on compiler default. |
 
 ### Linking
 
 | Feature | Purpose | Required | Classification | Notes |
 |---|---|---|---|---|
-| `default_link_flags` | Hardening, `--as-needed`, `--gc-sections`, libc++/libm | Yes | Explicit | In `features` list. |
+| `default_link_flags` | Base link flags (`-lm`, `-ldl`, `-lrt`, `-static-libstdc++`, `-static-libgcc`, and opt-only `-Wl,--gc-sections`) | Yes | Explicit | In `features` list. |
 | `user_link_flags` | Pass through per-target `linkopts` | Yes | **Injected** | Legacy default. Distinct from our `extra_link_flags`. |
 | `output_execpath_flags` | `-o` for link output | Yes | **Injected** | Legacy default. |
 | `library_search_directories` | Emit `-L` search paths | Yes | **Injected** | Legacy default. |
