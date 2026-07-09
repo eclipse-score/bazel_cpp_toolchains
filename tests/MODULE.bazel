@@ -38,7 +38,7 @@ bazel_dep(name = "googletest", version = "1.17.0")
 # *******************************************************************************
 bazel_dep(
     name = "score_bazel_cpp_toolchains",
-    version = "0.4.0",
+    version = "0.5.4",
 )
 local_path_override(
     module_name = "score_bazel_cpp_toolchains",

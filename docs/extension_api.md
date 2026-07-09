@@ -23,7 +23,7 @@ Consumers interact with this repository through the `gcc` module extension in
 Typical usage looks like this:
 
 ```starlark
-bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.4.0")
+bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.5.4")
 
 gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc")
 
