@@ -17,7 +17,7 @@
 
 ## Integration Contract
 
-This section defines the requirements and constraints for using `bazel_cpp_toolchains`
+This section defines the requirements and constraints for using `score_bazel_cpp_toolchains`
 with QNX toolchains in your Bazel workspace.
 
 ### Obtaining QNX SDP and Licenses
@@ -40,7 +40,7 @@ configuration details, see [License Configuration](#licensing).
 
 ### Local Installation Layout
 
-The `bazel_cpp_toolchains` module expects QNX SDP packages to follow the standard
+The `score_bazel_cpp_toolchains` module expects QNX SDP packages to follow the standard
 QNX directory structure after extraction. A typical installation looks like:
 
 ```
@@ -165,7 +165,7 @@ int main() {
 
 Create a `BUILD` file with a simple target:
 
-```python
+```starlark
 cc_binary(
     name = "hello_qnx",
     srcs = ["hello_qnx.c"],
@@ -223,7 +223,7 @@ qfile bazel-bin/hello_qnx
 
 #### 5. Troubleshooting
 
-- **License not found**: Ensure `QNXLM_LICENSE_FILE` is set and points to a valid license file
+- **License not found**: Ensure `QNX_SHARED_LICENSE_FILE` is set and points to a valid license file
 - **QNX_HOST/QNX_TARGET not set**: The toolchain's `sdp_env` feature sets these automatically;
   if you see errors, verify the SDP package path is correct
 - **Permission denied on /var/tmp**: Ensure `--sandbox_writable_path=/var/tmp` is in your `.bazelrc`
@@ -253,12 +253,7 @@ You can configure the license path in multiple ways, in order of precedence:
 #### 1. Environment Variable (Runtime)
 
 The generated toolchain sets `QNX_SHARED_LICENSE_FILE` for compile/link actions, based on the `license_path` toolchain attribute.
-If you need to use the vendor-provided `QNXLM_LICENSE_FILE` mechanism instead, set it in your shell:
-
-
-```bash
-export QNXLM_LICENSE_FILE=/path/to/your/license/file
-```
+If you need to use the vendor-provided `QNXLM_LICENSE_FILE` mechanism instead, set it in your shell `export QNXLM_LICENSE_FILE=/path/to/your/license/file` or ensure it is provided to Bazel actions (e.g. via `--action_env=QNXLM_LICENSE_FILE=...`; when `--incompatible_strict_action_env` is enabled, exporting it in your shell alone is not sufficient).
 
 This is useful when the license is not installed in the default location.
 
