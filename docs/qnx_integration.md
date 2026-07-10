@@ -15,10 +15,122 @@
 
 # QNX Integration
 
-## Integration Contract
+## Overview
 
-This section defines the requirements and constraints for using `score_bazel_cpp_toolchains`
-with QNX toolchains in your Bazel workspace.
+This guide covers QNX integration with `score_bazel_cpp_toolchains` and is organized for two audiences:
+
+- **Maintainers of Bazel modules**: If you want to add QNX support to your module, see [Adding QNX Support to Your Module](#adding-qnx-support-to-your-module). This section includes comprehensive integration steps and technical reference.
+- **Users and contributors**: If you're working on a module that already has QNX configured, see [Quick Start: Using QNX](#quick-start-using-qnx).
+- **Module maintainers documenting for contributors**: See [Documenting QNX Support](#documenting-qnx-support) for a template of what your users need to know.
+
+---
+
+## Adding QNX Support to Your Module
+
+This section is for maintainers who want to integrate QNX toolchain support into their Bazel modules.
+
+### Prerequisites
+
+Before integrating QNX support, ensure:
+
+1. **QNX SDP access**: Access to URL for downloading and extracting the QNX Software Development Platform (SDP) from https://www.qnx.com/developers/downloads.html
+2. **Valid QNX license**: A QNX license file accessible at a known location (see [Licensing](#licensing) section)
+3. **Bazel installed**: Version 8.0 or later
+4. **Linux host**: Currently tested on Linux build hosts (macOS and Windows are not supported.)
+
+### Integration Steps
+
+#### Step 1: Declare the Toolchain Dependency
+
+In your module's `MODULE.bazel`:
+
+```starlark
+bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.5.4")
+
+gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc")
+
+gcc.toolchain(
+    name = "qnx_toolchain",
+    target_cpu = "x86_64",                      # or "aarch64"
+    target_os = "qnx",
+    sdp_version = "8.0.0",                      # match your SDP version but keep in mind proper platform constraint must exist otherwise toolchain resolution will fail.
+    use_default_package = True,                 # only if you're using reference integration QNX SDP package provided by QNX for S-CORE.
+    license_path = "/path/to/your/qnx/license", # default location `/opt/score_qnx/license/licenses`
+)
+
+use_repo(gcc, "qnx_toolchain")
+```
+
+For other target architectures and SDP versions, adjust `target_cpu` and `sdp_version` accordingly.
+
+#### Step 2: Add Bazel Configuration
+
+Create or update `.bazelrc` in your repository root:
+
+```text
+# QNX target configurations
+build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:x86_64-qnx --extra_toolchains=@qnx_toolchain//:x86_64-qnx-sdp_8.0.0
+build:x86_64-qnx --sandbox_writable_path=/var/tmp
+
+build:aarch64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
+build:aarch64-qnx --extra_toolchains=@qnx_toolchain//:aarch64-qnx-sdp_8.0.0
+build:aarch64-qnx --sandbox_writable_path=/var/tmp
+```
+
+> NOTE: Configuration variables are just an example, it's not mandatory to use exact configuration variables.
+
+#### Step 3: Test the Integration
+
+Create a simple test in your repository root:
+
+```bash
+# Test x86_64-qnx build
+bazel build --config=x86_64-qnx //your/target:name
+
+# Test aarch64-qnx build
+bazel build --config=aarch64-qnx //your/target:name
+```
+
+#### Step 4: Add to CI/CD
+
+Update your CI/CD pipeline to test QNX configurations:
+
+```yaml
+# Example for GitHub Actions
+- name: Build for QNX
+  run: |
+    bazel build --config=x86_64-qnx //...
+    bazel test --config=x86_64-qnx //...
+```
+
+> NOTE: For running tests, host platform must be QNX or use `--run_under=`. Check Bazel documentation for details.
+
+### Common Integration Patterns
+
+**Multi-target Modules**: If your module targets multiple architectures:
+
+```starlark
+gcc.toolchain(
+    name = "qnx_x86_64",
+    target_cpu = "x86_64",
+    target_os = "qnx",
+    sdp_version = "8.0.0",
+    use_default_package = True,
+)
+
+gcc.toolchain(
+    name = "qnx_aarch64",
+    target_cpu = "aarch64",
+    target_os = "qnx",
+    sdp_version = "7.1.0",
+    use_default_package = True,
+)
+```
+
+---
+
+## Reference: Technical Details for QNX Integration
 
 ### Obtaining QNX SDP and Licenses
 
@@ -35,10 +147,9 @@ contain the host tools (compiler, linker, archiver) and target libraries/headers
 
 #### Licensing
 
-QNX toolchains require a valid QNX license to execute. For complete license
-configuration details, see [License Configuration](#licensing).
+QNX toolchains require a valid QNX license to execute.
 
-### Local Installation Layout
+### SDP Installation Layout
 
 The `score_bazel_cpp_toolchains` module expects QNX SDP packages to follow the standard
 QNX directory structure after extraction. A typical installation looks like:
@@ -74,61 +185,10 @@ Where `{TRIPLE}` is the target triple, e.g. `aarch64-unknown-nto-qnx7.1.0`.
 The toolchain locates these directories via the `QNX_HOST` and `QNX_TARGET` environment
 variables, which are set automatically by the toolchain's `sdp_env` feature.
 
-### Required Environment Variables and Bazel Configuration
-
-#### Environment Variables
+### Environment Variables
 
 The QNX toolchain automatically manages `QNX_HOST` and `QNX_TARGET` through the
 `sdp_env` feature and does not require explicit user configuration.
-
-#### User `.bazelrc` Configuration
-
-To use QNX toolchains in your workspace, add configuration entries for your target
-platform. Add the following to your `.bazelrc` or `.bazelrc.local`:
-
-For **x86_64-qnx**:
-```text
-build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
-build:x86_64-qnx --extra_toolchains=@qnx_toolchain//:x86_64-qnx-sdp_8.0.0
-build:x86_64-qnx --sandbox_writable_path=/var/tmp
-```
-
-For **aarch64-qnx**:
-```text
-build:aarch64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
-build:aarch64-qnx --extra_toolchains=@qnx_toolchain//:aarch64-qnx-sdp_8.0.0
-build:aarch64-qnx --sandbox_writable_path=/var/tmp
-```
-
-**Note:** Replace `@qnx_toolchain` with your actual repository name from 
-`use_repo(gcc, "qnx_toolchain")` in your `MODULE.bazel`.
-
-If using the credential helper for authenticated downloads:
-```text
-common --credential_helper=*.qnx.com=/path/to/qnx_credential_helper.py
-```
-
-#### Toolchain Configuration in MODULE.bazel
-
-Declare your QNX toolchain in `MODULE.bazel`:
-
-```starlark
-bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.5.4")
-
-gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc")
-
-gcc.toolchain(
-    name = "qnx_toolchain",
-    target_cpu = "x86_64",
-    target_os = "qnx",
-    sdp_version = "8.0.0",
-    use_default_package = True,
-)
-
-use_repo(gcc, "qnx_toolchain")
-```
-
-See [License Configuration](#licensing) for license-specific setup.
 
 ### Bazel Sandbox and Writable Paths
 
@@ -193,7 +253,7 @@ bazel build \
 ```
 
 **Tip:** If you've defined `build:<name>` configs in your `.bazelrc` (as shown in 
-[User `.bazelrc` Configuration](#user-bazelrc-configuration)), you can simplify to:
+[Step 2: Add Bazel Configuration](#step-2-add-bazel-configuration)), you can simplify to:
 ```bash
 bazel build --config=x86_64-qnx //:hello_qnx
 bazel build --config=aarch64-qnx //:hello_qnx
@@ -230,10 +290,86 @@ qfile bazel-bin/hello_qnx
 - **Compilation fails with QCC errors**: Verify the QCC compiler binary exists in the expected location
   and the SDP package structure is intact
 
+---
+
+## Quick Start: Using QNX
+
+If your module already has QNX support configured, follow these minimal steps to build for QNX.
+
+### Prerequisites
+
+1. **Access to QNX SDP package**: Your module downloads the SDP package automatically; you just need network access to the QNX repository
+2. **Valid QNX license**: Ensure the license file is accessible at `/opt/score_qnx/license/licenses` (or a custom path configured for your module)
+3. **Bazel installed**: Version 8.0 or later
+
+> NOTE: Access to QNX repository is only needed in case you're using reference integration QNX SDP. In case of enterprise package please contact your QNX representative. 
+
+### Building for QNX
+
+Once your module has QNX configured (see your module's documentation for setup), build with:
+
+```bash
+# For x86_64 target
+bazel build --config=x86_64-qnx //...
+
+# For aarch64 target
+bazel build --config=aarch64-qnx //...
+```
+
+### Running Tests
+
+Tests can only run on a QNX platform or with `--run_under=`. For builds only:
+
+```bash
+# Build only (no test execution on non-QNX hosts)
+bazel build --config=x86_64-qnx //...
+```
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Build fails with license errors | Check that QNX license is at `/opt/score_qnx/license/licenses` or ask your module maintainer for license configuration |
+| Bazel fails to download SDP | Verify you have network access to https://www.qnx.com and check if credentials are configured (see your module's documentation) |
+| Permission denied on `/var/tmp` | This is typically auto-configured; if you see errors, check your module's `.bazelrc` setup |
+
+For detailed information about the toolchain, see [Reference: Technical Details](#reference-technical-details-for-qnx-integration).
+
+---
+
+## Credential Helper
+
+Authenticated QNX downloads are handled by the standalone script
+`tools/qnx_credential_helper.py`.
+
+Its purpose is to translate locally available QNX credentials into the cookie
+header format expected by `qnx.com` download endpoints. Bazel executes it via
+`--credential_helper`;
+
+Supported registration patterns include:
+
+```text
+common --credential_helper=*.qnx.com=/absolute/path/to/qnx_credential_helper.py
+common --credential_helper=*.qnx.com=qnx_credential_helper.py
+common --credential_helper=*.qnx.com=%workspace%/path/to/qnx_credential_helper.py
+```
+
+The helper reads credentials in this order:
+
+- `SCORE_QNX_USER` and `SCORE_QNX_PASSWORD`
+- `~/.netrc` entry for `qnx.com`
+
+---
+
 ## Licensing
 
 QNX toolchains require a valid license to execute at build time. This section covers
 all license-related configuration options.
+
+### Obtaining a QNX License
+
+- If you don't have a QNX license, obtain one from **QNX Licensing Portal**: https://www.qnx.com/
+- If you want to use QNX free community license **QNX Everywhere**: https://www.qnx.com/developers/docs/qnxeverywhere/index.html
 
 ### License File Location
 
@@ -304,31 +440,101 @@ The relevant `gcc.toolchain(...)` attributes for license configuration are:
 - **`license_info_variable`**: Custom environment variable name for license configuration
 - **`license_info_url`**: URL for license server or remote license resource
 
-### Obtaining a QNX License
+---
 
-If you don't have a QNX license, obtain one from:
+## Documenting QNX Support
 
-- **QNX Licensing Portal**: https://www.qnx.com/
-- **Contact QNX Sales**: https://www.qnx.com/company/contact-us/
+This section is for module maintainers who want to document QNX support for their contributors.
 
-## Credential Helper
+### Why This Matters
 
-Authenticated QNX downloads are handled by the standalone script
-`tools/qnx_credential_helper.py`.
+When your module has QNX support integrated, contributors cloning your repository need clear instructions on how to:
+- Set up their local environment
+- Run builds and tests for QNX targets
+- Troubleshoot common issues
 
-Its purpose is to translate locally available QNX credentials into the cookie
-header format expected by `qnx.com` download endpoints. Bazel executes it via
-`--credential_helper`;
+This guide provides a template you can adapt and include in your module's documentation.
 
-Supported registration patterns include:
+### Recommended Documentation Template
 
-```text
-common --credential_helper=*.qnx.com=/absolute/path/to/qnx_credential_helper.py
-common --credential_helper=*.qnx.com=qnx_credential_helper.py
-common --credential_helper=*.qnx.com=%workspace%/path/to/qnx_credential_helper.py
+Create a file in your repository (e.g., `docs/QNX_SETUP.md` or add to `CONTRIBUTING.md`) with the following content, customized for your module:
+
+---
+
+#### **QNX Setup for Contributors**
+
+This module supports building for QNX targets. Follow these steps to set up your environment.
+
+##### Prerequisites
+
+1. **Access to QNX SDP**
+   - Verify that you have access to QNX SDP.
+   - Extract the content for verification.
+
+2. **Obtain QNX License**
+   - Request from: https://www.qnx.com/company/contact-us/ (or contact your Project Lead)
+   - Store the license file at: `/opt/score_qnx/license/licenses` (or configure custom path)
+
+3. **Install Bazel**
+   - Version 8.0 or later
+   - Visit: https://bazel.build/install
+
+##### Building for QNX
+
+Build for your target architecture:
+
+```bash
+# x86_64-qnx
+bazel build --config=x86_64-qnx //...
+
+# aarch64-qnx
+bazel build --config=aarch64-qnx //...
 ```
 
-The helper reads credentials in this order:
+##### Running Tests for QNX (on QNX platform)
 
-- `SCORE_QNX_USER` and `SCORE_QNX_PASSWORD`
-- `~/.netrc` entry for `qnx.com`
+```bash
+# x86_64-qnx
+bazel test --config=x86_64-qnx //...
+
+# aarch64-qnx
+bazel test --config=aarch64-qnx //...
+```
+
+##### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| `License not found` | Verify `QNX_SHARED_LICENSE_FILE` points to valid license file, or check default path `/opt/score_qnx/license/licenses` |
+| `QNX_HOST/QNX_TARGET not set` | Ensure SDP is properly extracted; the toolchain sets these automatically if the path is correct |
+| `Permission denied on /var/tmp` | Ensure `--sandbox_writable_path=/var/tmp` is in `.bazelrc` or `.bazelrc.local` |
+| `qcc: command not found` | Verify QNX_HOST points to the correct host tools directory within your SDP |
+
+---
+
+### Customization Checklist
+
+When adapting the template above for your module, consider:
+
+- [ ] **Replace SDP version**: Update `8.0.0` to your module's target SDP version
+- [ ] **Update paths**: Adapt default paths and examples to your environment conventions
+- [ ] **Update configuration variables**: Adapt configuration variables to your moodule configurations
+- [ ] **Add module-specific targets**: Include examples of building your actual targets, not just generic `//...`
+- [ ] **CI/CD documentation**: Document how QNX is tested in your CI pipeline (GitHub Actions, GitLab CI, etc.)
+- [ ] **Known limitations**: Note any features not yet supported on QNX
+- [ ] **Additional resources**: Link to your module's main README, contribution guidelines, etc.
+- [ ] **License details**: If your module requires special license setup, document it here
+- [ ] **Contact information**: Provide a way for contributors to ask questions (GitHub issues, Slack channel, etc.)
+
+### Integration into Your Repository
+
+**Option 1: Separate documentation file**
+Create `docs/QNX_SETUP.md` with detailed QNX setup instructions.
+
+**Option 2: Embedded in CONTRIBUTING.md**
+Add a "QNX Setup" section to your existing contribution guidelines.
+
+**Option 3: Embedded in README.md**
+Add a brief section with a link to more detailed QNX documentation elsewhere.
+
+**Recommendation**: Start with Option 1 (separate file) for clarity, then reference it from `CONTRIBUTING.md` or `README.md`.
