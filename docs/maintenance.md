@@ -37,6 +37,42 @@ centralizes special sysroot flags in one place.
 Use explicit `gcc.sdp(...)` declarations when package metadata is local,
 experimental, or intentionally not part of the default support matrix.
 
+## Toolchain Feature Wiring
+
+Both the Linux and QNX toolchain configs enable **`no_legacy_features`**, so
+Bazel injects nothing implicitly — every compile/link/archive flag must come
+from a feature (or wiring) declared in the template. See
+[docs/features.md](features.md) for the full feature list. Not everything is a
+feature, though; some behavior is provided by other toolchain wiring:
+
+- **Compiler / archiver / strip tools** are bound through `action_config`
+  entries (`assemble`, `c_compile`, `cpp_compile`, the link actions, and
+  `cpp_link_static_library`), not `tool_paths`. The static-library action
+  `implies = ["archiver_flags"]`, so the `archiver_flags` feature only supplies
+  the flags while the `action_config` supplies the `ar` binary.
+- **`gcov`** is provided via `tool_paths` (`gcov_wrapper`).
+- **Sysroot (Linux)** — the sysroot path is passed as `builtin_sysroot` to
+  `create_cc_toolchain_config_info`; compile-time header resolution relies on
+  `cxx_builtin_include_directories`, so no `--sysroot` is needed at compile.
+  Link-time `--sysroot` / `-Wl,--sysroot` is emitted by the custom
+  `sysroot_link_flags` feature. There is intentionally no legacy `sysroot`
+  compile feature.
+- **Sysroot / system includes (QNX)** — QNX does not use `builtin_sysroot`;
+  system include roots come from `cxx_builtin_include_directories` (SDP paths),
+  and the SDP environment is injected by the `sdp_env` feature.
+
+When adding or auditing a feature, classify how each required behavior is
+provided: an **explicit feature** in the `features` list, **tool/sysroot wiring**
+as above, or **flags baked into another feature** (e.g. `-fPIC` is an explicit
+`pic` feature on Linux but part of `default_compile_flags` on QNX). Under
+`no_legacy_features` nothing is supplied automatically, so a missing behavior
+means a broken build rather than a silent fallback.
+
+> **Static archives:** `fully_static_link` (`-static`) requires static system
+> libraries (`libc.a`, `libstdc++.a`, ...). Toolchains that ship only shared
+> libraries (e.g. AutoSD) cannot link fully static binaries, so that feature is
+> opt-in and its test is marked incompatible with such platforms.
+
 ## Common Gotchas
 
 - runtime-specific toolchains may need extra include and link flags that do not
