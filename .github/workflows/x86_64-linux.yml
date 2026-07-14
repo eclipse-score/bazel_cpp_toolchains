@@ -42,3 +42,6 @@ jobs:
       - name: Bazel Test
         run: |
           bazel test --config=x86_64-linux -- //:language_and_standards_tests //:feature_verification_tests
+      - name: Bazel Test (force_pic)
+        run: |
+          bazel test --config=x86_64-linux --force_pic -- //feature_verification/opt_in_features:force_pic_flags_test
