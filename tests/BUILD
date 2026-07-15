@@ -52,3 +52,14 @@ test_suite(
         "//feature_verification:whole_archive_test",
     ],
 )
+
+# ============================================================================
+# Test Suite for Explicit-Feature Regression Guardrails
+# ============================================================================
+
+test_suite(
+    name = "guardrail_tests",
+    tests = [
+        "//guardrails:no_legacy_features_guard_test",
+    ],
+)

@@ -39,3 +39,6 @@ jobs:
       - name: Bazel Build (basic)
         run: |
           bazel build --config=aarch64-linux -- //:language_and_standards_tests //:feature_verification_tests
+      - name: Guardrail (no legacy features)
+        run: |
+          bazel test --config=aarch64-linux -- //:guardrail_tests

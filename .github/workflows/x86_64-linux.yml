@@ -39,9 +39,12 @@ jobs:
       - name: Bazel Build (basic)
         run: |
           bazel build --lockfile_mode=error --config=x86_64-linux -- //:language_and_standards_tests //:feature_verification_tests
+      - name: Guardrail (no legacy features)
+        run: |
+          bazel test --lockfile_mode=error --config=x86_64-linux -- //:guardrail_tests
       - name: Bazel Test
         run: |
-          bazel test --config=x86_64-linux -- //:language_and_standards_tests //:feature_verification_tests
+          bazel test --lockfile_mode=error --config=x86_64-linux -- //:language_and_standards_tests //:feature_verification_tests
       - name: Bazel Test (force_pic)
         run: |
-          bazel test --config=x86_64-linux --force_pic -- //feature_verification/opt_in_features:force_pic_flags_test
+          bazel test --lockfile_mode=error --config=x86_64-linux --force_pic -- //feature_verification/opt_in_features:force_pic_flags_test

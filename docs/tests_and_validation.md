@@ -50,6 +50,15 @@ generated toolchains and platforms.
 Defines the `feature_verification_tests` and `language_and_standards_tests`
 test suites that aggregate the individual test targets.
 
+`tests/guardrails/`
+
+Holds the explicit-feature regression guardrail
+(`no_legacy_features_guard_test`), aggregated by the `guardrail_tests` suite in
+`tests/BUILD`. It fails as a test if the active toolchain regresses to relying
+on Bazel's implicit legacy C++ features (i.e. loses the `no_legacy_features`
+contract). See `tests/guardrails/README.md` for details and how to interpret
+failures.
+
 `tests/feature_verification/`
 
 C++ targets that verify toolchain features such as preprocessor defines,
