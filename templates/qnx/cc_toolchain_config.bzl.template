@@ -337,7 +337,7 @@ def _impl(ctx):
 
     # Core linking features
     user_link_flags_feature = feature(
-        name = "user_link_flags_feature",
+        name = "user_link_flags",
         enabled = True,
         flag_sets = [
             flag_set(
