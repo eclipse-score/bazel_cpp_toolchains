@@ -55,7 +55,7 @@ enabled by default.
 ## Linking / archiving
 - **`archiver_flags`** (both) — `ar` flags (`rcsD`) and the object-file list for
   static archives.
-- **`user_link_flags`** (Linux) / **`user_link_flags_feature`** (QNX) — Passes
+- **`user_link_flags`** (both) — Passes
   through user-supplied link flags (`linkopts`).
 - **`linker_param_file`** (both) — Uses `@param_file` for linker/archiver args.
 - **`default_link_flags`** (both) — Default/hardening link flags (exact flags
