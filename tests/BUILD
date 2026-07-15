@@ -40,10 +40,15 @@ test_suite(
     tests = [
         "//feature_verification:coverage_test",
         "//feature_verification:defines_test",
+        "//feature_verification:fully_static_link_test",
+        "//feature_verification:include_dir_test",
         "//feature_verification:include_paths_test",
         "//feature_verification:multifile_test",
         "//feature_verification:pic_test",
+        "//feature_verification:preprocessor_defines_test",
         "//feature_verification:pthread_test",
+        "//feature_verification:random_seed_test",
+        "//feature_verification:user_link_flags_test",
         "//feature_verification:whole_archive_test",
     ],
 )

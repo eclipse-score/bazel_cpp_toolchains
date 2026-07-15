@@ -24,6 +24,7 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "flag_set",
     "tool",
     "tool_path",
+    "variable_with_value",
     "with_feature_set",
 )
 load("@rules_cc//cc:defs.bzl", "cc_common", "CcToolchainConfigInfo")
@@ -84,6 +85,8 @@ all_actions = all_compile_actions + all_link_actions + [
 def _impl(ctx):
     dbg_feature = feature(name = "dbg")
     opt_feature = feature(name = "opt")
+
+    no_legacy_features_feature = feature(name = "no_legacy_features", enabled = True)
 
     # Temp solution until we do not add feature injection
     gnu11_feature = feature(name = "gnu11")
@@ -605,6 +608,554 @@ def _impl(ctx):
 
     supports_pic_feature = feature(name = "supports_pic", enabled = True)
 
+    pic_feature = feature(
+        name = "pic",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                    ACTION_NAMES.cpp_module_compile,
+                ],
+                flag_groups = [
+                    flag_group(flags = ["-fPIC"], expand_if_available = "pic"),
+                ],
+            ),
+        ],
+    )
+
+    user_compile_flags_feature = feature(
+        name = "user_compile_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "user_compile_flags",
+                        flags = ["%{user_compile_flags}"],
+                        expand_if_available = "user_compile_flags",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    random_seed_feature = feature(
+        name = "random_seed",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                ],
+                flag_groups = [
+                    flag_group(
+                        expand_if_available = "output_file",
+                        flags = ["-frandom-seed=%{output_file}"],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    include_paths_feature = feature(
+        name = "include_paths",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "quote_include_paths",
+                        flags = ["-iquote", "%{quote_include_paths}"],
+                        expand_if_available = "quote_include_paths",
+                    ),
+                ],
+            ),
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "include_paths",
+                        flags = ["-I%{include_paths}"],
+                        expand_if_available = "include_paths",
+                    ),
+                ],
+            ),
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "system_include_paths",
+                        flags = ["-isystem", "%{system_include_paths}"],
+                        expand_if_available = "system_include_paths",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    preprocessor_defines_feature = feature(
+        name = "preprocessor_defines",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "preprocessor_defines",
+                        flags = ["-D%{preprocessor_defines}"],
+                        expand_if_available = "preprocessor_defines",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    compiler_input_flags_feature = feature(
+        name = "compiler_input_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = ["-c", "%{source_file}"],
+                        expand_if_available = "source_file",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    dependency_file_feature = feature(
+        name = "dependency_file",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_module_compile,
+                    ACTION_NAMES.objc_compile,
+                    ACTION_NAMES.objcpp_compile,
+                    ACTION_NAMES.cpp_header_parsing,
+                    ACTION_NAMES.clif_match,
+                ],
+                flag_groups = [
+                    flag_group(
+                        flags = ["-MD", "-MF", "%{dependency_file}"],
+                        expand_if_available = "dependency_file",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    compiler_output_flags_feature = feature(
+        name = "compiler_output_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = ["-S"],
+                        expand_if_available = "output_assembly_file",
+                    ),
+                    flag_group(
+                        flags = ["-E"],
+                        expand_if_available = "output_preprocess_file",
+                    ),
+                    flag_group(
+                        flags = ["-o", "%{output_file}"],
+                        expand_if_available = "output_file",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    archiver_flags_feature = feature(
+        name = "archiver_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [ACTION_NAMES.cpp_link_static_library],
+                flag_groups = [
+                    flag_group(flags = ["rcsD", "%{output_execpath}"]),
+                    flag_group(
+                        iterate_over = "libraries_to_link",
+                        flag_groups = [
+                            flag_group(
+                                flags = ["%{libraries_to_link.name}"],
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "object_file",
+                                ),
+                            ),
+                            flag_group(
+                                flags = ["%{libraries_to_link.object_files}"],
+                                iterate_over = "libraries_to_link.object_files",
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "object_file_group",
+                                ),
+                            ),
+                        ],
+                        expand_if_available = "libraries_to_link",
+                    ),
+                    flag_group(
+                        iterate_over = "user_archiver_flags",
+                        flags = ["%{user_archiver_flags}"],
+                        expand_if_available = "user_archiver_flags",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    linker_param_file_feature = feature(
+        name = "linker_param_file",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions + [ACTION_NAMES.cpp_link_static_library],
+                flag_groups = [
+                    flag_group(
+                        flags = ["@%{linker_param_file}"],
+                        expand_if_available = "linker_param_file",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    library_search_directories_feature = feature(
+        name = "library_search_directories",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "library_search_directories",
+                        flag_groups = [
+                            flag_group(
+                                flags = ["-L%{library_search_directories}"],
+                            ),
+                        ],
+                        expand_if_available = "library_search_directories",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    shared_flag_feature = feature(
+        name = "shared_flag",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.cpp_link_dynamic_library,
+                    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+                ],
+                flag_groups = [flag_group(flags = ["-shared"])],
+            ),
+        ],
+    )
+
+    output_execpath_flags_feature = feature(
+        name = "output_execpath_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = ["-o", "%{output_execpath}"],
+                        expand_if_available = "output_execpath",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    runtime_library_search_directories_feature = feature(
+        name = "runtime_library_search_directories",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "runtime_library_search_directories",
+                        flag_groups = [
+                            flag_group(
+                                flags = ["-Wl,-rpath,$ORIGIN/%{runtime_library_search_directories}"],
+                                expand_if_true = "is_cc_test",
+                            ),
+                            flag_group(
+                                flags = ["-Wl,-rpath,$EXEC_ORIGIN/%{runtime_library_search_directories}"],
+                                expand_if_false = "is_cc_test",
+                            ),
+                        ],
+                        expand_if_available = "runtime_library_search_directories",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    libraries_to_link_feature = feature(
+        name = "libraries_to_link",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "libraries_to_link",
+                        flag_groups = [
+                            flag_group(
+                                flags = ["-Wl,--whole-archive", "%{libraries_to_link.name}", "-Wl,--no-whole-archive"],
+                                expand_if_true = "libraries_to_link.is_whole_archive",
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "static_library",
+                                ),
+                            ),
+                            flag_group(
+                                flags = ["%{libraries_to_link.name}"],
+                                expand_if_false = "libraries_to_link.is_whole_archive",
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "static_library",
+                                ),
+                            ),
+                            flag_group(
+                                flags = ["%{libraries_to_link.name}"],
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "object_file",
+                                ),
+                            ),
+                            flag_group(
+                                flags = ["%{libraries_to_link.object_files}"],
+                                iterate_over = "libraries_to_link.object_files",
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "object_file_group",
+                                ),
+                            ),
+                            flag_group(
+                                flags = ["-l%{libraries_to_link.name}"],
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "dynamic_library",
+                                ),
+                            ),
+                            flag_group(
+                                flags = ["-l:%{libraries_to_link.name}"],
+                                expand_if_equal = variable_with_value(
+                                    name = "libraries_to_link.type",
+                                    value = "versioned_dynamic_library",
+                                ),
+                            ),
+                        ],
+                        expand_if_available = "libraries_to_link",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    user_link_flags_feature = feature(
+        name = "user_link_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "user_link_flags",
+                        flags = ["%{user_link_flags}"],
+                        expand_if_available = "user_link_flags",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # ------------------------------------------------------------------------
+    # Additional legacy features.
+    #
+    # These mirror features that Bazel's legacy toolchain machinery would add
+    # automatically. All except fully_static_link are guarded (via
+    # expand_if_available or with_features) so they are no-ops for normal builds
+    # and only emit flags when the relevant build mode is active (e.g. --fission,
+    # --force_pic, --stamp). They are therefore enabled by default.
+    #
+    # fully_static_link is left DISABLED by default because it emits -static
+    # unconditionally, which would force fully static linking for every target.
+    # Users who want it must opt in explicitly, e.g. via `--features=<name>`.
+    # ------------------------------------------------------------------------
+
+    # Fission: emit split DWARF debug info into separate .dwo files at compile.
+    per_object_debug_info_feature = feature(
+        name = "per_object_debug_info",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                ],
+                flag_groups = [
+                    flag_group(
+                        flags = ["-gsplit-dwarf", "-g"],
+                        expand_if_available = "per_object_debug_info_file",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Fission: emit a .gdb_index section at link when fission is in use.
+    fission_support_feature = feature(
+        name = "fission_support",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = ["-Wl,--gdb-index"],
+                        expand_if_available = "is_using_fission",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Pass linkstamp object files to the linker (used with --stamp).
+    linkstamps_feature = feature(
+        name = "linkstamps",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "linkstamp_paths",
+                        flags = ["%{linkstamp_paths}"],
+                        expand_if_available = "linkstamp_paths",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Force-include headers via -include (the `includes` build variable).
+    includes_feature = feature(
+        name = "includes",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "includes",
+                        flags = ["-include", "%{includes}"],
+                        expand_if_available = "includes",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Build position-independent executables under --force_pic.
+    force_pic_flags_feature = feature(
+        name = "force_pic_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [ACTION_NAMES.cpp_link_executable],
+                flag_groups = [
+                    flag_group(
+                        flags = ["-pie"],
+                        expand_if_available = "force_pic",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Strip debug symbols at link time.
+    strip_debug_symbols_feature = feature(
+        name = "strip_debug_symbols",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = ["-Wl,-S"],
+                        expand_if_available = "strip_debug_symbols",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Statically link libgcc (paired with static_link_cpp_runtimes).
+    static_libgcc_feature = feature(
+        name = "static_libgcc",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.cpp_link_executable,
+                    ACTION_NAMES.cpp_link_dynamic_library,
+                ],
+                flag_groups = [flag_group(flags = ["-static-libgcc"])],
+                with_features = [
+                    with_feature_set(features = ["static_link_cpp_runtimes"]),
+                ],
+            ),
+        ],
+    )
+
+    # Fully static link (-static) under --dynamic_mode=fully.
+    fully_static_link_feature = feature(
+        name = "fully_static_link",
+        enabled = False,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.cpp_link_executable,
+                    ACTION_NAMES.cpp_link_dynamic_library,
+                    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+                ],
+                flag_groups = [flag_group(flags = ["-static"])],
+            ),
+        ],
+    )
+
     # Feature to disable absolute path warnings for system headers
     supports_header_path_normalization = feature(
         name = "supports_header_path_normalization",
@@ -641,6 +1192,7 @@ def _impl(ctx):
     # after a command line parameter from a feature at the beginning of the list.
 
     features = [
+        no_legacy_features_feature,
         compiler_library_search_paths_feature,
         sanitizer_feature,
         asan_feature,
@@ -651,7 +1203,30 @@ def _impl(ctx):
         unfiltered_compile_flags_feature,
         gnu11_feature,
         default_compile_flags_feature,
+        random_seed_feature,
+        include_paths_feature,
+        preprocessor_defines_feature,
+        user_compile_flags_feature,
+        compiler_input_flags_feature,
+        compiler_output_flags_feature,
+        dependency_file_feature,
+        per_object_debug_info_feature,
+        includes_feature,
         default_link_flags_feature,
+        archiver_flags_feature,
+        linker_param_file_feature,
+        library_search_directories_feature,
+        shared_flag_feature,
+        output_execpath_flags_feature,
+        runtime_library_search_directories_feature,
+        libraries_to_link_feature,
+        user_link_flags_feature,
+        linkstamps_feature,
+        fission_support_feature,
+        force_pic_flags_feature,
+        strip_debug_symbols_feature,
+        static_libgcc_feature,
+        fully_static_link_feature,
         sysroot_link_flags_feature,
         pthread_feature,
         minimal_warnings_feature,
@@ -665,6 +1240,7 @@ def _impl(ctx):
         opt_feature,
         supports_dynamic_linker_feature,
         supports_pic_feature,
+        pic_feature,
         supports_header_path_normalization,
         supports_fission_feature,
         coverage_feature,

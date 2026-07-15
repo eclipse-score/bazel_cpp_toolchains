@@ -71,6 +71,35 @@ These tests verify that specific toolchain features are correctly implemented an
    - Verifies `-Wl,--whole-archive` and `-Wl,--no-whole-archive` work
    - Tests unused library symbols are linked when using whole-archive
 
+9. **`preprocessor_defines_test`** - `preprocessor_defines` feature
+   - Injects defines via the `local_defines` attribute (routed through the
+     `preprocessor_defines` feature), unlike `defines_test` which uses `copts`
+     (routed through `user_compile_flags`)
+
+10. **`include_dir_test`** - `include_paths` via the `includes` attribute
+    - Includes a header exposed through a library's `includes` attribute,
+      exercising the `-I`/`-isystem` search paths
+
+11. **`user_link_flags_test`** - `user_link_flags` feature
+    - Passes a linker flag through `linkopts` (`-Wl,--defsym=...`) and checks the
+      injected symbol's address at runtime
+
+12. **`random_seed_test`** - `random_seed` feature
+    - Build-and-run smoke test exercising internal-linkage symbols governed by
+      the reproducible-build random seed
+
+13. **`fully_static_link_test`** - `fully_static_link` feature (`-static`)
+    - Verifies no shared objects are mapped at runtime (fully static binary)
+    - Marked incompatible with toolchains lacking static system archives (AutoSD)
+
+> **Opt-in feature tests** (`tests/feature_verification/opt_in_features/`) cover
+> features that are disabled by default or only emit flags under a specific build
+> mode (`per_object_debug_info`, `fission_support`, `linkstamps`, `includes`,
+> `force_pic_flags`, `strip_debug_symbols`, `static_libgcc`). They are tagged
+> `manual` and excluded from CI (except `force_pic_flags_test`, run in a
+> dedicated `--force_pic` CI step). See that package's BUILD file for the exact
+> command to exercise each one.
+
 #### Run Feature Tests
 
 ```bash
@@ -282,7 +311,12 @@ tests/
 │   ├── BUILD                                # Feature test definitions
 │   ├── feature_test.h/cpp                   # Test infrastructure
 │   ├── defines_test.cpp                     # Individual feature tests
+│   ├── preprocessor_defines_test.cpp
 │   ├── include_paths_test.cpp
+│   ├── include_dir/custom_math.h and include_dir_test.cpp
+│   ├── user_link_flags_test.cpp
+│   ├── random_seed_test.cpp
+│   ├── fully_static_link_test.cpp
 │   ├── warnings_test.cpp
 │   ├── coverage_test.cpp
 │   ├── pic_test_lib.h/cpp, pic_test.cpp
@@ -291,7 +325,11 @@ tests/
 │   ├── whole_archive_lib.h/cpp
 │   ├── whole_archive_test.cpp
 │   ├── pthread_test_lib.h/cpp
-│   └── pthread_test.cpp
+│   ├── pthread_test.cpp
+│   └── opt_in_features/                     # Manual, disabled-by-default features
+│       ├── BUILD
+│       ├── opt_in_smoke.cpp
+│       └── force_pic_test.cpp
 └── language_and_standards/
     ├── BUILD                                # Language test definitions
     ├── c_lang_test.c                        # C language tests

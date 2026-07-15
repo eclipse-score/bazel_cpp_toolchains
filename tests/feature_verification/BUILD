@@ -61,6 +61,76 @@ cc_test(
     deps = [":feature_test_lib"],
 )
 
+# Test for: preprocessor_defines feature
+# Unlike defines_test (which uses copts -> user_compile_flags), this target
+# injects defines through the `local_defines` attribute, which is forwarded to
+# the compiler only by the preprocessor_defines feature.
+cc_test(
+    name = "preprocessor_defines_test",
+    srcs = ["preprocessor_defines_test.cpp"],
+    local_defines = [
+        "PP_DEFINES_FEATURE_ENABLED=1",
+        "PP_DEFINES_ANSWER=42",
+        "PP_DEFINES_LABEL=\\\"from_local_defines\\\"",
+    ],
+)
+
+# Library that exposes its header directory via the `includes` attribute.
+# Consumers include "custom_math.h" without the directory prefix, which only
+# resolves when the include_paths feature emits the -I/-isystem search path.
+cc_library(
+    name = "custom_math",
+    hdrs = ["include_dir/custom_math.h"],
+    includes = ["include_dir"],
+    linkstatic = select({
+        "@score_bazel_platforms//runtime_es:ebclfsa": True,
+        "//conditions:default": False,
+    }),
+)
+
+# Test for: include_paths feature (-I / -isystem via the `includes` attribute)
+cc_test(
+    name = "include_dir_test",
+    srcs = ["include_dir_test.cpp"],
+    deps = [":custom_math"],
+)
+
+# Test for: user_link_flags feature
+# Passes a linker flag through `linkopts`; Bazel forwards linkopts to the linker
+# only via the user_link_flags feature. The --defsym flag defines an absolute
+# symbol whose address is checked at runtime.
+cc_test(
+    name = "user_link_flags_test",
+    srcs = ["user_link_flags_test.cpp"],
+    linkopts = ["-Wl,--defsym=user_link_flags_marker=0x1234"],
+)
+
+# Test for: fully_static_link feature (-static)
+# Enabling the feature emits -static directly, producing a binary with no
+# dynamic library dependencies. The test verifies no shared objects are mapped
+# at runtime. This feature is opt-in, so the target enables it explicitly.
+#
+# Fully static linking requires static system archives (libc.a, libstdc++.a,
+# ...). The AutoSD toolchain ships only shared libraries, so the test is marked
+# incompatible with the autosd10 platform and is skipped there.
+cc_test(
+    name = "fully_static_link_test",
+    srcs = ["fully_static_link_test.cpp"],
+    features = ["fully_static_link"],
+    target_compatible_with = select({
+        "@score_bazel_platforms//runtime_es:autosd10": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+)
+
+# Test for: random_seed feature (-frandom-seed=<output_file>)
+# Build-and-run smoke test exercising internal-linkage symbols governed by the
+# random seed used for reproducible builds.
+cc_test(
+    name = "random_seed_test",
+    srcs = ["random_seed_test.cpp"],
+)
+
 # Test for: strict_warnings, minimal_warnings, warnings_as_errors features
 # Verifies that warning levels are correctly configured
 cc_test(

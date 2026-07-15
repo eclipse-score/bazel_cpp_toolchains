@@ -53,8 +53,11 @@ test suites that aggregate the individual test targets.
 `tests/feature_verification/`
 
 C++ targets that verify toolchain features such as preprocessor defines,
-include paths, warnings, coverage, position-independent code, pthread support,
-multi-file archiving, and whole-archive linking.
+include paths (including the `includes` attribute), user-supplied compile and
+link flags, warnings, coverage, position-independent code, pthread support,
+multi-file archiving, whole-archive linking, reproducible-build random seed, and
+fully static linking. The `opt_in_features/` subpackage holds manual tests for
+features that are disabled by default or require a specific build mode.
 
 `tests/language_and_standards/`
 
