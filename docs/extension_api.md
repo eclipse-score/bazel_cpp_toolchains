@@ -107,6 +107,14 @@ configuration such as:
 The test workspace under `tests/` provides complete `.bazelrc`
 configurations for this activation step.
 
+## Migrating Downstream Workspaces
+
+The generated toolchains run under Bazel's explicit-feature model
+(`no_legacy_features`), so behaviors Bazel used to add implicitly are not
+automatic. For the behavioral impact and how consumers restore supported
+behavior explicitly, see the
+[Migration guide](migration_guide.md).
+
 ## Behavior Notes
 
 - The extension is intended for the root module.

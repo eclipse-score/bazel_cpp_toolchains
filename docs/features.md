@@ -9,6 +9,10 @@ Both toolchains enable **`no_legacy_features`**, which turns off the features
 Bazel would otherwise add implicitly. As a result every flag the toolchain emits
 comes from a feature defined explicitly below.
 
+> **Migrating from an implicit/legacy setup?** See the
+> [Migration guide](migration_guide.md) for the behavioral impact of
+> `no_legacy_features` and how to restore supported behavior explicitly.
+
 Each entry is tagged with the platform(s) it applies to: **(both)**, **(Linux)**,
 or **(QNX)**. Unless noted as *opt-in (disabled by default)*, a feature is
 enabled by default.
@@ -32,7 +36,8 @@ enabled by default.
 - **`default_compile_flags`** (both) — Core compile flags plus `dbg`/`opt`
   build-mode variants (exact flags differ per target).
 - **`pic`** (Linux) — Emits `-fPIC` when the `pic` build variable is available.
-  (On QNX `-fPIC` is part of the default compile flags.)
+  QNX declares the `supports_pic` capability marker but does not add `-fPIC` in
+  the default compile flags.
 - **`random_seed`** (both) — Emits `-frandom-seed=<output_file>` for
   deterministic output.
 - **`include_paths`** (both) — Emits `-iquote` / `-I` / `-isystem` from the
@@ -82,8 +87,10 @@ the relevant build mode is active. All are enabled by default except where noted
   (disabled by default)**, since it forces static linking for every target and
   requires static system archives (unavailable on some toolchains, e.g. AutoSD).
 
-## Warnings (all opt-in / disabled by default)
-- **`minimal_warnings`** (both) — Baseline warning set.
+## Warnings
+Opt-in / disabled by default unless noted otherwise.
+- **`minimal_warnings`** (both) — Baseline warning set (includes `-Wall`).
+  Enabled by default on QNX; opt-in (disabled by default) on Linux.
 - **`strict_warnings`** (both) — Stricter warnings; implies `minimal_warnings`.
 - **`all_wall_warnings`** (Linux) — Broadest warning set; implies `strict_warnings`.
 - **`warnings_as_errors`** (both) — Adds `-Werror`.

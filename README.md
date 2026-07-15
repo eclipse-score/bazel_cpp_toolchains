@@ -33,6 +33,7 @@ validates the setup, and how QNX-specific authentication and licensing fit in.
 - [Extension API](docs/extension_api.md)
 - [Generation flow](docs/generation_flow.md)
 - [Toolchain features](docs/features.md)
+- [Migration guide (explicit-feature model)](docs/migration_guide.md)
 - [Tests and validation](docs/tests_and_validation.md)
 - [QNX integration](docs/qnx_integration.md)
 - [Test Suite](docs/test_suite.md)
