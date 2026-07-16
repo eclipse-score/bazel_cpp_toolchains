@@ -21,13 +21,13 @@ bazel_dep(name = "bazel_skylib", version = "1.8.2")
 # *******************************************************************************
 # Constraint values for specifying platforms and toolchains
 # *******************************************************************************
-bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "score_bazel_platforms", version = "0.1.2")
 
 # *******************************************************************************
 # C++ Rules for Bazel
 # *******************************************************************************
-bazel_dep(name = "rules_cc", version = "0.2.14")
+bazel_dep(name = "rules_cc", version = "0.2.17")
 
 # *******************************************************************************
 # Needed by S-CORE CI Automatic checks
