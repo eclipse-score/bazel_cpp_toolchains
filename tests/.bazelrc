@@ -47,6 +47,13 @@ build:x86_64-linux-bp --extra_toolchains=@score_gcc_toolchain_bp//:x86_64-linux
 build:x86_64-qnx --config=x86_64-linux
 build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
 build:x86_64-qnx --extra_toolchains=@score_qcc_toolchain//:x86_64-qnx-sdp_8.0.0
+build:x86_64-qnx --extra_toolchains=@score_qnx_x86_64_ifs_toolchain//:ifs-x86_64-qnx-sdp_8.0.0
+# QNX binaries cannot run natively on the x86_64 Linux host; execute them under
+# the QNX emulator (requires qemu-system + KVM on the runner).
+test:x86_64-qnx --run_under=@score_qnx_unit_tests//src:run_under_qnx
+# Only run native (cc) test binaries under the QNX emulator. Host-side tests
+# such as the bash-script guardrail cannot execute inside the QNX VM.
+test:x86_64-qnx --test_lang_filters=cc
 
 # -------------------------------------------------------------------------------
 # Toolchain configuration for aarch64-qnx (target)
@@ -54,6 +61,13 @@ build:x86_64-qnx --extra_toolchains=@score_qcc_toolchain//:x86_64-qnx-sdp_8.0.0
 build:aarch64-qnx --config=x86_64-linux
 build:aarch64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
 build:aarch64-qnx --extra_toolchains=@score_qcc_arm_toolchain//:aarch64-qnx-sdp_8.0.0
+build:aarch64-qnx --extra_toolchains=@score_qnx_aarch64_ifs_toolchain//:ifs-aarch64-qnx-sdp_8.0.0
+# QNX binaries cannot run natively on the x86_64 Linux host; execute them under
+# the QNX emulator (requires qemu-system + KVM on the runner).
+test:aarch64-qnx --run_under=@score_qnx_unit_tests//src:run_under_qnx
+# Only run native (cc) test binaries under the QNX emulator. Host-side tests
+# such as the bash-script guardrail cannot execute inside the QNX VM.
+test:aarch64-qnx --test_lang_filters=cc
 
 # -------------------------------------------------------------------------------
 # Toolchain configuration for aarch64-linux (target)

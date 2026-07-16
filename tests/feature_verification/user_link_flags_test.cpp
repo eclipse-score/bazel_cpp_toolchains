@@ -33,7 +33,17 @@ int main() {
     std::cout << "Testing user_link_flags feature..." << std::endl;
 
     auto marker_address = reinterpret_cast<std::uintptr_t>(&user_link_flags_marker);
+
+    // The linker's --defsym places the absolute symbol at 0x1234. In a non-PIE
+    // executable that is its exact runtime address. Position-independent
+    // executables (the QNX default) are loaded at a page-aligned base, so only
+    // the in-page offset of the symbol is guaranteed to survive; assert on that
+    // portion, which still proves the injected --defsym value propagated.
+#if defined(__QNXNTO__)
+    assert((marker_address & 0xFFF) == (0x1234 & 0xFFF));
+#else
     assert(marker_address == 0x1234);
+#endif
 
     std::cout << "user_link_flags_marker address = 0x" << std::hex << marker_address
               << std::dec << std::endl;
