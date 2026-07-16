@@ -642,6 +642,26 @@ def _impl(ctx):
     )
     supports_pic_feature = feature(name = "supports_pic", enabled = True)
 
+    pic_feature = feature(
+        name = "pic",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                    ACTION_NAMES.cpp_module_compile,
+                ],
+                flag_groups = [
+                    flag_group(flags = ["-fPIC"], expand_if_available = "pic"),
+                ],
+            ),
+        ],
+    )
+
     dependency_file_named_implicitly_feature = feature(
         name = "dependency_file_named_implicitly",
         enabled = False,
@@ -809,6 +829,7 @@ def _impl(ctx):
         sdp_env_feature,
         supports_dynamic_linker_feature,
         supports_pic_feature,
+        pic_feature,
         runtime_library_search_directories_feature,
         coverage_feature,
         gcc_coverage_map_format_feature,
