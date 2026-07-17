@@ -1,0 +1,104 @@
+# *******************************************************************************
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+name: Bazel Build (QNX)
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  push:
+    branches:
+      - main
+  merge_group:
+    types: [checks_requested]
+  workflow_call:
+jobs:
+  qnx-build:
+    name: Build and Test ${{ matrix.bazel-config }}
+    runs-on: ${{ vars.runner_labels_ghub_standard_x64 && fromJSON(vars.runner_labels_ghub_standard_x64) || vars.REPO_RUNNER_LABELS && fromJSON(vars.REPO_RUNNER_LABELS) || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+      pull-requests: read
+    # Bazel test targets live in the separate `tests` module, so run all Bazel
+    # commands from that directory. `defaults.run.working-directory` applies to
+    # `run:` steps only; `uses:` action steps still execute from the repo root.
+    defaults:
+      run:
+        working-directory: ./tests
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - bazel-config: x86_64-qnx
+            bazel-test-target: "//:all_tests"
+          - bazel-config: aarch64-qnx
+            bazel-test-target: "//:all_tests"
+            extra-bazel-test-flags: "--test_timeout=120,600,1800,7200" # Increase test timeout due to QEMU emulation
+    steps:
+      - uses: eclipse-score/more-disk-space@6a3b48901846bf7f8cc985925157d71a8973e61f # v1
+        with:
+          level: 2
+      - name: Checkout repository (Handle all events)
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
+        with:
+          ref: ${{ github.head_ref || github.event.pull_request.head.ref || github.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+      - name: Setup Bazel with shared caching
+        uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 #v0.19.0
+        with:
+          disk-cache: ${{ matrix.bazel-config }}
+          repository-cache: true
+          bazelisk-cache: true
+          cache-save: ${{ github.event_name == 'push' }}
+      - uses: eclipse-score/cicd-actions/unblock-user-namespace-for-linux-sandbox@30ed908edcf367bc38ebff5b386a244f9b6417a7 # 2025-06-04
+      - name: Setup QNX SDP usage
+        uses: eclipse-score/cicd-actions/setup-qnx-sdp@a2b3c36fc7d1b9d03880d19935c7ac9cfffe58c6 # 2026-05-19
+        with:
+          qnx-license: ${{ secrets.SCORE_QNX_LICENSE }}
+          qnx-user: ${{ secrets.SCORE_QNX_USER }}
+          qnx-password: ${{ secrets.SCORE_QNX_PASSWORD }}
+          qnx-credential-helper: .github/tools/qnx_credential_helper.py
+          qnx-license-dir: /opt/score_qnx/license
+      - name: Build with QNX toolchain
+        run: |
+          set -euo pipefail
+
+          bazel build --config ${{ matrix.bazel-config }} \
+            --credential_helper=*.qnx.com="${QNX_CREDENTIAL_HELPER}" -- \
+            //:all_tests
+      - name: Install qemu
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system
+      - name: Enable KVM group permissions
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0660", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          sudo chown "$USER":kvm /dev/kvm && sudo chmod 0660 /dev/kvm
+      - name: Test with QNX toolchain
+        run: |
+          set -euo pipefail
+
+          bazel test --config ${{ matrix.bazel-config }} \
+            --test_output=errors \
+            --credential_helper=*.qnx.com="${QNX_CREDENTIAL_HELPER}" ${{ matrix.extra-bazel-test-flags }} -- \
+            ${{ matrix.bazel-test-target }}
+      - name: Dump test logs on failure
+        if: failure()
+        run: |
+          echo "===== Bazel test logs ====="
+          # `bazel-testlogs` is a convenience symlink in the workspace root (./tests).
+          find -L bazel-testlogs -name 'test.log' -print | while read -r log; do
+            echo ""
+            echo "----- ${log} -----"
+            cat "${log}"
+          done

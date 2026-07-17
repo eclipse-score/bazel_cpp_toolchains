@@ -113,12 +113,17 @@ cc_test(
 # Fully static linking requires static system archives (libc.a, libstdc++.a,
 # ...). The AutoSD toolchain ships only shared libraries, so the test is marked
 # incompatible with the autosd10 platform and is skipped there.
+#
+# The runtime check reads /proc/self/maps, which is Linux-specific and not
+# available on QNX, so the test is also skipped on QNX. The -static link flag
+# itself is still exercised by the build on QNX.
 cc_test(
     name = "fully_static_link_test",
     srcs = ["fully_static_link_test.cpp"],
     features = ["fully_static_link"],
     target_compatible_with = select({
         "@score_bazel_platforms//runtime_es:autosd10": ["@platforms//:incompatible"],
+        "@platforms//os:qnx": ["@platforms//:incompatible"],
         "//conditions:default": [],
     }),
 )
@@ -211,7 +216,11 @@ cc_library(
     name = "pthread_test_lib",
     srcs = ["pthread_test_lib.cpp"],
     hdrs = ["pthread_test_lib.h"],
-    linkopts = ["-lpthread"],
+    # QNX bundles pthread into libc; there is no separate libpthread to link.
+    linkopts = select({
+        "@platforms//os:qnx": [],
+        "//conditions:default": ["-lpthread"],
+    }),
     linkstatic = select({
         "@score_bazel_platforms//runtime_es:ebclfsa": True,
         "//conditions:default": False,
@@ -221,6 +230,9 @@ cc_library(
 cc_test(
     name = "pthread_test",
     srcs = ["pthread_test.cpp"],
-    linkopts = ["-lpthread"],
+    linkopts = select({
+        "@platforms//os:qnx": [],
+        "//conditions:default": ["-lpthread"],
+    }),
     deps = [":pthread_test_lib"],
 )

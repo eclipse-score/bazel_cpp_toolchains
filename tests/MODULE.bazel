@@ -25,7 +25,7 @@ bazel_dep(name = "rules_go", version = "0.61.1")
 # *******************************************************************************
 # Common useful functions and rules for Bazel
 # *******************************************************************************
-bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "bazel_skylib", version = "1.9.0")
 
 # *******************************************************************************
 # Constraint values for specifying platforms and toolchains
@@ -38,6 +38,12 @@ bazel_dep(name = "score_bazel_platforms", version = "0.1.2")
 # *******************************************************************************
 bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "googletest", version = "1.17.0")
+
+# *******************************************************************************
+# QNX unit-test runner (provides //src:run_under_qnx used to execute QNX test
+# binaries under emulation via --run_under on the QNX configs).
+# *******************************************************************************
+bazel_dep(name = "score_qnx_unit_tests", version = "0.2.0", dev_dependency = True)
 
 # *******************************************************************************
 # Set dependency to Bazel C/C++ Toolchain repository - with overriding path
@@ -133,7 +139,7 @@ gcc.toolchain(
 # *******************************************************************************
 gcc.toolchain(
     name = "score_qcc_arm_toolchain",
-    sdp_version = "8.0.0",
+    sdp_version = "8.0.4",
     target_cpu = "aarch64",
     target_os = "qnx",
     use_default_package = True,
@@ -170,5 +176,38 @@ use_repo(
     "score_gcc_toolchain",
     "score_gcc_toolchain_bp",
     "score_qcc_arm_toolchain",
+    "score_qcc_arm_toolchain_pkg",
     "score_qcc_toolchain",
+    "score_qcc_toolchain_pkg",
 )
+
+# *******************************************************************************
+# Set dependency to Bazel ImageFS repository
+# *******************************************************************************
+bazel_dep(name = "score_rules_imagefs", version = "0.0.3", dev_dependency = True)
+
+# *******************************************************************************
+# Setting ImageFS toolchains (CPU:x86_64|OS:QNX|version(sdp):8.0.0)
+# *******************************************************************************
+imagefs = use_extension("@score_rules_imagefs//extensions:imagefs.bzl", "imagefs", dev_dependency = True)
+imagefs.toolchain(
+    name = "score_qnx_x86_64_ifs_toolchain",
+    sdp_to_import = "@score_qcc_toolchain_pkg",
+    sdp_version = "8.0.0",
+    target_cpu = "x86_64",
+    target_os = "qnx",
+    type = "ifs",
+)
+
+# *******************************************************************************
+# Setting ImageFS toolchains (CPU:aarch64|OS:QNX|version(sdp):8.0.0)
+# *******************************************************************************
+imagefs.toolchain(
+    name = "score_qnx_aarch64_ifs_toolchain",
+    sdp_to_import = "@score_qcc_arm_toolchain_pkg",
+    sdp_version = "8.0.0",
+    target_cpu = "aarch64",
+    target_os = "qnx",
+    type = "ifs",
+)
+use_repo(imagefs, "score_qnx_aarch64_ifs_toolchain", "score_qnx_x86_64_ifs_toolchain")

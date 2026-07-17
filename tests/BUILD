@@ -63,3 +63,19 @@ test_suite(
         "//guardrails:no_legacy_features_guard_test",
     ],
 )
+
+# ============================================================================
+# Aggregate Test Suite
+#
+# Combines every test category into a single target. CI should depend on this
+# target so new tests only need to be added to the relevant suite above.
+# ============================================================================
+
+test_suite(
+    name = "all_tests",
+    tests = [
+        ":feature_verification_tests",
+        ":guardrail_tests",
+        ":language_and_standards_tests",
+    ],
+)
