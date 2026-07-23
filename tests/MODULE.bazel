@@ -124,18 +124,29 @@ gcc.toolchain(
 )
 
 # *******************************************************************************
-# Setting GCC (CPU:x86_64|OS:QNX|version(sdp):8.0.0|ES:posix)
+# Setting GCC (CPU:x86_64|OS:QNX|version(sdp):8.0.4|ES:posix)
+# *******************************************************************************
+# gcc.toolchain(
+#     name = "score_qcc_toolchain",
+#     sdp_version = "8.0.4",
+#     target_cpu = "x86_64",
+#     target_os = "qnx",
+#     use_default_package = True,
+# )
+
+# *******************************************************************************
+# Setting GCC (CPU:x86_64|OS:QNX|version(sdp):8.0.5|ES:posix)
 # *******************************************************************************
 gcc.toolchain(
     name = "score_qcc_toolchain",
-    sdp_version = "8.0.4",
+    sdp_version = "8.0.5",
     target_cpu = "x86_64",
     target_os = "qnx",
     use_default_package = True,
 )
 
 # *******************************************************************************
-# Setting GCC (CPU:aarch64|OS:QNX|version(sdp):8.0.0|ES:posix)
+# Setting GCC (CPU:aarch64|OS:QNX|version(sdp):8.0.4|ES:posix)
 # *******************************************************************************
 gcc.toolchain(
     name = "score_qcc_arm_toolchain",

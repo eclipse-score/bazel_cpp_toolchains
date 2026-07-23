@@ -20,7 +20,10 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl", "flag_group")
 # Certain SDP versions are mapped to canonical versions used in platform constraints.
 # For example, SDP 8.0.4 is mapped to 8.0.0 because platform constraint support
 # uses the older identifier.
-SDP_VERSION_MAPPING = {"8.0.4": "8.0.0"}
+SDP_VERSION_MAPPING = {
+    "8.0.4": "8.0.0",
+    "8.0.5": "8.0.0",
+}
 
 def get_flag_groups(flags):
     """Converts a list of warning flags into a Bazel flag group representation.

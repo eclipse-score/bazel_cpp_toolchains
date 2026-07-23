@@ -54,10 +54,15 @@ _attrs_sdp = {
         default = "",
         doc = "Url to the toolchain archive.",
     ),
-    patches = attr.label_list(
+    "patches": attr.label_list(
         mandatory = False,
         default = [],
         doc = "List of patches to apply to the archive.",
+    ),
+    "files": attr.string_keyed_label_dict(
+        mandatory = False,
+        default = {},
+        doc = "A map of relative paths (key) to a file label (value) that overlaid on the repo as a symlink.",
     ),
 }
 
@@ -194,6 +199,7 @@ def _get_packages(tags):
             "strip_prefix": tag.strip_prefix,
             "url": tag.url,
             "patches": tag.patches,
+            "files": tag.files,
         })
     return packages
 
@@ -311,6 +317,7 @@ def _create_and_link_sdp(toolchain_info):
         "strip_prefix": matrix["strip_prefix"],
         "url": matrix["url"],
         "patches": matrix.get("patches"),
+        "files": matrix.get("files"),
     }
 
 def _resolve_identifier(toolchain_info):
@@ -399,6 +406,7 @@ def _impl(mctx):
             sha256 = archive_info["sha256"],
             strip_prefix = archive_info["strip_prefix"],
             patches = archive_info.get("patches"),
+            files = archive_info.get("files"),
         )
 
     for toolchain_info in toolchains:

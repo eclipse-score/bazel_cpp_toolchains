@@ -82,9 +82,8 @@ VERSION_MATRIX = {
         "strip_prefix": "",
         "url": "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz",
         "gcc_version": "12.2.0",
-        "patches": [
-            "@score_bazel_cpp_toolchains//packages/qnx/aarch64/sdp/8.0.0:patches",
-        ],
+        "files": {
+        },
     },
     "x86_64-linux-gcc_12.2.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
@@ -210,12 +209,22 @@ VERSION_MATRIX = {
         "gcc_version": "12.2.0",
         "patches": [],
     },
-    "x86_64-qnx-sdp_8.0.4": {
+    "x86_64-qnx-sdp_8.0.5": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
         "sha256": "146312c0bf22aab66e8294a06403f2ec6cfeeb074d8fa11549faffd84b7fe778",
         "strip_prefix": "",
         "url": "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz",
         "gcc_version": "12.2.0",
         "patches": [],
+        "files": {
+            "target/qnx/usr/include/sys/fsnotify.h": "@score_bazel_cpp_toolchains//packages/qnx/patches/805_fsnotify:target/qnx/usr/include/sys/fsnotify.h",
+            "target/qnx/usr/include/sys/fsnotify_impl.h": "@score_bazel_cpp_toolchains//packages/qnx/patches/805_fsnotify:target/qnx/usr/include/sys/inotify_ext.h",
+            "target/qnx/usr/include/sys/fsnotify_impl_private.h": "@score_bazel_cpp_toolchains//packages/qnx/patches/805_fsnotify:target/qnx/usr/include/sys/inotify.h",
+            "x86_64/lib/libfsnotify.so": "@score_bazel_cpp_toolchains//packages/qnx/patches/805_fsnotify:target/qnx/x86_64/lib/libfsnotify.so",
+            "x86_64/lib/libfsnotify.so.1": "@score_bazel_cpp_toolchains//packages/qnx/patches/805_fsnotify:target/qnx/x86_64/lib/libfsnotify.so.1",
+            "x86_64/lib/libfsnotify.so.1.sym": "@score_bazel_cpp_toolchains//packages/qnx/patches/805_fsnotify:target/qnx/x86_64/lib/libfsnotify.so.1.sym",
+            "x86_64/sbin/fsevmgr": "@score_bazel_cpp_toolchains//packages/qnx/patches/805_fsnotify:target/qnx/x86_64/sbin/fsevmgr",
+            "x86_64/sbin/fsevmgr.sym": "@score_bazel_cpp_toolchains//packages/qnx/patches/805_fsnotify:target/qnx/x86_64/sbin/fsevmgr.sym",
+        },
     },
 }
