@@ -1366,18 +1366,11 @@
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
         "bzlTransitiveDigest": "yaqPt7McFs9yX0bALwRhwb20cno0gVhEH32J82tVkAg=",
-        "usagesDigest": "LbKP+4YBW3A6v4GKoWW7A/l1WsgCqkGSQPw2ax11J2g=",
+        "usagesDigest": "1UfIz7yPBC2LyOHghQlB2yltcJXkkGH7NQITjVhleH8=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
         "generatedRepoSpecs": {
-          "gcc_local_pkg": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:local.bzl%new_local_repository",
-            "attributes": {
-              "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
-              "path": "/home/q483110/work/toolchains_gcc_packages/output/x86_64-unknown-linux-gnu_gcc15/x86_64-unknown-linux-gnu"
-            }
-          },
           "my_toolchain_pkg": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
@@ -1515,33 +1508,6 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "",
               "gcc_version": "12.2.0",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
-              "use_base_constraints_only": false
-            }
-          },
-          "score_gcc_toolchain_local": {
-            "repoRuleId": "@@score_bazel_cpp_toolchains+//rules:gcc.bzl%gcc_toolchain",
-            "attributes": {
-              "extra_compile_flags": [],
-              "extra_c_compile_flags": [],
-              "extra_cxx_compile_flags": [],
-              "extra_known_features": [],
-              "extra_enabled_features": [],
-              "extra_link_flags": [],
-              "license_info_variable": "",
-              "license_info_value": "",
-              "license_path": "/opt/score_qnx/license/licenses",
-              "sdk_version": "",
-              "sdp_version": "",
-              "tc_compiler_library_search_paths": [],
-              "tc_cpu": "x86_64",
-              "tc_identifier": "gcc_15.3.0",
-              "tc_os": "linux",
-              "tc_pkg_repo": "gcc_local_pkg",
-              "tc_system_toolchain": false,
-              "tc_runtime_ecosystem": "",
-              "gcc_version": "15.3.0",
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
               "use_base_constraints_only": false

@@ -33,11 +33,10 @@ bazel_dep(name = "bazel_skylib", version = "1.9.0")
 bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "score_bazel_platforms", version = "0.1.2")
 git_override(
-    name = "score_bazel_platforms",
-    remote = "https://github.com/eclipse-score/bazel_platforms.git",
+    module_name = "score_bazel_platforms",
     commit = "6c45a8f2a973fe396c392f727d9dae510692eb88",
+    remote = "https://github.com/eclipse-score/bazel_platforms.git",
 )
-    
 
 # *******************************************************************************
 # C++ Rules for Bazel
