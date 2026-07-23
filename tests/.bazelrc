@@ -89,3 +89,10 @@ build:x86_64-linux-autosd10 --extra_toolchains=@score_autosd_10_toolchain//:x86_
 build:aarch64-linux-ebclfsa --config=shared
 build:aarch64-linux-ebclfsa --platforms=@score_bazel_platforms//:aarch64-linux-sdk_0.1.0-ebclfsa
 build:aarch64-linux-ebclfsa --extra_toolchains=@score_ebclfsa_toolchain//:aarch64-linux-sdk_0.1.0-ebclfsa
+
+# -------------------------------------------------------------------------------
+# Config dedicated to local toolchain testing CPU:x86_64 and OS:linux
+# -------------------------------------------------------------------------------
+# build:x86_64-linux-local --config=shared
+# build:x86_64-linux-local --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_15.3.0-posix
+# build:x86_64-linux-local --extra_toolchains=@score_gcc_toolchain_local//:x86_64-linux-gcc_15.3.0

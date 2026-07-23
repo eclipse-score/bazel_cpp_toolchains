@@ -15,6 +15,7 @@
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
 load("@score_bazel_cpp_toolchains//packages:version_matrix.bzl", "VERSION_MATRIX")
 load("@score_bazel_cpp_toolchains//rules:common.bzl", "SDP_VERSION_MAPPING")
 load("@score_bazel_cpp_toolchains//rules:gcc.bzl", "gcc_toolchain")
@@ -53,6 +54,11 @@ _attrs_sdp = {
         mandatory = False,
         default = "",
         doc = "Url to the toolchain archive.",
+    ),
+    "path": attr.string(
+        mandatory = False,
+        default = "",
+        doc = "Path to the local toolchain archive.",
     ),
 }
 
@@ -188,6 +194,7 @@ def _get_packages(tags):
             "sha256": tag.sha256,
             "strip_prefix": tag.strip_prefix,
             "url": tag.url,
+            "path": tag.path,
         })
     return packages
 
@@ -304,6 +311,7 @@ def _create_and_link_sdp(toolchain_info):
         "sha256": matrix["sha256"],
         "strip_prefix": matrix["strip_prefix"],
         "url": matrix["url"],
+        "path": "",
     }
 
 def _resolve_identifier(toolchain_info):
@@ -385,13 +393,20 @@ def _impl(mctx):
     """
     toolchains, archives = _get_info(mctx)
     for archive_info in archives:
-        http_archive(
-            name = archive_info["name"],
-            urls = [archive_info["url"]],
-            build_file = archive_info["build_file"],
-            sha256 = archive_info["sha256"],
-            strip_prefix = archive_info["strip_prefix"],
-        )
+        if archive_info["path"] != "":
+            new_local_repository(
+                name = archive_info["name"],
+                build_file = archive_info["build_file"],
+                path = archive_info["path"],
+            )
+        else:
+            http_archive(
+                name = archive_info["name"],
+                urls = [archive_info["url"]],
+                build_file = archive_info["build_file"],
+                sha256 = archive_info["sha256"],
+                strip_prefix = archive_info["strip_prefix"],
+            )
 
     for toolchain_info in toolchains:
         gcc_toolchain(
