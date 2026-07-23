@@ -1370,7 +1370,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "dffSoCJVMsbso/wS4jpQI/Uab9lB/i4ftLn6XkLcoAc=",
+        "bzlTransitiveDigest": "gZlCGThP57D/hTQYaaNd95n9FT81ZotPPk5G3m91ATA=",
         "usagesDigest": "3BxGiccNNlFja9y/vd4+7TlTcgtjWIybmed7P06K9QM=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -1383,9 +1383,14 @@
                 "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/0.0.1/x86_64-unknown-linux-gnu_gcc12.tar.gz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
+              "patch_args": [],
               "patch_cmds": [],
+              "patch_strip": 0,
+              "patch_tool": "",
               "sha256": "457f5f20f57528033cb840d708b507050d711ae93e009388847e113b11bf3600",
-              "strip_prefix": "x86_64-unknown-linux-gnu"
+              "strip_prefix": "x86_64-unknown-linux-gnu",
+              "patches": [],
+              "files": {}
             }
           },
           "score_gcc_toolchain_bp_pkg": {
@@ -1395,9 +1400,14 @@
                 "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/x86_64-unknown-linux-gnu_gcc12.tar.gz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
+              "patch_args": [],
               "patch_cmds": [],
+              "patch_strip": 0,
+              "patch_tool": "",
               "sha256": "e9b9a7a63a5f8271b76d6e2057906b95c7a244e4931a8e10edeaa241e9f7c11e",
-              "strip_prefix": "x86_64-unknown-linux-gnu"
+              "strip_prefix": "x86_64-unknown-linux-gnu",
+              "patches": [],
+              "files": {}
             }
           },
           "score_gcc_toolchain_pkg": {
@@ -1407,9 +1417,14 @@
                 "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/x86_64-unknown-linux-gnu_gcc12.tar.gz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
+              "patch_args": [],
               "patch_cmds": [],
+              "patch_strip": 0,
+              "patch_tool": "",
               "sha256": "e9b9a7a63a5f8271b76d6e2057906b95c7a244e4931a8e10edeaa241e9f7c11e",
-              "strip_prefix": "x86_64-unknown-linux-gnu"
+              "strip_prefix": "x86_64-unknown-linux-gnu",
+              "patches": [],
+              "files": {}
             }
           },
           "score_gcc_toolchain_15_pkg": {
@@ -1419,9 +1434,14 @@
                 "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.5/x86_64-unknown-linux-gnu_gcc15.tar.gz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/gcc/15.3.0:gcc.BUILD",
+              "patch_args": [],
               "patch_cmds": [],
+              "patch_strip": 0,
+              "patch_tool": "",
               "sha256": "c65e21725d4d9993bab0b4ef2aed7065a4bf1b0f232a068d778eb670f80daa60",
-              "strip_prefix": "x86_64-unknown-linux-gnu"
+              "strip_prefix": "x86_64-unknown-linux-gnu",
+              "patches": [],
+              "files": {}
             }
           },
           "score_aarch64_gcc_toolchain_pkg": {
@@ -1431,9 +1451,14 @@
                 "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/aarch64-unknown-linux-gnu_gcc12.tar.gz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/aarch64/gcc/12.2.0:gcc.BUILD",
+              "patch_args": [],
               "patch_cmds": [],
+              "patch_strip": 0,
+              "patch_tool": "",
               "sha256": "7279b1adb50361b21f5266b001980b6febb35fa8d83170901196b9edae3f06d9",
-              "strip_prefix": "aarch64-unknown-linux-gnu"
+              "strip_prefix": "aarch64-unknown-linux-gnu",
+              "patches": [],
+              "files": {}
             }
           },
           "score_aarch64_gcc_toolchain_15_pkg": {
@@ -1443,9 +1468,14 @@
                 "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.5/aarch64-unknown-linux-gnu_gcc15.tar.gz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/aarch64/gcc/15.3.0:gcc.BUILD",
+              "patch_args": [],
               "patch_cmds": [],
+              "patch_strip": 0,
+              "patch_tool": "",
               "sha256": "ff9fe6caed22f15a1dd87a93bff5cfa1536b5dddcff3364827f97ebc01a494a1",
-              "strip_prefix": "aarch64-unknown-linux-gnu"
+              "strip_prefix": "aarch64-unknown-linux-gnu",
+              "patches": [],
+              "files": {}
             }
           },
           "score_qcc_toolchain_pkg": {
@@ -1455,9 +1485,14 @@
                 "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
+              "patch_args": [],
               "patch_cmds": [],
+              "patch_strip": 0,
+              "patch_tool": "",
               "sha256": "146312c0bf22aab66e8294a06403f2ec6cfeeb074d8fa11549faffd84b7fe778",
-              "strip_prefix": ""
+              "strip_prefix": "",
+              "patches": [],
+              "files": {}
             }
           },
           "score_qcc_arm_toolchain_pkg": {
@@ -1467,9 +1502,14 @@
                 "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/qnx/aarch64/sdp/8.0.0:sdp.BUILD",
+              "patch_args": [],
               "patch_cmds": [],
+              "patch_strip": 0,
+              "patch_tool": "",
               "sha256": "146312c0bf22aab66e8294a06403f2ec6cfeeb074d8fa11549faffd84b7fe778",
-              "strip_prefix": ""
+              "strip_prefix": "",
+              "patches": [],
+              "files": {}
             }
           },
           "score_autosd_10_toolchain_pkg": {
@@ -1479,9 +1519,14 @@
                 "https://github.com/eclipse-score/os_autosd/releases/download/v0.0.2/autosd-toolchain-x86_64.tar.gz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/autosd/10.0:autosd.BUILD",
+              "patch_args": [],
               "patch_cmds": [],
+              "patch_strip": 0,
+              "patch_tool": "",
               "sha256": "25991056bd29d4cb37b11e42d0c09f55dc61d0b9d703f75d854cf614f688c96f",
-              "strip_prefix": "sysroot"
+              "strip_prefix": "sysroot",
+              "patches": [],
+              "files": {}
             }
           },
           "score_ebclfsa_toolchain_pkg": {
@@ -1491,9 +1536,14 @@
                 "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta1/fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64.tar.gz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/aarch64/ebclfsa/0.1.0:ebclfsa.BUILD",
+              "patch_args": [],
               "patch_cmds": [],
+              "patch_strip": 0,
+              "patch_tool": "",
               "sha256": "f44286c28d831dc40acdac08ef49f38a2e9cbb057bea38c25834964693785287",
-              "strip_prefix": "fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64"
+              "strip_prefix": "fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64",
+              "patches": [],
+              "files": {}
             }
           },
           "score_ebclfsa_2.0.0-beta2_toolchain_pkg": {
@@ -1503,11 +1553,16 @@
                 "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta2/fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64.tar.gz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/aarch64/ebclfsa/2.0.0-beta2:ebclfsa.BUILD",
+              "patch_args": [],
               "patch_cmds": [
                 "sdk=$(pwd); loader=$sdk/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2; test -x \"$loader\" -a -x \"$sdk/usr/bin/patchelf\" || exit 1; tmp=$(mktemp -d); cp \"$sdk/usr/bin/patchelf\" \"$tmp/patchelf\"; run_patchelf() { \"$loader\" --library-path \"$sdk/usr/lib/x86_64-linux-gnu:$sdk/lib/x86_64-linux-gnu\" \"$tmp/patchelf\" \"$@\"; }; for binary in $(find usr/bin usr/sbin usr/libexec/gcc* usr/lib/gcc-cross usr/lib/llvm-*/bin -type f -perm -u+x 2>/dev/null); do interpreter=$(run_patchelf --print-interpreter \"$binary\" 2>/dev/null) || continue; test -n \"$interpreter\" || continue; run_patchelf --set-interpreter \"$loader\" \"$binary\" >/dev/null 2>&1 || true; done; rm -rf \"$tmp\""
               ],
+              "patch_strip": 0,
+              "patch_tool": "",
               "sha256": "4cf7f0191988795f316f276b56e370ad60fc371954a881d158ebba0284d9d3f5",
-              "strip_prefix": "fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64"
+              "strip_prefix": "fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64",
+              "patches": [],
+              "files": {}
             }
           },
           "score_gcc_toolchain_bp": {
