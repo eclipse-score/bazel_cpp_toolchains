@@ -54,7 +54,7 @@ _attrs_sdp = {
         default = "",
         doc = "Url to the toolchain archive.",
     ),
-    patches = attr.label_list(
+    "patches": attr.label_list(
         mandatory = False,
         default = [],
         doc = "List of patches to apply to the archive.",

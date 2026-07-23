@@ -35,7 +35,8 @@ toolchain repository through these steps:
 `packages/version_matrix.bzl`
 
 Defines the supported package matrix. Each entry maps a logical toolchain key
-to download metadata and, when needed, extra compiler or linker flags.
+to download metadata and, when needed, extra compiler or linker flags and
+archive patches.
 
 `rules/common.bzl`
 

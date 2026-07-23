@@ -82,9 +82,7 @@ VERSION_MATRIX = {
         "strip_prefix": "",
         "url": "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz",
         "gcc_version": "12.2.0",
-        "patches": [
-            "@score_bazel_cpp_toolchains//packages/qnx/aarch64/sdp/8.0.0:patches",
-        ],
+        "patches": ["@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:patches/fsevmgr.patch"],
     },
     "x86_64-linux-gcc_12.2.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
@@ -216,6 +214,6 @@ VERSION_MATRIX = {
         "strip_prefix": "",
         "url": "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz",
         "gcc_version": "12.2.0",
-        "patches": [],
+        "patches": ["@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:patches/fsevmgr.patch"],
     },
 }

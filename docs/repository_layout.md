@@ -47,7 +47,7 @@ Contains the repository rules that materialize a toolchain repository.
 
 Stores package metadata and BUILD descriptors for supported toolchain
 archives. The most important file is `packages/version_matrix.bzl`, which maps
-logical toolchain identifiers to URLs, checksums, build files, and any
+logical toolchain identifiers to URLs, checksums, build files, patches, and any
 required extra flags.
 
 `templates/`
