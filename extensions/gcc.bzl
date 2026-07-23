@@ -54,6 +54,11 @@ _attrs_sdp = {
         default = "",
         doc = "Url to the toolchain archive.",
     ),
+    patches = attr.label_list(
+        mandatory = False,
+        default = [],
+        doc = "List of patches to apply to the archive.",
+    ),
 }
 
 # GCC interface API for toolchain tag class
@@ -188,6 +193,7 @@ def _get_packages(tags):
             "sha256": tag.sha256,
             "strip_prefix": tag.strip_prefix,
             "url": tag.url,
+            "patches": tag.patches,
         })
     return packages
 
@@ -304,6 +310,7 @@ def _create_and_link_sdp(toolchain_info):
         "sha256": matrix["sha256"],
         "strip_prefix": matrix["strip_prefix"],
         "url": matrix["url"],
+        "patches": matrix.get("patches"),
     }
 
 def _resolve_identifier(toolchain_info):
@@ -391,6 +398,7 @@ def _impl(mctx):
             build_file = archive_info["build_file"],
             sha256 = archive_info["sha256"],
             strip_prefix = archive_info["strip_prefix"],
+            patches = archive_info.get("patches"),
         )
 
     for toolchain_info in toolchains:
