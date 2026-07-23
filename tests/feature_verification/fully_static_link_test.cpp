@@ -19,7 +19,6 @@
 // (/proc/self/maps): a fully static binary maps no shared objects, so no
 // mapped file path ends in ".so" (or contains ".so.").
 
-#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -30,7 +29,11 @@ namespace {
 // which would indicate the binary was NOT fully statically linked.
 bool has_shared_object_mappings() {
     std::ifstream maps("/proc/self/maps");
-    assert(maps.is_open() && "could not open /proc/self/maps");
+    if (!maps.is_open()) {
+        std::cerr << "FAIL: could not open /proc/self/maps" << std::endl;
+        // Treat as failure by reporting a shared-object mapping.
+        return true;
+    }
 
     std::string line;
     while (std::getline(maps, line)) {
@@ -46,8 +49,13 @@ bool has_shared_object_mappings() {
 int main() {
     std::cout << "Testing fully_static_link feature (-static)..." << std::endl;
 
-    assert(!has_shared_object_mappings() &&
-           "expected a fully static binary (no .so mappings)");
+    // Note: the check must not rely on assert(), which is compiled out under
+    // -DNDEBUG (applied in both fastbuild and opt modes by this toolchain).
+    if (has_shared_object_mappings()) {
+        std::cerr << "FAIL: shared object mapped; binary is not fully static"
+                  << std::endl;
+        return 1;
+    }
 
     std::cout << "fully_static_link test passed: no shared objects mapped"
               << std::endl;
