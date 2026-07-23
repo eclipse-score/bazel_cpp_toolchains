@@ -205,6 +205,7 @@ def _get_toolchains(tags):
         toolchain = {
             "cc_toolchain_config": "@score_bazel_cpp_toolchains//templates/{}:cc_toolchain_config.bzl.template".format(tag.target_os),
             "cc_toolchain_flags": "@score_bazel_cpp_toolchains//templates/{}:cc_toolchain_flags.bzl.template".format(tag.target_os),
+            "cc_toolchain_shared_features": "@score_bazel_cpp_toolchains//templates:cc_toolchain_shared_features.bzl.template",
             "gcc_version": tag.version,
             "name": tag.name,
             "use_base_constraints_only": tag.use_base_constraints_only,
@@ -417,6 +418,7 @@ def _impl(mctx):
             gcc_version = toolchain_info["gcc_version"],
             cc_toolchain_config = toolchain_info["cc_toolchain_config"],
             cc_toolchain_flags = toolchain_info["cc_toolchain_flags"],
+            cc_toolchain_shared_features = toolchain_info["cc_toolchain_shared_features"],
             use_base_constraints_only = toolchain_info["use_base_constraints_only"],
         )
 

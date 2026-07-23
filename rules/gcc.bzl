@@ -282,6 +282,12 @@ def _impl(rctx):
         {},
     )
 
+    rctx.template(
+        "shared_features.bzl",
+        rctx.attr.cc_toolchain_shared_features,
+        {},
+    )
+
     if rctx.attr.tc_os == _OS_LINUX:
         # There is an issue with gcov and cc_toolchain config.
         # See: https://github.com/bazelbuild/rules_cc/issues/351
@@ -322,6 +328,9 @@ gcc_toolchain = repository_rule(
         ),
         "cc_toolchain_flags": attr.label(
             doc = "Path to the Bazel BUILD file template for the toolchain.",
+        ),
+        "cc_toolchain_shared_features": attr.label(
+            doc = "Path to the shared features template.",
         ),
         "extra_c_compile_flags": attr.string_list(doc = "Extra/Additional C-specific compile flags."),
         "extra_compile_flags": attr.string_list(doc = "Extra/Additional compile flags."),
