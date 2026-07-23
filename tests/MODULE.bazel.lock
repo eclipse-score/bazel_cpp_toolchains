@@ -1368,7 +1368,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "yw9Re6dZy5Gs5l3byDyzu4qgBXBSZQbNHWm89ygsTPA=",
+        "bzlTransitiveDigest": "0RwA2lbDI6AehZIZqRcUU0TvWnT+QpHP4Ue2aP5aI8c=",
         "usagesDigest": "1UfIz7yPBC2LyOHghQlB2yltcJXkkGH7NQITjVhleH8=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -1486,6 +1486,7 @@
               "gcc_version": "12.2.0",
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
               "use_base_constraints_only": true
             }
           },
@@ -1513,6 +1514,7 @@
               "gcc_version": "12.2.0",
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1540,6 +1542,7 @@
               "gcc_version": "12.2.0",
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1569,6 +1572,7 @@
               "gcc_version": "12.2.0",
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1596,6 +1600,7 @@
               "gcc_version": "12.2.0",
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1623,6 +1628,7 @@
               "gcc_version": "12.2.0",
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1686,6 +1692,7 @@
               "gcc_version": "",
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1765,6 +1772,7 @@
               "gcc_version": "",
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
               "use_base_constraints_only": false
             }
           }
