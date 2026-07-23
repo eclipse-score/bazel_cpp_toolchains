@@ -32,6 +32,12 @@ bazel_dep(name = "bazel_skylib", version = "1.9.0")
 # *******************************************************************************
 bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "score_bazel_platforms", version = "0.1.2")
+git_override(
+    name = "score_bazel_platforms",
+    remote = "https://github.com/eclipse-score/bazel_platforms.git",
+    commit = "6c45a8f2a973fe396c392f727d9dae510692eb88",
+)
+    
 
 # *******************************************************************************
 # C++ Rules for Bazel
@@ -90,6 +96,22 @@ gcc.toolchain(
     use_default_package = True,
     version = "12.2.0",
 )
+
+# *******************************************************************************
+# Setting default GCC - local (CPU:x86_64|OS:Linux|V:12.2.0|ES:posix)
+# *******************************************************************************
+# gcc.sdp(
+#     name = "gcc_local_pkg",
+#     build_file = "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
+#     path = "<PUT_YOUR_LOCAL_PATH_HERE>",
+# )
+# gcc.toolchain(
+#     name = "score_gcc_toolchain_local",
+#     target_cpu = "x86_64",
+#     target_os = "linux",
+#     sdp_to_link = "gcc_local_pkg",
+#     version = "15.3.0",
+# )
 
 # *******************************************************************************
 # Setting default GCC (CPU:aarch64|OS:Linux|V:12.2.0|ES:posix)
@@ -179,6 +201,8 @@ use_repo(
     "score_qcc_arm_toolchain_pkg",
     "score_qcc_toolchain",
     "score_qcc_toolchain_pkg",
+    # "score_gcc_toolchain_local",
+    # "gcc_local_pkg",
 )
 
 # *******************************************************************************
