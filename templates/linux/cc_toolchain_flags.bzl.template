@@ -86,11 +86,15 @@ OPT_COMPILE_FLAGS = get_flag_group([
 
 # Default link flags when no specific build type is selected.
 DEFAULT_LINK_FLAGS = get_flag_group([
+    "-Wl,-Bstatic",
+    "-lstdc++",
+    "-lgcc",
+    "-lgcc_eh",
+    "-Wl,-Bdynamic",
     "-lm",
     "-ldl",
     "-lrt",
-    "-static-libstdc++",
-    "-static-libgcc",
+    "-lc",
 ])
 
 # Minimal set of warning flags to enable useful warnings without overwhelming the user.
