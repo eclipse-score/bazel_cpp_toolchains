@@ -94,6 +94,7 @@ attributes are:
 - `url`: url of the archive,
 - `sha256`: sha256 of the archive
 - `strip_prefix`: extraction prefix for packaged archives
+- `patches`: list of patch labels applied to the archive after extraction
 
 ## Feature Injection
 

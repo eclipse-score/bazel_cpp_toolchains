@@ -20,6 +20,7 @@ VERSION_MATRIX = {
         "sha256": "7279b1adb50361b21f5266b001980b6febb35fa8d83170901196b9edae3f06d9",
         "strip_prefix": "aarch64-unknown-linux-gnu",
         "url": "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/aarch64-unknown-linux-gnu_gcc12.tar.gz",
+        "patches": [],
     },
     "aarch64-linux-autosd10": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/autosd/10.0:autosd.BUILD",
@@ -65,6 +66,7 @@ VERSION_MATRIX = {
         "sha256": "11274fcd6be01ef9190a315f7efc04fb9bf63d47302a255216c00ac2eb0a7103",
         "strip_prefix": "sysroot",
         "url": "https://github.com/eclipse-score/inc_os_autosd/releases/download/continuous/autosd-toolchain-aarch64.tar.gz",
+        "patches": [],
     },
     "aarch64-qnx-sdp_8.0.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/aarch64/sdp/8.0.0:sdp.BUILD",
@@ -72,6 +74,7 @@ VERSION_MATRIX = {
         "strip_prefix": "installation",
         "url": "https://www.qnx.com/download/download/79858/installation.tgz",
         "gcc_version": "12.2.0",
+        "patches": [],
     },
     "aarch64-qnx-sdp_8.0.4": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/aarch64/sdp/8.0.0:sdp.BUILD",
@@ -79,12 +82,14 @@ VERSION_MATRIX = {
         "strip_prefix": "",
         "url": "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz",
         "gcc_version": "12.2.0",
+        "patches": ["@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:patches/fsevmgr.patch"],
     },
     "x86_64-linux-gcc_12.2.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
         "sha256": "e9b9a7a63a5f8271b76d6e2057906b95c7a244e4931a8e10edeaa241e9f7c11e",
         "strip_prefix": "x86_64-unknown-linux-gnu",
         "url": "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/x86_64-unknown-linux-gnu_gcc12.tar.gz",
+        "patches": [],
     },
     "x86_64-linux-autosd10": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/x86_64/autosd/10.0:autosd.BUILD",
@@ -130,6 +135,7 @@ VERSION_MATRIX = {
         "sha256": "39091c500a31bc58d5934cc9c27f5fec4326f30d8bff88fe67737c86385bf39f",
         "strip_prefix": "sysroot",
         "url": "https://github.com/eclipse-score/inc_os_autosd/releases/download/continuous/autosd-toolchain-x86_64.tar.gz",
+        "patches": [],
     },
     "aarch64-linux-sdk_0.1.0-ebclfsa": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/ebclfsa/0.1.0:ebclfsa.BUILD",
@@ -192,6 +198,7 @@ VERSION_MATRIX = {
         "strip_prefix": "fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64",
         "sha256": "f44286c28d831dc40acdac08ef49f38a2e9cbb057bea38c25834964693785287",
         "url": "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta1/fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64.tar.gz",
+        "patches": [],
     },
     "x86_64-qnx-sdp_8.0.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
@@ -199,6 +206,7 @@ VERSION_MATRIX = {
         "strip_prefix": "installation",
         "url": "https://www.qnx.com/download/download/79858/installation.tgz",
         "gcc_version": "12.2.0",
+        "patches": [],
     },
     "x86_64-qnx-sdp_8.0.4": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
@@ -206,5 +214,6 @@ VERSION_MATRIX = {
         "strip_prefix": "",
         "url": "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz",
         "gcc_version": "12.2.0",
+        "patches": ["@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:patches/fsevmgr.patch"],
     },
 }
