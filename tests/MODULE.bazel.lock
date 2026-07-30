@@ -1368,7 +1368,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "0RwA2lbDI6AehZIZqRcUU0TvWnT+QpHP4Ue2aP5aI8c=",
+        "bzlTransitiveDigest": "t/twxIeWF+LJee/7cS9/cwXdH3lQY/KjStc0BSv99Mw=",
         "usagesDigest": "1UfIz7yPBC2LyOHghQlB2yltcJXkkGH7NQITjVhleH8=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -1487,6 +1487,7 @@
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
               "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
+              "cc_toolchain_linux_features": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_linux_features.bzl.template",
               "use_base_constraints_only": true
             }
           },
@@ -1515,6 +1516,7 @@
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
               "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
+              "cc_toolchain_linux_features": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_linux_features.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1543,6 +1545,7 @@
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
               "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
+              "cc_toolchain_linux_features": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_linux_features.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1573,6 +1576,7 @@
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
               "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
+              "cc_toolchain_linux_features": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_linux_features.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1693,6 +1697,7 @@
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
               "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
+              "cc_toolchain_linux_features": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_linux_features.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1773,6 +1778,7 @@
               "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
               "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
               "cc_toolchain_shared_features": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_shared_features.bzl.template",
+              "cc_toolchain_linux_features": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_linux_features.bzl.template",
               "use_base_constraints_only": false
             }
           }

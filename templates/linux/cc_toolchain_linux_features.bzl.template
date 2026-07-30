@@ -1,0 +1,306 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+"""Linux-specific feature definitions for GCC toolchains (Group L)."""
+
+load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
+load(
+    "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
+    "env_entry",
+    "env_set",
+    "feature",
+    "flag_group",
+    "flag_set",
+    "with_feature_set",
+)
+load(
+    ":shared_features.bzl",
+    "all_actions",
+    "all_c_compile_actions",
+    "all_compile_actions",
+    "all_cpp_compile_actions",
+    "all_link_actions",
+)
+
+def make_linux_features(ctx):
+    """Construct the Group L features specific to Linux GCC toolchains.
+
+    Args:
+        ctx: Rule context, used to access sysroot attribute.
+
+    Returns:
+        struct with one named field per Group L feature.
+    """
+    # Temp solution until we do not add feature injection
+    gnu11_feature = feature(name = "gnu11")
+
+    supports_fission_feature = feature(name = "supports_fission", enabled = True)
+
+    # Set LD_LIBRARY_PATH environment variable for all actions
+    # This is needed by some toolchains since these libraries are not in `rpath` of compiler binary
+    # which are needed to run it.
+    compiler_library_search_paths = "%{compiler_library_search_paths}"
+    compiler_library_search_paths_feature = feature(
+        name = "compiler_library_search_paths",
+        enabled = %{compiler_library_search_paths_switch},
+        env_sets = [
+            env_set(
+                actions = all_actions,
+                env_entries = [env_entry(key = "LD_LIBRARY_PATH", value = compiler_library_search_paths)] if compiler_library_search_paths != "" else [],
+            ),
+        ],
+    )
+
+    # Add sysroot linker flags as a separate feature (always enabled)
+    sysroot_link_flags_feature_flag_sets = []
+    if ctx.attr.sysroot != None:
+        sysroot_files = ctx.attr.sysroot[DefaultInfo].files.to_list()
+        if sysroot_files:
+            sysroot_path = sysroot_files[0].path
+            sysroot_link_flags_feature_flag_sets = [
+                flag_set(
+                    actions = all_link_actions,
+                    flag_groups = [flag_group(flags = [
+                        "--sysroot=" + sysroot_path,
+                        "-Wl,--sysroot=" + sysroot_path,
+                    ])],
+                ),
+            ]
+
+    sysroot_link_flags_feature = feature(
+        name = "sysroot_link_flags",
+        enabled = True,
+        flag_sets = sysroot_link_flags_feature_flag_sets,
+    )
+
+    extra_c_compile_flags = %{extra_c_compile_flags}
+    extra_c_compile_flags_feature = feature(
+        name = "extra_c_compile_flags",
+        enabled = %{extra_c_compile_flags_switch},
+        implies = ["default_compile_flags"],
+        flag_sets = [
+            flag_set(
+                actions = all_c_compile_actions,
+                flag_groups = extra_c_compile_flags,
+            ),
+        ],
+    )
+
+    extra_cxx_compile_flags = %{extra_cxx_compile_flags}
+    extra_cxx_compile_flags_feature = feature(
+        name = "extra_cxx_compile_flags",
+        enabled = %{extra_cxx_compile_flags_switch},
+        implies = ["default_compile_flags"],
+        flag_sets = [
+            flag_set(
+                actions = all_cpp_compile_actions,
+                flag_groups = extra_cxx_compile_flags,
+            ),
+        ],
+    )
+
+    pthread_feature = feature(
+        name = "use_pthread",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(flags = ["-pthread"]),
+                ],
+            ),
+        ],
+    )
+
+    # ------------------------------------------------------------------------
+    # Additional legacy features.
+    #
+    # These mirror features that Bazel's legacy toolchain machinery would add
+    # automatically. All except fully_static_link are guarded (via
+    # expand_if_available or with_features) so they are no-ops for normal builds
+    # and only emit flags when the relevant build mode is active (e.g. --fission,
+    # --force_pic, --stamp). They are therefore enabled by default.
+    #
+    # fully_static_link is left DISABLED by default because it emits -static
+    # unconditionally, which would force fully static linking for every target.
+    # Users who want it must opt in explicitly, e.g. via `--features=<name>`.
+    # ------------------------------------------------------------------------
+
+    # Fission: emit split DWARF debug info into separate .dwo files at compile.
+    per_object_debug_info_feature = feature(
+        name = "per_object_debug_info",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.assemble,
+                    ACTION_NAMES.preprocess_assemble,
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_module_codegen,
+                ],
+                flag_groups = [
+                    flag_group(
+                        flags = ["-gsplit-dwarf", "-g"],
+                        expand_if_available = "per_object_debug_info_file",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Fission: emit a .gdb_index section at link when fission is in use.
+    fission_support_feature = feature(
+        name = "fission_support",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = ["-Wl,--gdb-index"],
+                        expand_if_available = "is_using_fission",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Pass linkstamp object files to the linker (used with --stamp).
+    linkstamps_feature = feature(
+        name = "linkstamps",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "linkstamp_paths",
+                        flags = ["%{linkstamp_paths}"],
+                        expand_if_available = "linkstamp_paths",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Force-include headers via -include (the `includes` build variable).
+    includes_feature = feature(
+        name = "includes",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_compile_actions,
+                flag_groups = [
+                    flag_group(
+                        iterate_over = "includes",
+                        flags = ["-include", "%{includes}"],
+                        expand_if_available = "includes",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Build position-independent executables under --force_pic.
+    force_pic_flags_feature = feature(
+        name = "force_pic_flags",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [ACTION_NAMES.cpp_link_executable],
+                flag_groups = [
+                    flag_group(
+                        flags = ["-pie"],
+                        expand_if_available = "force_pic",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Strip debug symbols at link time.
+    strip_debug_symbols_feature = feature(
+        name = "strip_debug_symbols",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = all_link_actions,
+                flag_groups = [
+                    flag_group(
+                        flags = ["-Wl,-S"],
+                        expand_if_available = "strip_debug_symbols",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Statically link libgcc (paired with static_link_cpp_runtimes).
+    static_libgcc_feature = feature(
+        name = "static_libgcc",
+        enabled = True,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.cpp_link_executable,
+                    ACTION_NAMES.cpp_link_dynamic_library,
+                ],
+                flag_groups = [flag_group(flags = ["-static-libgcc"])],
+                with_features = [
+                    with_feature_set(features = ["static_link_cpp_runtimes"]),
+                ],
+            ),
+        ],
+    )
+
+    # Fully static link (-static) under --dynamic_mode=fully.
+    fully_static_link_feature = feature(
+        name = "fully_static_link",
+        enabled = False,
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.cpp_link_executable,
+                    ACTION_NAMES.cpp_link_dynamic_library,
+                    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+                ],
+                flag_groups = [flag_group(flags = ["-static"])],
+            ),
+        ],
+    )
+
+    # Feature to disable absolute path warnings for system headers
+    supports_header_path_normalization_feature = feature(
+        name = "supports_header_path_normalization",
+        enabled = True,
+    )
+
+    return struct(
+        supports_fission_feature = supports_fission_feature,
+        supports_header_path_normalization_feature = supports_header_path_normalization_feature,
+        compiler_library_search_paths_feature = compiler_library_search_paths_feature,
+        gnu11_feature = gnu11_feature,
+        includes_feature = includes_feature,
+        per_object_debug_info_feature = per_object_debug_info_feature,
+        sysroot_link_flags_feature = sysroot_link_flags_feature,
+        pthread_feature = pthread_feature,
+        fission_support_feature = fission_support_feature,
+        linkstamps_feature = linkstamps_feature,
+        force_pic_flags_feature = force_pic_flags_feature,
+        strip_debug_symbols_feature = strip_debug_symbols_feature,
+        static_libgcc_feature = static_libgcc_feature,
+        fully_static_link_feature = fully_static_link_feature,
+        extra_c_compile_flags_feature = extra_c_compile_flags_feature,
+        extra_cxx_compile_flags_feature = extra_cxx_compile_flags_feature,
+    )

@@ -289,6 +289,14 @@ def _impl(rctx):
     )
 
     if rctx.attr.tc_os == _OS_LINUX:
+        if rctx.attr.cc_toolchain_linux_features == None:
+            fail("cc_toolchain_linux_features must be set for Linux targets")
+        rctx.template(
+            "linux_features.bzl",
+            rctx.attr.cc_toolchain_linux_features,
+            template_dict,
+        )
+
         # There is an issue with gcov and cc_toolchain config.
         # See: https://github.com/bazelbuild/rules_cc/issues/351
         rctx.template(
@@ -331,6 +339,10 @@ gcc_toolchain = repository_rule(
         ),
         "cc_toolchain_shared_features": attr.label(
             doc = "Path to the shared features template.",
+        ),
+        "cc_toolchain_linux_features": attr.label(
+            doc = "Path to the Linux-specific features template. Required for Linux targets.",
+            default = None,
         ),
         "extra_c_compile_flags": attr.string_list(doc = "Extra/Additional C-specific compile flags."),
         "extra_compile_flags": attr.string_list(doc = "Extra/Additional compile flags."),
