@@ -1368,7 +1368,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "0RwA2lbDI6AehZIZqRcUU0TvWnT+QpHP4Ue2aP5aI8c=",
+        "bzlTransitiveDigest": "4CcIVnMoRvSIo0RsIRsjL/6772ziuRiT8YmEfxhfCmA=",
         "usagesDigest": "1UfIz7yPBC2LyOHghQlB2yltcJXkkGH7NQITjVhleH8=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -1444,10 +1444,10 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
               "urls": [
-                "https://github.com/eclipse-score/inc_os_autosd/releases/download/continuous/autosd-toolchain-x86_64.tar.gz"
+                "https://github.com/eclipse-score/os_autosd/releases/download/v0.0.2/autosd-toolchain-x86_64.tar.gz"
               ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/autosd/10.0:autosd.BUILD",
-              "sha256": "39091c500a31bc58d5934cc9c27f5fec4326f30d8bff88fe67737c86385bf39f",
+              "sha256": "25991056bd29d4cb37b11e42d0c09f55dc61d0b9d703f75d854cf614f688c96f",
               "strip_prefix": "sysroot"
             }
           },
