@@ -62,9 +62,9 @@ VERSION_MATRIX = {
             "-lrt",
             "-lstdc++",
         ],
-        "sha256": "11274fcd6be01ef9190a315f7efc04fb9bf63d47302a255216c00ac2eb0a7103",
+        "sha256": "e2f6a21681730e61ce39af19758003ba3568b093956a57cde136d5c73cf6540a",
         "strip_prefix": "sysroot",
-        "url": "https://github.com/eclipse-score/inc_os_autosd/releases/download/continuous/autosd-toolchain-aarch64.tar.gz",
+        "url": "https://github.com/eclipse-score/os_autosd/releases/download/v0.0.2/autosd-toolchain-aarch64.tar.gz",
     },
     "aarch64-qnx-sdp_8.0.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/aarch64/sdp/8.0.0:sdp.BUILD",
@@ -127,9 +127,9 @@ VERSION_MATRIX = {
             "-lrt",
             "-lstdc++",
         ],
-        "sha256": "39091c500a31bc58d5934cc9c27f5fec4326f30d8bff88fe67737c86385bf39f",
+        "sha256": "25991056bd29d4cb37b11e42d0c09f55dc61d0b9d703f75d854cf614f688c96f",
         "strip_prefix": "sysroot",
-        "url": "https://github.com/eclipse-score/inc_os_autosd/releases/download/continuous/autosd-toolchain-x86_64.tar.gz",
+        "url": "https://github.com/eclipse-score/os_autosd/releases/download/v0.0.2/autosd-toolchain-x86_64.tar.gz",
     },
     "aarch64-linux-sdk_0.1.0-ebclfsa": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/ebclfsa/0.1.0:ebclfsa.BUILD",
