@@ -21,6 +21,12 @@ VERSION_MATRIX = {
         "strip_prefix": "aarch64-unknown-linux-gnu",
         "url": "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/aarch64-unknown-linux-gnu_gcc12.tar.gz",
     },
+    "aarch64-linux-gcc_15.3.0": {
+        "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/gcc/15.3.0:gcc.BUILD",
+        "sha256": "ff9fe6caed22f15a1dd87a93bff5cfa1536b5dddcff3364827f97ebc01a494a1",
+        "strip_prefix": "aarch64-unknown-linux-gnu",
+        "url": "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.5/aarch64-unknown-linux-gnu_gcc15.tar.gz",
+    },
     "aarch64-linux-autosd10": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/autosd/10.0:autosd.BUILD",
         "extra_c_compile_flags": [
@@ -85,6 +91,12 @@ VERSION_MATRIX = {
         "sha256": "e9b9a7a63a5f8271b76d6e2057906b95c7a244e4931a8e10edeaa241e9f7c11e",
         "strip_prefix": "x86_64-unknown-linux-gnu",
         "url": "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/x86_64-unknown-linux-gnu_gcc12.tar.gz",
+    },
+    "x86_64-linux-gcc_15.3.0": {
+        "build_file": "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/15.3.0:gcc.BUILD",
+        "sha256": "c65e21725d4d9993bab0b4ef2aed7065a4bf1b0f232a068d778eb670f80daa60",
+        "strip_prefix": "x86_64-unknown-linux-gnu",
+        "url": "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.5/x86_64-unknown-linux-gnu_gcc15.tar.gz",
     },
     "x86_64-linux-autosd10": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/x86_64/autosd/10.0:autosd.BUILD",

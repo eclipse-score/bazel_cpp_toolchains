@@ -28,6 +28,14 @@ build:x86_64-linux --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc_12
 build:x86_64-linux --host_features=use_pthread
 
 # -------------------------------------------------------------------------------
+# Different toolchain configuration for x86_64-linux-gcc15 (host)
+# -------------------------------------------------------------------------------
+build:x86_64-linux-gcc15 --config=shared
+build:x86_64-linux-gcc15 --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_15.3.0-posix
+build:x86_64-linux-gcc15 --extra_toolchains=@score_gcc_toolchain_15//:x86_64-linux-gcc_15.3.0
+build:x86_64-linux-gcc15 --host_features=use_pthread
+
+# -------------------------------------------------------------------------------
 # Different toolchain configuration for x86_64-linux (host)
 # -------------------------------------------------------------------------------
 build:x86_64-linux-custom --config=shared
@@ -75,6 +83,13 @@ test:aarch64-qnx --test_lang_filters=cc
 build:aarch64-linux --config=x86_64-linux
 build:aarch64-linux --platforms=@score_bazel_platforms//:aarch64-linux-gcc_12.2.0-posix
 build:aarch64-linux --extra_toolchains=@score_aarch64_gcc_toolchain//:aarch64-linux-gcc_12.2.0
+
+# -------------------------------------------------------------------------------
+# Toolchain configuration for aarch64-linux (target)
+# -------------------------------------------------------------------------------
+build:aarch64-linux-gcc15 --config=x86_64-linux
+build:aarch64-linux-gcc15 --platforms=@score_bazel_platforms//:aarch64-linux-gcc_15.3.0-posix
+build:aarch64-linux-gcc15 --extra_toolchains=@score_aarch64_gcc_toolchain_15//:aarch64-linux-gcc_15.3.0
 
 # -------------------------------------------------------------------------------
 # Toolchain configuration for x86_64-linux-autosd10 (target)
