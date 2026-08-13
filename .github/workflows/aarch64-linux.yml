@@ -11,6 +11,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 name: Bazel Build (Aarch64-Linux)
+permissions:
+  contents: read
+  actions: write
 on:
   pull_request:
     types: [opened, reopened, synchronize]
@@ -42,3 +45,24 @@ jobs:
       - name: Guardrail (no legacy features)
         run: |
           bazel test --config=aarch64-linux -- //:guardrail_tests
+  generic-aarch64-linux-gcc15:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./tests
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@0.18.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.job }}
+          repository-cache: true
+          cache-save: ${{ github.event_name == 'push' }}
+      - name: Bazel Build (basic)
+        run: |
+          bazel build --config=aarch64-linux-gcc15 -- //:language_and_standards_tests //:feature_verification_tests
+      - name: Guardrail (no legacy features)
+        run: |
+          bazel test --config=aarch64-linux-gcc15 -- //:guardrail_tests
