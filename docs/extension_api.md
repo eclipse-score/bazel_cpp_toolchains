@@ -61,7 +61,8 @@ Required attributes:
 Common package selection attributes:
 
 - `use_default_package`: resolve package metadata from `packages/version_matrix.bzl`
-- `version`: GCC version string for Linux toolchains
+- `version`: GCC version string for Linux toolchains (e.g. `12.2.0` or `15.3.0` —
+  see `packages/version_matrix.bzl` for all versions currently packaged)
 - `sdp_version`: QNX SDP version string
 - `sdk_version`: alternative SDK identifier used in matrix resolution
 - `sdp_to_link`: override the package repository name that the toolchain uses
@@ -121,8 +122,13 @@ configuration such as:
 --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0
 ```
 
+A newer GCC 15.3.0 toolchain is packaged as well; activate it the same way by
+referencing its generated label (e.g.
+`--extra_toolchains=@score_gcc_toolchain_15//:x86_64-linux-gcc_15.3.0`).
+
 The test workspace under `tests/` provides complete `.bazelrc`
-configurations for this activation step.
+configurations for this activation step, including a `x86_64-linux-gcc15` /
+`aarch64-linux-gcc15` config pair for the GCC 15.3.0 toolchain.
 
 ## Migrating Downstream Workspaces
 

@@ -189,6 +189,9 @@ gcc.toolchain(
 use_repo(gcc, "score_gcc_toolchain")
 ```
 
+> GCC 15.3.0 is available too — set `version = "15.3.0"` instead. See
+> [Extension API](extension_api.md#gcctoolchain-attributes) for details.
+
 These flow through the `extra_compile_flags`, `extra_c_compile_flags`,
 `extra_cxx_compile_flags`, and `extra_link_flags` hooks documented in
 [Extension API](extension_api.md) and [Toolchain features](features.md). Use them
