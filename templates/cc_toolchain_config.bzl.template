@@ -1,0 +1,205 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+"""Unified GCC toolchain configuration — dispatches to the OS-specific feature module."""
+
+load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
+load(
+    "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
+    "action_config",
+    "flag_group",
+    "flag_set",
+    "tool",
+    "tool_path",
+)
+load("@rules_cc//cc:defs.bzl", "CcToolchainConfigInfo")
+load("@rules_cc//cc/toolchains:feature_injection.bzl", "FeatureInfo", "convert_feature")
+load(":cc_toolchain_%{tc_os}_config.bzl", "EXTRA_ATTRS", "make_features", "make_toolchain_config_info")
+load(
+    ":flags.bzl",
+    "ALL_WALL_C_WARNINGS",
+    "ALL_WALL_CXX_WARNINGS",
+    "ALL_WALL_WARNINGS",
+    "DBG_COMPILE_FLAGS",
+    "DEFAULT_C_COMPILE_FLAGS",
+    "DEFAULT_COMPILE_FLAGS",
+    "DEFAULT_CXX_COMPILE_FLAGS",
+    "DEFAULT_LINK_FLAGS",
+    "MINIMAL_C_WARNINGS_FLAGS",
+    "MINIMAL_CXX_WARNINGS_FLAGS",
+    "MINIMAL_WARNINGS_FLAGS",
+    "OPT_COMPILE_FLAGS",
+    "STRICT_C_WARNINGS_FLAGS",
+    "STRICT_CXX_WARNINGS_FLAGS",
+    "STRICT_WARNINGS_FLAGS",
+    "UNFILTERED_COMPILE_FLAGS",
+    "WARNINGS_AS_ERRORS",
+)
+load(
+    ":shared_features.bzl",
+    "all_actions",
+    "all_assemble_actions",
+    "all_c_compile_actions",
+    "all_compile_actions",
+    "all_cpp_compile_actions",
+    "all_link_actions",
+)
+
+def _impl(ctx):
+    flags = struct(
+        unfiltered_compile_flags = UNFILTERED_COMPILE_FLAGS,
+        default_compile_flags = DEFAULT_COMPILE_FLAGS,
+        default_c_compile_flags = DEFAULT_C_COMPILE_FLAGS,
+        default_cxx_compile_flags = DEFAULT_CXX_COMPILE_FLAGS,
+        default_link_flags = DEFAULT_LINK_FLAGS,
+        dbg_compile_flags = DBG_COMPILE_FLAGS,
+        opt_compile_flags = OPT_COMPILE_FLAGS,
+        minimal_warnings_flags = MINIMAL_WARNINGS_FLAGS,
+        minimal_c_warnings_flags = MINIMAL_C_WARNINGS_FLAGS,
+        minimal_cxx_warnings_flags = MINIMAL_CXX_WARNINGS_FLAGS,
+        strict_warnings_flags = STRICT_WARNINGS_FLAGS,
+        strict_c_warnings_flags = STRICT_C_WARNINGS_FLAGS,
+        strict_cxx_warnings_flags = STRICT_CXX_WARNINGS_FLAGS,
+        all_wall_warnings = ALL_WALL_WARNINGS,
+        all_wall_c_warnings = ALL_WALL_C_WARNINGS,
+        all_wall_cxx_warnings = ALL_WALL_CXX_WARNINGS,
+        warnings_as_errors = WARNINGS_AS_ERRORS,
+    )
+
+    actions = struct(
+        all_actions = all_actions,
+        all_assemble_actions = all_assemble_actions,
+        all_c_compile_actions = all_c_compile_actions,
+        all_compile_actions = all_compile_actions,
+        all_cpp_compile_actions = all_cpp_compile_actions,
+        all_link_actions = all_link_actions,
+    )
+
+    assemble_action = action_config(
+        action_name = ACTION_NAMES.assemble,
+        tools = [tool(tool = ctx.executable.cc_binary)],
+    )
+    preprocess_assemble_action = action_config(
+        action_name = ACTION_NAMES.preprocess_assemble,
+        tools = [tool(tool = ctx.executable.cc_binary)],
+    )
+    c_compile_action = action_config(
+        action_name = ACTION_NAMES.c_compile,
+        tools = [tool(tool = ctx.executable.cc_binary)],
+    )
+    cpp_compile_action = action_config(
+        action_name = ACTION_NAMES.cpp_compile,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_executable_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_executable,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_dynamic_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_dynamic_library,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_nodeps_dynamic_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_static_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_static_library,
+        tools = [tool(tool = ctx.executable.ar_binary)],
+        implies = ["archiver_flags"],
+    )
+    strip_action = action_config(
+        action_name = ACTION_NAMES.strip,
+        tools = [tool(tool = ctx.executable.strip_binary)],
+        flag_sets = [
+            flag_set(
+                flag_groups = [
+                    flag_group(flags = ["-g", "-p"]),
+                    flag_group(
+                        iterate_over = "stripopts",
+                        flags = ["%{stripopts}"],
+                    ),
+                    flag_group(flags = ["%{input_file}", "%{output_file}"]),
+                ],
+            ),
+        ],
+    )
+    action_configs = [
+        assemble_action,
+        c_compile_action,
+        cpp_compile_action,
+        cpp_link_dynamic_library_action,
+        cpp_link_executable_action,
+        cpp_link_nodeps_dynamic_library_action,
+        cpp_link_static_library_action,
+        preprocess_assemble_action,
+        strip_action,
+    ]
+
+    features = make_features(ctx, flags, actions)
+
+    extra_rules_based_features = depset(ctx.attr.extra_enabled_features + ctx.attr.extra_known_features)
+    features.extend([
+        convert_feature(extra_feature[FeatureInfo], enabled = extra_feature in ctx.attr.extra_enabled_features)
+        for extra_feature in extra_rules_based_features.to_list()
+    ])
+
+    tool_paths = [tool_path(name = "gcov", path = "gcov_wrapper")]
+
+    return make_toolchain_config_info(
+        ctx,
+        features,
+        action_configs,
+        tool_paths,
+        abi_version = "%{tc_abi_version}",
+        target_cpu = "%{tc_cpu}",
+        target_os = "%{tc_os}",
+        toolchain_identifier = "%{tc_identifier}",
+    )
+
+_BASE_ATTRS = {
+    "ar_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+    "cc_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+    "cxx_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+    "gcov_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+    "strip_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+    "target_cpu": attr.string(mandatory = True),
+    "target_os": attr.string(mandatory = True),
+    "extra_enabled_features": attr.label_list(
+        providers = [FeatureInfo],
+        default = [],
+        doc = """
+Extra `cc_feature` features to add to this toolchain in an initially enabled state.
+This attribute has limited integration with `cc_feature`, and does not run additional correctness checks or handle things like `data` files.
+This is only offered as a migration bridge for projects transitioning to rule-based toolchain configurations, or sharing of simple argument sets with older toolchains.
+""",
+    ),
+    "extra_known_features": attr.label_list(
+        providers = [FeatureInfo],
+        default = [],
+        doc = """
+Extra `cc_feature` features to add to this toolchain in an initially disabled state.
+This attribute has limited integration with `cc_feature`, and does not run additional correctness checks or handle things like `data` files.
+This is only offered as a migration bridge for projects transitioning to rule-based toolchain configurations, or sharing of simple argument sets with older toolchains.
+""",
+    ),
+}
+
+_RULE_ATTRS = dict(_BASE_ATTRS)
+_RULE_ATTRS.update(EXTRA_ATTRS)
+
+cc_toolchain_config = rule(
+    implementation = _impl,
+    provides = [CcToolchainConfigInfo],
+    attrs = _RULE_ATTRS,
+)

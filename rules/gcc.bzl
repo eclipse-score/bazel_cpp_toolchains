@@ -241,7 +241,19 @@ def _impl(rctx):
     extra_link_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_link_flags))
     compiler_library_search_paths = replace_placeholder(rctx.attr.tc_compiler_library_search_paths)
 
-    template_dict = {
+    # Compute once so it is available for both config and qnx feature template dicts.
+    mapped_sdp_version = _apply_sdp_version_mapping(rctx.attr.sdp_version)
+    mapped_sdp_version_for_config = mapped_sdp_version if rctx.attr.tc_os == _OS_QNX else ""
+
+    config_template_dict = {
+        "%{sdp_version}": mapped_sdp_version_for_config,
+        "%{tc_abi_version}": "{}-linux-gnu".format(_normalize_cpu(rctx.attr.tc_cpu)) if rctx.attr.tc_os == _OS_LINUX else "",
+        "%{tc_cpu}": _normalize_cpu(rctx.attr.tc_cpu),
+        "%{tc_identifier}": rctx.attr.tc_identifier if rctx.attr.tc_identifier else "gcc",
+        "%{tc_os}": rctx.attr.tc_os,
+    }
+
+    linux_features_template_dict = {
         "%{compiler_library_search_paths_switch}": "True" if len(rctx.attr.tc_compiler_library_search_paths) else "False",
         "%{compiler_library_search_paths}": ":".join(["/proc/self/cwd/" + entry for entry in compiler_library_search_paths]),
         "%{extra_c_compile_flags_switch}": "True" if len(rctx.attr.extra_c_compile_flags) else "False",
@@ -252,28 +264,38 @@ def _impl(rctx):
         "%{extra_cxx_compile_flags}": extra_cxx_compile_flags,
         "%{extra_link_flags_switch}": "True" if len(rctx.attr.extra_link_flags) else "False",
         "%{extra_link_flags}": extra_link_flags,
-        "%{tc_cpu}": _normalize_cpu(rctx.attr.tc_cpu),
-        "%{tc_identifier}": "gcc",
-        "%{tc_runtime_es}": rctx.attr.tc_runtime_ecosystem,
-        "%{tc_version}": rctx.attr.gcc_version,
     }
 
-    if rctx.attr.tc_os == _OS_QNX:
-        mapped_sdp_version = _apply_sdp_version_mapping(rctx.attr.sdp_version)
-        extra_template_dict = {
-            "%{license_info_value}": rctx.attr.license_info_value,
-            "%{license_info_variable}": rctx.attr.license_info_variable,
-            "%{license_path}": rctx.attr.license_path,
-            "%{sdp_version}": mapped_sdp_version,
-            "%{tc_cpu_cxx}": _normalize_cpu(rctx.attr.tc_cpu),
-            "%{use_license_info}": "False" if rctx.attr.license_info_value == "" else "True",
-        }
-        template_dict = dict_union(template_dict, extra_template_dict)
+    qnx_features_template_dict = {
+        "%{extra_compile_flags_switch}": "True" if len(rctx.attr.extra_compile_flags) else "False",
+        "%{extra_compile_flags}": extra_compile_flags,
+        "%{extra_link_flags_switch}": "True" if len(rctx.attr.extra_link_flags) else "False",
+        "%{extra_link_flags}": extra_link_flags,
+        "%{license_info_value}": rctx.attr.license_info_value,
+        "%{license_info_variable}": rctx.attr.license_info_variable,
+        "%{license_path}": rctx.attr.license_path,
+        "%{sdp_version}": mapped_sdp_version_for_config,
+        "%{tc_cpu}": _normalize_cpu(rctx.attr.tc_cpu),
+        "%{tc_version}": rctx.attr.gcc_version,
+        "%{use_license_info}": "False" if rctx.attr.license_info_value == "" else "True",
+    }
 
     rctx.template(
         "cc_toolchain_config.bzl",
         rctx.attr.cc_toolchain_config,
-        template_dict,
+        config_template_dict,
+    )
+
+    rctx.template(
+        "cc_toolchain_linux_config.bzl",
+        rctx.attr._cc_toolchain_linux_config,
+        linux_features_template_dict,
+    )
+
+    rctx.template(
+        "cc_toolchain_qnx_config.bzl",
+        rctx.attr._cc_toolchain_qnx_config,
+        qnx_features_template_dict,
     )
 
     rctx.template(
@@ -304,7 +326,6 @@ def _impl(rctx):
     elif rctx.attr.tc_os == _OS_QNX:
         # Generate gcov wrapper for QNX toolchains to enable `bazel coverage`.
         # See: https://github.com/bazelbuild/rules_cc/issues/351
-        mapped_sdp_version = _apply_sdp_version_mapping(rctx.attr.sdp_version)
         if rctx.attr.tc_cpu == _CPU_AARCH64:
             gcov_triple = _TRIPLE_AARCH64_QNX_FMT.format(sdp = mapped_sdp_version)
         else:
@@ -354,6 +375,12 @@ gcc_toolchain = repository_rule(
         "tc_system_toolchain": attr.bool(doc = "Boolean flag to state if this is a system toolchain"),
         "_cc_gcov_wrapper_script": attr.label(
             default = "@score_bazel_cpp_toolchains//templates/linux:cc_gcov_wrapper.template",
+        ),
+        "_cc_toolchain_linux_config": attr.label(
+            default = "@score_bazel_cpp_toolchains//templates/linux:cc_toolchain_config.bzl.template",
+        ),
+        "_cc_toolchain_qnx_config": attr.label(
+            default = "@score_bazel_cpp_toolchains//templates/qnx:cc_toolchain_config.bzl.template",
         ),
         "_cc_toolchain_build": attr.label(
             default = "@score_bazel_cpp_toolchains//templates:BUILD.template",
