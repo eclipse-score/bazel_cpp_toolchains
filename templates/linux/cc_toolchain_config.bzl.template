@@ -25,6 +25,22 @@ load(
     "with_feature_set",
 )
 load("@rules_cc//cc:defs.bzl", "cc_common")
+load(":linux_flags.bzl",
+    "DEFAULT_COMPILE_FLAGS",
+    "DEFAULT_C_COMPILE_FLAGS",
+    "DEFAULT_CXX_COMPILE_FLAGS",
+    "DEFAULT_LINK_FLAGS",
+    "MINIMAL_WARNINGS_FLAGS",
+    "MINIMAL_C_WARNINGS_FLAGS",
+    "MINIMAL_CXX_WARNINGS_FLAGS",
+    "STRICT_WARNINGS_FLAGS",
+    "STRICT_C_WARNINGS_FLAGS",
+    "STRICT_CXX_WARNINGS_FLAGS",
+    "ALL_WALL_WARNINGS",
+    "ALL_WALL_C_WARNINGS",
+    "ALL_WALL_CXX_WARNINGS",
+    "WARNINGS_AS_ERRORS",
+)
 load(
     ":shared_features.bzl",
     "make_shared_features"
@@ -68,7 +84,7 @@ def make_features(ctx, flags, actions):
         flag_sets = [
             flag_set(
                 actions = actions.all_compile_actions,
-                flag_groups = flags.default_compile_flags,
+                flag_groups = DEFAULT_COMPILE_FLAGS,
             ),
             flag_set(
                 actions = actions.all_compile_actions,
@@ -86,7 +102,7 @@ def make_features(ctx, flags, actions):
             ),
             flag_set(
                 actions = actions.all_cpp_compile_actions,
-                flag_groups = flags.default_cxx_compile_flags,
+                flag_groups = DEFAULT_CXX_COMPILE_FLAGS,
             ),
             flag_set(
                 actions = actions.all_compile_actions,
@@ -134,7 +150,7 @@ def make_features(ctx, flags, actions):
         flag_sets = [
             flag_set(
                 actions = actions.all_link_actions,
-                flag_groups = flags.default_link_flags,
+                flag_groups = DEFAULT_LINK_FLAGS,
             ),
             flag_set(
                 actions = actions.all_link_actions,
@@ -161,15 +177,15 @@ def make_features(ctx, flags, actions):
         flag_sets = [
             flag_set(
                 actions = actions.all_compile_actions,
-                flag_groups =  flags.minimal_warnings_flags,
+                flag_groups =  MINIMAL_WARNINGS_FLAGS,
             ),
             flag_set(
                 actions = actions.all_c_compile_actions,
-                flag_groups = flags.minimal_c_warnings_flags,
+                flag_groups = MINIMAL_C_WARNINGS_FLAGS,
             ),
             flag_set(
                 actions = actions.all_cpp_compile_actions,
-                flag_groups =  flags.minimal_cxx_warnings_flags,
+                flag_groups =  MINIMAL_CXX_WARNINGS_FLAGS,
             ),
         ],
     )
@@ -181,15 +197,15 @@ def make_features(ctx, flags, actions):
         flag_sets = [
             flag_set(
                 actions = actions.all_compile_actions,
-                flag_groups = flags.strict_warnings_flags,
+                flag_groups = STRICT_WARNINGS_FLAGS,
             ),
             flag_set(
                 actions = actions.all_cpp_compile_actions,
-                flag_groups = flags.strict_cxx_warnings_flags,
+                flag_groups = STRICT_CXX_WARNINGS_FLAGS,
             ),
             flag_set(
                 actions = actions.all_c_compile_actions,
-                flag_groups = flags.strict_c_warnings_flags,
+                flag_groups = STRICT_C_WARNINGS_FLAGS,
             ),
         ],
     )
@@ -201,15 +217,15 @@ def make_features(ctx, flags, actions):
         flag_sets = [
             flag_set(
                 actions = actions.all_compile_actions,
-                flag_groups = flags.all_wall_warnings,
+                flag_groups = ALL_WALL_WARNINGS,
             ),
             flag_set(
                 actions = actions.all_c_compile_actions,
-                flag_groups = flags.all_wall_c_warnings,
+                flag_groups = ALL_WALL_C_WARNINGS,
             ),
             flag_set(
                 actions = actions.all_cpp_compile_actions,
-                flag_groups = flags.all_wall_cxx_warnings,
+                flag_groups = ALL_WALL_CXX_WARNINGS,
             ),
         ],
     )
@@ -220,7 +236,7 @@ def make_features(ctx, flags, actions):
         flag_sets = [
             flag_set(
                 actions = actions.all_compile_actions,
-                flag_groups = flags.warnings_as_errors,
+                flag_groups = WARNINGS_AS_ERRORS,
             ),
         ],
     )

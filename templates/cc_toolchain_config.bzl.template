@@ -27,23 +27,9 @@ load("@rules_cc//cc/toolchains:feature_injection.bzl", "FeatureInfo", "convert_f
 load(":cc_toolchain_%{tc_os}_config.bzl", "EXTRA_ATTRS", "make_features", "make_toolchain_config_info")
 load(
     ":flags.bzl",
-    "ALL_WALL_C_WARNINGS",
-    "ALL_WALL_CXX_WARNINGS",
-    "ALL_WALL_WARNINGS",
-    "DBG_COMPILE_FLAGS",
-    "DEFAULT_C_COMPILE_FLAGS",
-    "DEFAULT_COMPILE_FLAGS",
-    "DEFAULT_CXX_COMPILE_FLAGS",
-    "DEFAULT_LINK_FLAGS",
-    "MINIMAL_C_WARNINGS_FLAGS",
-    "MINIMAL_CXX_WARNINGS_FLAGS",
-    "MINIMAL_WARNINGS_FLAGS",
-    "OPT_COMPILE_FLAGS",
-    "STRICT_C_WARNINGS_FLAGS",
-    "STRICT_CXX_WARNINGS_FLAGS",
-    "STRICT_WARNINGS_FLAGS",
     "UNFILTERED_COMPILE_FLAGS",
-    "WARNINGS_AS_ERRORS",
+    "DBG_COMPILE_FLAGS",
+    "OPT_COMPILE_FLAGS"
 )
 load(
     ":shared_features.bzl",
@@ -58,22 +44,8 @@ load(
 def _impl(ctx):
     flags = struct(
         unfiltered_compile_flags = UNFILTERED_COMPILE_FLAGS,
-        default_compile_flags = DEFAULT_COMPILE_FLAGS,
-        default_c_compile_flags = DEFAULT_C_COMPILE_FLAGS,
-        default_cxx_compile_flags = DEFAULT_CXX_COMPILE_FLAGS,
-        default_link_flags = DEFAULT_LINK_FLAGS,
         dbg_compile_flags = DBG_COMPILE_FLAGS,
         opt_compile_flags = OPT_COMPILE_FLAGS,
-        minimal_warnings_flags = MINIMAL_WARNINGS_FLAGS,
-        minimal_c_warnings_flags = MINIMAL_C_WARNINGS_FLAGS,
-        minimal_cxx_warnings_flags = MINIMAL_CXX_WARNINGS_FLAGS,
-        strict_warnings_flags = STRICT_WARNINGS_FLAGS,
-        strict_c_warnings_flags = STRICT_C_WARNINGS_FLAGS,
-        strict_cxx_warnings_flags = STRICT_CXX_WARNINGS_FLAGS,
-        all_wall_warnings = ALL_WALL_WARNINGS,
-        all_wall_c_warnings = ALL_WALL_C_WARNINGS,
-        all_wall_cxx_warnings = ALL_WALL_CXX_WARNINGS,
-        warnings_as_errors = WARNINGS_AS_ERRORS,
     )
 
     actions = struct(

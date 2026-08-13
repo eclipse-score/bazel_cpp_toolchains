@@ -204,7 +204,7 @@ def _get_toolchains(tags):
     for tag in tags:
         toolchain = {
             "cc_toolchain_config": "@score_bazel_cpp_toolchains//templates:cc_toolchain_config.bzl.template",
-            "cc_toolchain_flags": "@score_bazel_cpp_toolchains//templates/{}:cc_toolchain_flags.bzl.template".format(tag.target_os),
+            "cc_toolchain_flags": "@score_bazel_cpp_toolchains//templates:cc_toolchain_flags.bzl.template",
             "cc_toolchain_shared_features": "@score_bazel_cpp_toolchains//templates/shared:cc_toolchain_shared_features.bzl.template",
             "gcc_version": tag.version,
             "name": tag.name,

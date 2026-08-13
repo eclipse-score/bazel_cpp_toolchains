@@ -33,14 +33,6 @@ def get_flag_group(flags):
         ]
     return []
 
-# Flags that should always be applied, without filtering.
-UNFILTERED_COMPILE_FLAGS = get_flag_group([
-    "-D__DATE__=\"redacted\"",
-    "-D__TIMESTAMP__=\"redacted\"",
-    "-D__TIME__=\"redacted\"",
-    "-Wno-builtin-macro-redefined",
-])
-
 # Default compile flags when no specific build type is selected.
 DEFAULT_COMPILE_FLAGS = get_flag_group([
     "-fno-canonical-system-headers",
@@ -55,18 +47,6 @@ DEFAULT_C_COMPILE_FLAGS = get_flag_group([
 DEFAULT_CXX_COMPILE_FLAGS = get_flag_group([
     "-D_QNX_SOURCE",
     "-std=c++17",
-])
-
-# Debug compile flags.
-DBG_COMPILE_FLAGS = get_flag_group([
-    "-Og",
-    "-g3",
-])
-
-# Optimization compile flags.
-OPT_COMPILE_FLAGS = get_flag_group([
-    "-O2",
-    "-DNDEBUG",
 ])
 
 # Default link flags when no specific build type is selected.

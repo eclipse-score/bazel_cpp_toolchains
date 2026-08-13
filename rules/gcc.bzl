@@ -299,6 +299,18 @@ def _impl(rctx):
     )
 
     rctx.template(
+        "linux_flags.bzl",
+        rctx.attr._cc_toolchain_linux_flags,
+        {},
+    )
+
+    rctx.template(
+        "qnx_flags.bzl",
+        rctx.attr._cc_toolchain_qnx_flags,
+        {},
+    )
+
+    rctx.template(
         "flags.bzl",
         rctx.attr.cc_toolchain_flags,
         {},
@@ -379,8 +391,14 @@ gcc_toolchain = repository_rule(
         "_cc_toolchain_linux_config": attr.label(
             default = "@score_bazel_cpp_toolchains//templates/linux:cc_toolchain_config.bzl.template",
         ),
+        "_cc_toolchain_linux_flags": attr.label(
+            default = "@score_bazel_cpp_toolchains//templates/linux:cc_toolchain_flags.bzl.template",
+        ),
         "_cc_toolchain_qnx_config": attr.label(
             default = "@score_bazel_cpp_toolchains//templates/qnx:cc_toolchain_config.bzl.template",
+        ),
+        "_cc_toolchain_qnx_flags": attr.label(
+            default = "@score_bazel_cpp_toolchains//templates/qnx:cc_toolchain_flags.bzl.template",
         ),
         "_cc_toolchain_build": attr.label(
             default = "@score_bazel_cpp_toolchains//templates:BUILD.template",

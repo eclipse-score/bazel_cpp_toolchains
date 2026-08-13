@@ -33,14 +33,6 @@ def get_flag_group(flags):
         ]
     return []
 
-# Flags that should always be applied, without filtering.
-UNFILTERED_COMPILE_FLAGS = get_flag_group([
-    "-D__DATE__=\"redacted\"",
-    "-D__TIMESTAMP__=\"redacted\"",
-    "-D__TIME__=\"redacted\"",
-    "-Wno-builtin-macro-redefined",
-])
-
 # Default compile flags when no specific build type is selected.
 DEFAULT_COMPILE_FLAGS = get_flag_group([
     "-U_FORTIFY_SOURCE",
@@ -70,18 +62,6 @@ DEFAULT_C_COMPILE_FLAGS = get_flag_group([
 # Default compile flags for C++ language when no specific build type is selected.
 DEFAULT_CXX_COMPILE_FLAGS = get_flag_group([
     "-std=c++17",
-])
-
-# Debug compile flags.
-DBG_COMPILE_FLAGS = get_flag_group([
-    "-Og",
-    "-g3",
-])
-
-# Optimization compile flags.
-OPT_COMPILE_FLAGS = get_flag_group([
-    "-O2",
-    "-DNDEBUG",
 ])
 
 # Default link flags when no specific build type is selected.
@@ -173,7 +153,7 @@ ALL_WALL_CXX_WARNINGS = get_flag_group([
     # "-Wenum-int-mismatch", not supported in GCC12.2
     # "-Wargument-mismatch", cc1plus: warning: command-line option '-Wduplicate-decl-specifier' is valid for C/ObjC but not for C++
     "-Wmismatched-new-delete",
-    "-Woverloaded-virtual", 
+    "-Woverloaded-virtual",
     # -Woverloaded-virtual=1, not supported in GCC12.2
     "-Wpessimizing-move",
     "-Wrange-loop-construct",
