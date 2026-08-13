@@ -11,6 +11,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 name: Bazel Build (Aarch64-Linux)
+permissions:
+  contents: read
+  actions: write
 on:
   pull_request:
     types: [opened, reopened, synchronize]
