@@ -253,62 +253,59 @@ def _impl(rctx):
         "%{tc_os}": rctx.attr.tc_os,
     }
 
-    linux_features_template_dict = {
-        "%{compiler_library_search_paths_switch}": "True" if len(rctx.attr.tc_compiler_library_search_paths) else "False",
-        "%{compiler_library_search_paths}": ":".join(["/proc/self/cwd/" + entry for entry in compiler_library_search_paths]),
-        "%{extra_c_compile_flags_switch}": "True" if len(rctx.attr.extra_c_compile_flags) else "False",
-        "%{extra_c_compile_flags}": extra_c_compile_flags,
-        "%{extra_compile_flags_switch}": "True" if len(rctx.attr.extra_compile_flags) else "False",
-        "%{extra_compile_flags}": extra_compile_flags,
-        "%{extra_cxx_compile_flags_switch}": "True" if len(rctx.attr.extra_cxx_compile_flags) else "False",
-        "%{extra_cxx_compile_flags}": extra_cxx_compile_flags,
-        "%{extra_link_flags_switch}": "True" if len(rctx.attr.extra_link_flags) else "False",
-        "%{extra_link_flags}": extra_link_flags,
-    }
-
-    qnx_features_template_dict = {
-        "%{extra_compile_flags_switch}": "True" if len(rctx.attr.extra_compile_flags) else "False",
-        "%{extra_compile_flags}": extra_compile_flags,
-        "%{extra_link_flags_switch}": "True" if len(rctx.attr.extra_link_flags) else "False",
-        "%{extra_link_flags}": extra_link_flags,
-        "%{license_info_value}": rctx.attr.license_info_value,
-        "%{license_info_variable}": rctx.attr.license_info_variable,
-        "%{license_path}": rctx.attr.license_path,
-        "%{sdp_version}": mapped_sdp_version_for_config,
-        "%{tc_cpu}": _normalize_cpu(rctx.attr.tc_cpu),
-        "%{tc_version}": rctx.attr.gcc_version,
-        "%{use_license_info}": "False" if rctx.attr.license_info_value == "" else "True",
-    }
-
     rctx.template(
         "cc_toolchain_config.bzl",
         rctx.attr.cc_toolchain_config,
         config_template_dict,
     )
 
-    rctx.template(
-        "cc_toolchain_linux_config.bzl",
-        rctx.attr._cc_toolchain_linux_config,
-        linux_features_template_dict,
-    )
-
-    rctx.template(
-        "cc_toolchain_qnx_config.bzl",
-        rctx.attr._cc_toolchain_qnx_config,
-        qnx_features_template_dict,
-    )
-
-    rctx.template(
-        "linux_flags.bzl",
-        rctx.attr._cc_toolchain_linux_flags,
-        {},
-    )
-
-    rctx.template(
-        "qnx_flags.bzl",
-        rctx.attr._cc_toolchain_qnx_flags,
-        {},
-    )
+    if rctx.attr.tc_os == _OS_LINUX:
+        linux_features_template_dict = {
+            "%{compiler_library_search_paths_switch}": "True" if len(rctx.attr.tc_compiler_library_search_paths) else "False",
+            "%{compiler_library_search_paths}": ":".join(["/proc/self/cwd/" + entry for entry in compiler_library_search_paths]),
+            "%{extra_c_compile_flags_switch}": "True" if len(rctx.attr.extra_c_compile_flags) else "False",
+            "%{extra_c_compile_flags}": extra_c_compile_flags,
+            "%{extra_compile_flags_switch}": "True" if len(rctx.attr.extra_compile_flags) else "False",
+            "%{extra_compile_flags}": extra_compile_flags,
+            "%{extra_cxx_compile_flags_switch}": "True" if len(rctx.attr.extra_cxx_compile_flags) else "False",
+            "%{extra_cxx_compile_flags}": extra_cxx_compile_flags,
+            "%{extra_link_flags_switch}": "True" if len(rctx.attr.extra_link_flags) else "False",
+            "%{extra_link_flags}": extra_link_flags,
+        }
+        rctx.template(
+            "cc_toolchain_linux_config.bzl",
+            rctx.attr._cc_toolchain_linux_config,
+            linux_features_template_dict,
+        )
+        rctx.template(
+            "linux_flags.bzl",
+            rctx.attr._cc_toolchain_linux_flags,
+            {},
+        )
+    elif rctx.attr.tc_os == _OS_QNX:
+        qnx_features_template_dict = {
+            "%{extra_compile_flags_switch}": "True" if len(rctx.attr.extra_compile_flags) else "False",
+            "%{extra_compile_flags}": extra_compile_flags,
+            "%{extra_link_flags_switch}": "True" if len(rctx.attr.extra_link_flags) else "False",
+            "%{extra_link_flags}": extra_link_flags,
+            "%{license_info_value}": rctx.attr.license_info_value,
+            "%{license_info_variable}": rctx.attr.license_info_variable,
+            "%{license_path}": rctx.attr.license_path,
+            "%{sdp_version}": mapped_sdp_version_for_config,
+            "%{tc_cpu}": _normalize_cpu(rctx.attr.tc_cpu),
+            "%{tc_version}": rctx.attr.gcc_version,
+            "%{use_license_info}": "False" if rctx.attr.license_info_value == "" else "True",
+        }
+        rctx.template(
+            "cc_toolchain_qnx_config.bzl",
+            rctx.attr._cc_toolchain_qnx_config,
+            qnx_features_template_dict,
+        )
+        rctx.template(
+            "qnx_flags.bzl",
+            rctx.attr._cc_toolchain_qnx_flags,
+            {},
+        )
 
     rctx.template(
         "flags.bzl",
