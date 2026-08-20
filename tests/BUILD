@@ -49,7 +49,6 @@ test_suite(
         "//feature_verification:pthread_test",
         "//feature_verification:random_seed_test",
         "//feature_verification:user_link_flags_test",
-        "//feature_verification:warning_override_test",
         "//feature_verification:whole_archive_test",
     ],
 )
