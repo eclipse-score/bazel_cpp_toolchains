@@ -95,6 +95,14 @@ jobs:
             --test_output=errors \
             --credential_helper=*.qnx.com="${QNX_CREDENTIAL_HELPER}" ${{ matrix.extra-bazel-test-flags }} -- \
             ${{ matrix.bazel-test-target }}
+      - name: Coverage smoke test with QNX toolchain
+        run: |
+          set -euo pipefail
+
+          bazel coverage --config ${{ matrix.bazel-config }} \
+            --combined_report=lcov \
+            --credential_helper=*.qnx.com="${QNX_CREDENTIAL_HELPER}" -- \
+            //feature_verification:coverage_test
       - name: Dump test logs on failure
         if: failure()
         run: |
