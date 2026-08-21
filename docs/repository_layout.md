@@ -40,8 +40,10 @@ into repository rule invocations.
 
 `rules/`
 
-Contains the repository rules that materialize a toolchain repository.
-`rules/gcc.bzl` renders BUILD and configuration files from templates.
+Contains the repository rules that materialize toolchain repositories.
+`rules/gcc.bzl` renders BUILD and configuration files from templates, while
+`rules/fast_llvm_repo.bzl` provides the optional optimized LLVM distribution
+repository.
 
 `packages/`
 
