@@ -47,48 +47,55 @@ These tests verify that specific toolchain features are correctly implemented an
    - Tests strict_warnings, minimal_warnings, warnings_as_errors features
    - Includes code patterns that trigger specific warnings
 
-4. **`coverage_test`** - Code coverage instrumentation
+4. **`warning_override_test`** - Warning feature override via user flags
+   - Regression test verifying user flags (copts) can override enabled warning features
+   - Enables both `strict_warnings` and `warnings_as_errors` features (making warnings into errors)
+   - Provides conflicting `-Wno-shadow` via copts to override the warning
+   - Validates that the flag ordering is correct: user_compile_flags comes after warning features,
+     ensuring user flags take precedence. If ordering regresses, compilation will fail with an error.
+
+5. **`coverage_test`** - Code coverage instrumentation
    - Verifies code coverage instrumentation flags are applied
    - Provides multiple code paths for coverage analysis
    - Can be analyzed with: `bazel coverage --combined_report=lcov //feature_verification:coverage_test`
 
-5. **`pic_test`** - Position-Independent Code (`-fPIC`)
+6. **`pic_test`** - Position-Independent Code (`-fPIC`)
    - Tests -fPIC flag is correctly applied
    - Validates position-independent code patterns
    - Tests polymorphism, static variables, and C linkage with PIC
 
-6. **`pthread_test`** - POSIX threading support
+7. **`pthread_test`** - POSIX threading support
    - Verifies `-lpthread` correctly links pthread library
    - Tests thread creation, synchronization, and joining
    - Validates multiple threads can safely access shared state
 
-7. **`multifile_test`** - Multi-file compilation and archiving
+8. **`multifile_test`** - Multi-file compilation and archiving
    - Tests multiple source files compile into separate object files
    - Validates object files are combined by archiver into static libraries
    - Complex operations across multiple object files link correctly
 
-8. **`whole_archive_test`** - Whole-archive linking (`-Wl,--whole-archive`)
+9. **`whole_archive_test`** - Whole-archive linking (`-Wl,--whole-archive`)
    - Verifies `-Wl,--whole-archive` and `-Wl,--no-whole-archive` work
    - Tests unused library symbols are linked when using whole-archive
 
-9. **`preprocessor_defines_test`** - `preprocessor_defines` feature
+10. **`preprocessor_defines_test`** - `preprocessor_defines` feature
    - Injects defines via the `local_defines` attribute (routed through the
      `preprocessor_defines` feature), unlike `defines_test` which uses `copts`
      (routed through `user_compile_flags`)
 
-10. **`include_dir_test`** - `include_paths` via the `includes` attribute
+11. **`include_dir_test`** - `include_paths` via the `includes` attribute
     - Includes a header exposed through a library's `includes` attribute,
       exercising the `-I`/`-isystem` search paths
 
-11. **`user_link_flags_test`** - `user_link_flags` feature
+12. **`user_link_flags_test`** - `user_link_flags` feature
     - Passes a linker flag through `linkopts` (`-Wl,--defsym=...`) and checks the
       injected symbol's address at runtime
 
-12. **`random_seed_test`** - `random_seed` feature
+13. **`random_seed_test`** - `random_seed` feature
     - Build-and-run smoke test exercising internal-linkage symbols governed by
       the reproducible-build random seed
 
-13. **`fully_static_link_test`** - `fully_static_link` feature (`-static`)
+14. **`fully_static_link_test`** - `fully_static_link` feature (`-static`)
     - Verifies no shared objects are mapped at runtime (fully static binary)
     - Marked incompatible with toolchains lacking static system archives (AutoSD)
 
@@ -279,16 +286,16 @@ when the host equals the target).
 
 ### All tests on the host (`//...`)
 ```
-Executed 13 tests: 13 passed
+Executed 20 tests: 20 passed
 ```
 
 ### Feature Verification Tests
-- The `feature_verification_tests` suite aggregates 7 tests. `warnings_test`
+- The `feature_verification_tests` suite aggregates 13 tests. `warnings_test`
   is defined separately and is picked up by wildcard targets such as
   `//feature_verification/...`.
 - Expected output for the suite:
   ```
-  Executed 7 tests: 7 passed
+  Executed 13 tests: 13 passed
   ```
 
 ### Language and Standards Tests
@@ -318,6 +325,7 @@ tests/
 │   ├── random_seed_test.cpp
 │   ├── fully_static_link_test.cpp
 │   ├── warnings_test.cpp
+│   ├── warning_override_test.cpp
 │   ├── coverage_test.cpp
 │   ├── pic_test_lib.h/cpp, pic_test.cpp
 │   ├── multifile_lib.h and multifile_lib_*.cpp
