@@ -88,12 +88,11 @@ the relevant build mode is active. All are enabled by default except where noted
   requires static system archives (unavailable on some toolchains, e.g. AutoSD).
 
 ## Warnings
-Opt-in / disabled by default unless noted otherwise.
-- **`minimal_warnings`** (both) — Baseline warning set (includes `-Wall`).
-  Enabled by default on QNX; opt-in (disabled by default) on Linux.
-- **`strict_warnings`** (both) — Stricter warnings; implies `minimal_warnings`.
-- **`all_wall_warnings`** (Linux) — Broadest warning set; implies `strict_warnings`.
-- **`warnings_as_errors`** (both) — Adds `-Werror`.
+**Note:** Warning-level features (`minimal_warnings`, `strict_warnings`, `all_wall_warnings`, `warnings_as_errors`)
+have been migrated to [`score_cpp_policies`](https://github.com/eclipse-score/score_cpp_policies).
+
+These features are no longer defined by this toolchain but can be provided through *feature injection* via
+the `extra_known_features` / `extra_enabled_features` attributes on `gcc.toolchain(...)`.
 
 ## Sanitizers (Linux, opt-in)
 Sanitizers are **not** defined by this toolchain. They are provided as
