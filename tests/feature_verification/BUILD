@@ -144,7 +144,9 @@ cc_test(
 )
 
 # Test for: coverage, gcc_coverage_map_format, dependency_file features
-# Verifies that code coverage instrumentation is applied
+# Verifies that code coverage instrumentation is applied. Also used by both
+# Linux and QNX CI as the `bazel coverage` smoke test (build/link/execute/gcov
+# end-to-end).
 cc_test(
     name = "coverage_test",
     srcs = ["coverage_test.cpp"],
