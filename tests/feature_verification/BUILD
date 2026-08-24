@@ -143,6 +143,27 @@ cc_test(
     srcs = ["warnings_test.cpp"],
 )
 
+# Test for: warning feature override via user_compile_flags
+# Verifies that user-provided flags (via copts) can override enabled warning
+# features. This regression test ensures that the flag ordering between warning
+# features and user_compile_flags is correct: user_compile_flags must come
+# after warning features so that user flags take precedence.
+#
+# The test enables both strict_warnings and warnings_as_errors (making warnings
+# into errors), then provides -Wno-shadow via copts. If the flag ordering is
+# correct, the test compiles successfully because user's -Wno-shadow overrides
+# the -Wshadow error. If ordering regresses, compilation will fail with a
+# -Wshadow error, immediately catching the regression.
+cc_test(
+    name = "warning_override_test",
+    srcs = ["warning_override_test.cpp"],
+    copts = ["-Wno-shadow"],
+    features = [
+        "strict_warnings",
+        "warnings_as_errors",
+    ],
+)
+
 # Test for: coverage, gcc_coverage_map_format, dependency_file features
 # Verifies that code coverage instrumentation is applied. Also used by both
 # Linux and QNX CI as the `bazel coverage` smoke test (build/link/execute/gcov
