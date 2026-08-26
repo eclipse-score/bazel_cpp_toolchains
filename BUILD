@@ -10,6 +10,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
+
+# Just testing! DO NOT MERGE IT!
+
 load("@aspect_rules_lint//format:defs.bzl", "format_multirun", "format_test")
 load("@score_tooling//:defs.bzl", "copyright_checker")
 
