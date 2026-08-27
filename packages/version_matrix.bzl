@@ -263,10 +263,10 @@ VERSION_MATRIX = {
             "-static",
             "--no-canonical-prefixes",
         ],
-        "compiler_library_search_paths": [
-            "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
-            "external/%{toolchain_pkg}%/lib/x86_64-linux-gnu",
-        ],
+        # No `compiler_library_search_paths` on purpose: the SDK host binaries already
+        # carry an $ORIGIN rpath to their own libraries, and exporting the SDK's
+        # glibc 2.41 via LD_LIBRARY_PATH would also be inherited by Bazel's own
+        # process-wrapper, which is linked against the (older) host glibc.
         "strip_prefix": "fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64",
         "sha256": "4cf7f0191988795f316f276b56e370ad60fc371954a881d158ebba0284d9d3f5",
         "url": "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta2/fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64.tar.gz",
