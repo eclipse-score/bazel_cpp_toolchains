@@ -536,9 +536,6 @@
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_shell/0.4.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_shell/0.5.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/rules_shell/0.6.1/MODULE.bazel": "not found",
-    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_bazel_platforms/0.1.1/MODULE.bazel": "236e5bdff6f2d6de6f96cc4f5f4b1bf2cd6137547ce279668a2dd4c54cd4236c",
-    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_bazel_platforms/1.0.0/MODULE.bazel": "e5e386e6fc0a447a2f4a47e872e3747822e9d58994b7b55e248c78e5a3e382c0",
-    "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_bazel_platforms/1.0.0/source.json": "fb428e5f4cb6cbf0e00442e72c8d038746e0eaa7493dcec394ee99be727dcb3b",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_cr_checker/0.2.2/MODULE.bazel": "dc36d9c35543db918c3fb5b93a8e684431f56c7c784cf2a1b90f35802a373c98",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_cr_checker/0.3.1/MODULE.bazel": "f49e037d7fbc0b2a8b2734fc6b47334e8cc8589ca7a5aa0f3ccca85cc5f79fac",
     "https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/modules/score_dash_license_checker/0.1.1/MODULE.bazel": "76681dbd2d45b5c540869a2337174086c56c54953aab1d02cd878b59d31d13a5",
@@ -1370,7 +1367,7 @@
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
         "bzlTransitiveDigest": "FQRbNLfhV36RTWwxZnchbhkOAT1fIA2dJhlRnKyRtD8=",
-        "usagesDigest": "dWr2zFjJ8fBvweFk2KWoZzQqJ+aKnb9A8QACQhKlUfw=",
+        "usagesDigest": "3BxGiccNNlFja9y/vd4+7TlTcgtjWIybmed7P06K9QM=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -1483,6 +1480,17 @@
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/aarch64/ebclfsa/0.1.0:ebclfsa.BUILD",
               "sha256": "f44286c28d831dc40acdac08ef49f38a2e9cbb057bea38c25834964693785287",
               "strip_prefix": "fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64"
+            }
+          },
+          "score_ebclfsa_2.0.0-beta2_toolchain_pkg": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "urls": [
+                "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta2/fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64.tar.gz"
+              ],
+              "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/aarch64/ebclfsa/2.0.0-beta2:ebclfsa.BUILD",
+              "sha256": "4cf7f0191988795f316f276b56e370ad60fc371954a881d158ebba0284d9d3f5",
+              "strip_prefix": "fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64"
             }
           },
           "score_gcc_toolchain_bp": {
@@ -1837,6 +1845,89 @@
               "tc_identifier": "sdk_0.1.0",
               "tc_os": "linux",
               "tc_pkg_repo": "score_ebclfsa_toolchain_pkg",
+              "tc_system_toolchain": false,
+              "tc_runtime_ecosystem": "ebclfsa",
+              "gcc_version": "",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
+              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "use_base_constraints_only": false
+            }
+          },
+          "score_ebclfsa_2.0.0-beta2_toolchain": {
+            "repoRuleId": "@@score_bazel_cpp_toolchains+//rules:gcc.bzl%gcc_toolchain",
+            "attributes": {
+              "extra_compile_flags": [],
+              "extra_c_compile_flags": [
+                "-nostdinc",
+                "-isystem",
+                "external/%{toolchain_pkg}%/usr/lib/gcc-cross/aarch64-linux-gnu/13/include",
+                "-isystem",
+                "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/include",
+                "-isystem",
+                "external/%{toolchain_pkg}%/usr/include/aarch64-linux-gnu",
+                "-L",
+                "external/%{toolchain_pkg}%/lib/aarch64-linux-gnu",
+                "-L",
+                "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/lib",
+                "-L",
+                "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
+                "--no-canonical-prefixes"
+              ],
+              "extra_cxx_compile_flags": [
+                "-nostdinc++",
+                "-isystem",
+                "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/include/c++/13",
+                "-isystem",
+                "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/include/c++/13/aarch64-linux-gnu",
+                "-isystem",
+                "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/include/c++/13/backward",
+                "-nostdinc",
+                "-isystem",
+                "external/%{toolchain_pkg}%/usr/lib/gcc-cross/aarch64-linux-gnu/13/include",
+                "-isystem",
+                "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/include",
+                "-isystem",
+                "external/%{toolchain_pkg}%/usr/include/aarch64-linux-gnu",
+                "-L",
+                "external/%{toolchain_pkg}%/lib/aarch64-linux-gnu",
+                "-L",
+                "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/lib",
+                "-L",
+                "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
+                "--no-canonical-prefixes"
+              ],
+              "extra_known_features": [],
+              "extra_enabled_features": [],
+              "extra_link_flags": [
+                "-B",
+                "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/bin",
+                "-L",
+                "external/%{toolchain_pkg}%/lib/aarch64-linux-gnu",
+                "-L",
+                "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/lib",
+                "-L",
+                "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
+                "-lm",
+                "-ldl",
+                "-lrt",
+                "-static-libstdc++",
+                "-static-libgcc",
+                "-static",
+                "--no-canonical-prefixes"
+              ],
+              "license_info_variable": "",
+              "license_info_value": "",
+              "license_path": "/opt/score_qnx/license/licenses",
+              "sdk_version": "2.0.0-beta2",
+              "sdp_version": "",
+              "tc_compiler_library_search_paths": [
+                "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
+                "external/%{toolchain_pkg}%/lib/x86_64-linux-gnu"
+              ],
+              "tc_cpu": "aarch64",
+              "tc_identifier": "sdk_2.0.0-beta2",
+              "tc_os": "linux",
+              "tc_pkg_repo": "score_ebclfsa_2.0.0-beta2_toolchain_pkg",
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "ebclfsa",
               "gcc_version": "",
