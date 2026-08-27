@@ -21,6 +21,12 @@ VERSION_MATRIX = {
         "strip_prefix": "aarch64-unknown-linux-gnu",
         "url": "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/aarch64-unknown-linux-gnu_gcc12.tar.gz",
     },
+    "aarch64-linux-gcc_15.3.0": {
+        "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/gcc/15.3.0:gcc.BUILD",
+        "sha256": "ff9fe6caed22f15a1dd87a93bff5cfa1536b5dddcff3364827f97ebc01a494a1",
+        "strip_prefix": "aarch64-unknown-linux-gnu",
+        "url": "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.5/aarch64-unknown-linux-gnu_gcc15.tar.gz",
+    },
     "aarch64-linux-autosd10": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/autosd/10.0:autosd.BUILD",
         "extra_c_compile_flags": [
@@ -52,7 +58,7 @@ VERSION_MATRIX = {
             "-L",
             "external/%{toolchain_pkg}%/lib",
             "-L",
-            "external/%{toolchain_pkg}%/usr/lib/gcc/x86_64-redhat-linux/14",
+            "external/%{toolchain_pkg}%/usr/lib/gcc/aarch64-redhat-linux/14",
             "-L",
             "external/%{toolchain_pkg}%/usr/lib64",
             "-L",
@@ -62,9 +68,9 @@ VERSION_MATRIX = {
             "-lrt",
             "-lstdc++",
         ],
-        "sha256": "08a257d1119d1fcaad368dd0c44aa3e683ca0d93187d40f1154bde38405599ed",
+        "sha256": "e2f6a21681730e61ce39af19758003ba3568b093956a57cde136d5c73cf6540a",
         "strip_prefix": "sysroot",
-        "url": "https://github.com/eclipse-score/inc_os_autosd/releases/download/continuous/autosd-toolchain-aarch64.tar.gz",
+        "url": "https://github.com/eclipse-score/os_autosd/releases/download/v0.0.2/autosd-toolchain-aarch64.tar.gz",
     },
     "aarch64-qnx-sdp_8.0.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/aarch64/sdp/8.0.0:sdp.BUILD",
@@ -73,11 +79,11 @@ VERSION_MATRIX = {
         "url": "https://www.qnx.com/download/download/79858/installation.tgz",
         "gcc_version": "12.2.0",
     },
-    "aarch64-qnx-sdp_8.0.3": {
+    "aarch64-qnx-sdp_8.0.4": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/aarch64/sdp/8.0.0:sdp.BUILD",
-        "sha256": "9039fd6a4a639f06ea977afb93963a6fe8f8c46db727066709370d999c7232e0",
+        "sha256": "146312c0bf22aab66e8294a06403f2ec6cfeeb074d8fa11549faffd84b7fe778",
         "strip_prefix": "",
-        "url": "https://www.qnx.com/download/download/87174/installation_qnx_803_260305.tar.xz",
+        "url": "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz",
         "gcc_version": "12.2.0",
     },
     "x86_64-linux-gcc_12.2.0": {
@@ -85,6 +91,12 @@ VERSION_MATRIX = {
         "sha256": "e9b9a7a63a5f8271b76d6e2057906b95c7a244e4931a8e10edeaa241e9f7c11e",
         "strip_prefix": "x86_64-unknown-linux-gnu",
         "url": "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/x86_64-unknown-linux-gnu_gcc12.tar.gz",
+    },
+    "x86_64-linux-gcc_15.3.0": {
+        "build_file": "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/15.3.0:gcc.BUILD",
+        "sha256": "c65e21725d4d9993bab0b4ef2aed7065a4bf1b0f232a068d778eb670f80daa60",
+        "strip_prefix": "x86_64-unknown-linux-gnu",
+        "url": "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.5/x86_64-unknown-linux-gnu_gcc15.tar.gz",
     },
     "x86_64-linux-autosd10": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/x86_64/autosd/10.0:autosd.BUILD",
@@ -127,9 +139,9 @@ VERSION_MATRIX = {
             "-lrt",
             "-lstdc++",
         ],
-        "sha256": "bb5324ec04895eb70b1fcb1787d25856b137962b0381d11f5b3406c37ee15984",
+        "sha256": "25991056bd29d4cb37b11e42d0c09f55dc61d0b9d703f75d854cf614f688c96f",
         "strip_prefix": "sysroot",
-        "url": "https://github.com/eclipse-score/inc_os_autosd/releases/download/continuous/autosd-toolchain-x86_64.tar.gz",
+        "url": "https://github.com/eclipse-score/os_autosd/releases/download/v0.0.2/autosd-toolchain-x86_64.tar.gz",
     },
     "aarch64-linux-sdk_0.1.0-ebclfsa": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/ebclfsa/0.1.0:ebclfsa.BUILD",
@@ -204,11 +216,11 @@ VERSION_MATRIX = {
         "url": "https://www.qnx.com/download/download/79858/installation.tgz",
         "gcc_version": "12.2.0",
     },
-    "x86_64-qnx-sdp_8.0.3": {
+    "x86_64-qnx-sdp_8.0.4": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
-        "sha256": "9039fd6a4a639f06ea977afb93963a6fe8f8c46db727066709370d999c7232e0",
+        "sha256": "146312c0bf22aab66e8294a06403f2ec6cfeeb074d8fa11549faffd84b7fe778",
         "strip_prefix": "",
-        "url": "https://www.qnx.com/download/download/87174/installation_qnx_803_260305.tar.xz",
+        "url": "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz",
         "gcc_version": "12.2.0",
     },
 }

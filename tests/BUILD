@@ -1,0 +1,81 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+"""Toolchain Verification Tests
+
+Root test suite definition combining all test categories.
+"""
+
+# ============================================================================
+# Test Suite for Language Support and C++ Standard Version Tests
+# ============================================================================
+
+test_suite(
+    name = "language_and_standards_tests",
+    tests = [
+        "//language_and_standards:c_lang_test",
+        "//language_and_standards:cpp11_test",
+        "//language_and_standards:cpp14_test",
+        "//language_and_standards:cpp17_test",
+        "//language_and_standards:cpp20_test",
+    ],
+)
+
+# ============================================================================
+# Test Suite for Feature Verification Tests
+# ============================================================================
+
+test_suite(
+    name = "feature_verification_tests",
+    tests = [
+        "//feature_verification:coverage_test",
+        "//feature_verification:defines_test",
+        "//feature_verification:fully_static_link_test",
+        "//feature_verification:include_dir_test",
+        "//feature_verification:include_paths_test",
+        "//feature_verification:multifile_test",
+        "//feature_verification:pic_test",
+        "//feature_verification:preprocessor_defines_test",
+        "//feature_verification:pthread_test",
+        "//feature_verification:random_seed_test",
+        "//feature_verification:user_link_flags_test",
+        "//feature_verification:whole_archive_test",
+    ],
+)
+
+# ============================================================================
+# Test Suite for Explicit-Feature Regression Guardrails
+# ============================================================================
+
+test_suite(
+    name = "guardrail_tests",
+    tests = [
+        "//guardrails:no_legacy_features_guard_test",
+    ],
+)
+
+# ============================================================================
+# Aggregate Test Suite
+#
+# Combines every test category into a single target. CI should depend on this
+# target so new tests only need to be added to the relevant suite above.
+# ============================================================================
+
+test_suite(
+    name = "all_tests",
+    tests = [
+        ":feature_verification_tests",
+        ":guardrail_tests",
+        ":language_and_standards_tests",
+    ],
+)

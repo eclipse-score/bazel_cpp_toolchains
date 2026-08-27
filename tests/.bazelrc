@@ -1,0 +1,106 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+# Link to S-CORE Bazel Registry
+common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
+common --registry=https://bcr.bazel.build
+
+# Shared configuration for simple test execution
+build:shared --incompatible_strict_action_env
+build:shared --sandbox_writable_path=/var/tmp
+
+# -------------------------------------------------------------------------------
+# Different toolchain configuration for x86_64-linux (host)
+# -------------------------------------------------------------------------------
+build:x86_64-linux --config=shared
+build:x86_64-linux --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
+build:x86_64-linux --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0
+build:x86_64-linux --host_features=use_pthread
+
+# -------------------------------------------------------------------------------
+# Different toolchain configuration for x86_64-linux-gcc15 (host)
+# -------------------------------------------------------------------------------
+build:x86_64-linux-gcc15 --config=shared
+build:x86_64-linux-gcc15 --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_15.3.0-posix
+build:x86_64-linux-gcc15 --extra_toolchains=@score_gcc_toolchain_15//:x86_64-linux-gcc_15.3.0
+build:x86_64-linux-gcc15 --host_features=use_pthread
+
+# -------------------------------------------------------------------------------
+# Different toolchain configuration for x86_64-linux (host)
+# -------------------------------------------------------------------------------
+build:x86_64-linux-custom --config=shared
+build:x86_64-linux-custom --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
+build:x86_64-linux-custom --extra_toolchains=@my_toolchain//:x86_64-linux-gcc_12.2.0
+
+# -------------------------------------------------------------------------------
+# Different toolchain configuration for x86_64-linux (host)
+# -------------------------------------------------------------------------------
+build:x86_64-linux-bp --config=shared
+build:x86_64-linux-bp --host_platform=@score_bazel_platforms//:x86_64-linux
+build:x86_64-linux-bp --extra_toolchains=@score_gcc_toolchain_bp//:x86_64-linux
+
+# -------------------------------------------------------------------------------
+# Toolchain configuration for x86_64-qnx (target)
+# -------------------------------------------------------------------------------
+build:x86_64-qnx --config=x86_64-linux
+build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:x86_64-qnx --extra_toolchains=@score_qcc_toolchain//:x86_64-qnx-sdp_8.0.0
+build:x86_64-qnx --extra_toolchains=@score_qnx_x86_64_ifs_toolchain//:ifs-x86_64-qnx-sdp_8.0.0
+# QNX binaries cannot run natively on the x86_64 Linux host; execute them under
+# the QNX emulator (requires qemu-system + KVM on the runner).
+test:x86_64-qnx --run_under=@score_qnx_unit_tests//src:run_under_qnx
+# Only run native (cc) test binaries under the QNX emulator. Host-side tests
+# such as the bash-script guardrail cannot execute inside the QNX VM.
+test:x86_64-qnx --test_lang_filters=cc
+
+# -------------------------------------------------------------------------------
+# Toolchain configuration for aarch64-qnx (target)
+# -------------------------------------------------------------------------------
+build:aarch64-qnx --config=x86_64-linux
+build:aarch64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
+build:aarch64-qnx --extra_toolchains=@score_qcc_arm_toolchain//:aarch64-qnx-sdp_8.0.0
+build:aarch64-qnx --extra_toolchains=@score_qnx_aarch64_ifs_toolchain//:ifs-aarch64-qnx-sdp_8.0.0
+# QNX binaries cannot run natively on the x86_64 Linux host; execute them under
+# the QNX emulator (requires qemu-system + KVM on the runner).
+test:aarch64-qnx --run_under=@score_qnx_unit_tests//src:run_under_qnx
+# Only run native (cc) test binaries under the QNX emulator. Host-side tests
+# such as the bash-script guardrail cannot execute inside the QNX VM.
+test:aarch64-qnx --test_lang_filters=cc
+
+# -------------------------------------------------------------------------------
+# Toolchain configuration for aarch64-linux (target)
+# -------------------------------------------------------------------------------
+build:aarch64-linux --config=x86_64-linux
+build:aarch64-linux --platforms=@score_bazel_platforms//:aarch64-linux-gcc_12.2.0-posix
+build:aarch64-linux --extra_toolchains=@score_aarch64_gcc_toolchain//:aarch64-linux-gcc_12.2.0
+
+# -------------------------------------------------------------------------------
+# Toolchain configuration for aarch64-linux (target)
+# -------------------------------------------------------------------------------
+build:aarch64-linux-gcc15 --config=x86_64-linux
+build:aarch64-linux-gcc15 --platforms=@score_bazel_platforms//:aarch64-linux-gcc_15.3.0-posix
+build:aarch64-linux-gcc15 --extra_toolchains=@score_aarch64_gcc_toolchain_15//:aarch64-linux-gcc_15.3.0
+
+# -------------------------------------------------------------------------------
+# Toolchain configuration for x86_64-linux-autosd10 (target)
+# -------------------------------------------------------------------------------
+build:x86_64-linux-autosd10 --config=x86_64-linux
+build:x86_64-linux-autosd10 --platforms=@score_bazel_platforms//:x86_64-linux-autosd10
+build:x86_64-linux-autosd10 --extra_toolchains=@score_autosd_10_toolchain//:x86_64-linux-autosd10
+
+# -------------------------------------------------------------------------------
+# Config dedicated to target platform CPU:aarch64 and OS:ebclfsa
+# -------------------------------------------------------------------------------
+build:aarch64-linux-ebclfsa --config=shared
+build:aarch64-linux-ebclfsa --platforms=@score_bazel_platforms//:aarch64-linux-sdk_0.1.0-ebclfsa
+build:aarch64-linux-ebclfsa --extra_toolchains=@score_ebclfsa_toolchain//:aarch64-linux-sdk_0.1.0-ebclfsa

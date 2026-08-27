@@ -11,6 +11,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 name: Bazel Build (x86_64-Linux)
+permissions:
+  contents: read
+  actions: write
 on:
   pull_request:
     types: [opened, reopened, synchronize]
@@ -21,11 +24,11 @@ on:
     types: [checks_requested]
   workflow_call:
 jobs:
-  host_config_1:
+  generic-x86_64-linux:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./examples
+        working-directory: ./tests
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -38,7 +41,46 @@ jobs:
           cache-save: ${{ github.event_name == 'push' }}
       - name: Bazel Build (basic)
         run: |
-          bazel build --lockfile_mode=error --config host_config_1 -- //...
+          bazel build --lockfile_mode=error --config=x86_64-linux -- //:language_and_standards_tests //:feature_verification_tests
+      - name: Guardrail (no legacy features)
+        run: |
+          bazel test --lockfile_mode=error --config=x86_64-linux -- //:guardrail_tests
       - name: Bazel Test
         run: |
-          bazel test --config host_config_1 -- //...
+          bazel test --lockfile_mode=error --config=x86_64-linux -- //:language_and_standards_tests //:feature_verification_tests
+      - name: Bazel Test (force_pic)
+        run: |
+          bazel test --lockfile_mode=error --config=x86_64-linux --force_pic -- //feature_verification/opt_in_features:force_pic_flags_test
+      - name: Bazel Coverage
+        run: |
+          bazel coverage --lockfile_mode=error --config=x86_64-linux --combined_report=lcov -- //feature_verification:coverage_test
+  generic-x86_64-linux-gcc15:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./tests
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@0.18.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.job }}
+          repository-cache: true
+          cache-save: ${{ github.event_name == 'push' }}
+      - name: Bazel Build (basic)
+        run: |
+          bazel build --lockfile_mode=error --config=x86_64-linux-gcc15 -- //:language_and_standards_tests //:feature_verification_tests
+      - name: Guardrail (no legacy features)
+        run: |
+          bazel test --lockfile_mode=error --config=x86_64-linux-gcc15 -- //:guardrail_tests
+      - name: Bazel Test
+        run: |
+          bazel test --lockfile_mode=error --config=x86_64-linux-gcc15 -- //:language_and_standards_tests //:feature_verification_tests
+      - name: Bazel Test (force_pic)
+        run: |
+          bazel test --lockfile_mode=error --config=x86_64-linux-gcc15 --force_pic -- //feature_verification/opt_in_features:force_pic_flags_test
+      - name: Bazel Coverage
+        run: |
+          bazel coverage --lockfile_mode=error --config=x86_64-linux-gcc15 --combined_report=lcov -- //feature_verification:coverage_test

@@ -16,6 +16,12 @@
 
 load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl", "flag_group")
 
+# SDP version mapping for constraint compatibility.
+# Certain SDP versions are mapped to canonical versions used in platform constraints.
+# For example, SDP 8.0.4 is mapped to 8.0.0 because platform constraint support
+# uses the older identifier.
+SDP_VERSION_MAPPING = {"8.0.4": "8.0.0"}
+
 def get_flag_groups(flags):
     """Converts a list of warning flags into a Bazel flag group representation.
 
@@ -45,3 +51,14 @@ def get_flag_group(flags):
             ),
         ]
     return []
+
+def label_list_to_string(input_list):
+    """ Small helper function to transform label list into string list
+
+    Args:
+        input_list (list[labels]): A list of Bazel labels.
+
+    Returns:
+        str: Formatted string
+    """
+    return "[{}]".format(", ".join(["\"{}\"".format(item) for item in input_list]))

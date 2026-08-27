@@ -69,6 +69,11 @@ filegroup(
 )
 
 filegroup(
+    name = "gcov",
+    srcs = ["host/linux/x86_64/usr/bin/x86_64-pc-nto-qnx8.0.0-gcov"],
+)
+
+filegroup(
     name = "mkifs",
     srcs = ["host/linux/x86_64/usr/bin/mkifs"],
 )
