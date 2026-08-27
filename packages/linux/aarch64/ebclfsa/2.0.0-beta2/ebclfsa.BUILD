@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-"""Build file for EBcLfSA 0.1.0 toolchain package"""
+"""Build file for EBcLfSA 2.0.0-beta2 toolchain package"""
 
 package(default_visibility = ["//visibility:public"])
 
@@ -46,17 +46,17 @@ filegroup(
 
 filegroup(
     name = "cc",
-    srcs = ["usr/bin/aarch64-linux-gnu-gcc-13"],
+    srcs = ["usr/bin/aarch64-linux-gnu-gcc-14"],
 )
 
 filegroup(
     name = "gcov",
-    srcs = ["usr/bin/aarch64-linux-gnu-gcov-13"],
+    srcs = ["usr/bin/aarch64-linux-gnu-gcov-14"],
 )
 
 filegroup(
     name = "cxx",
-    srcs = ["usr/bin/aarch64-linux-gnu-g++-13"],
+    srcs = ["usr/bin/aarch64-linux-gnu-g++-14"],
 )
 
 filegroup(
