@@ -26,8 +26,9 @@ on:
 jobs:
   aarch64-ebclfsa:
     runs-on: ubuntu-latest
-    matrix:
-      config: [aarch64-linux-ebclfsa, aarch64-linux-ebclfsa-2.0.0-beta2]
+    strategy:
+      matrix:
+        config: [aarch64-linux-ebclfsa, aarch64-linux-ebclfsa-2.0.0-beta2]
     name: Bazel Build (Aarch64-Linux)(ebclfsa) ${{ matrix.config }}
     defaults:
       run:
