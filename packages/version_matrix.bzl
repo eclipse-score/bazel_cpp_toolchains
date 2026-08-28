@@ -14,28 +14,6 @@
 """ Configuration file holding list of predefeined GCC/SDP packages.
 """
 
-# Rewrites the ELF interpreter of every host executable shipped by an EB corbos
-# SDK to the loader bundled with that SDK. This is the same operation the SDK's
-# own `relocate-sdk.sh` performs; it is inlined here because neither `patchelf`
-# nor `file` can be assumed to exist on the host, and the SDK-provided `patchelf`
-# cannot start before the interpreter is fixed (hence the explicit loader call).
-# Each entry of `patch_cmds` is passed to a separate `bash -c`, so this has to
-# stay a single command.
-_EBCLFSA_RELOCATE_CMDS = [
-    "sdk=$(pwd); " +
-    "loader=$sdk/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2; " +
-    "test -x \"$loader\" -a -x \"$sdk/usr/bin/patchelf\" || exit 1; " +
-    # patchelf lives inside the tree that is about to be rewritten, so work on a copy.
-    "tmp=$(mktemp -d); cp \"$sdk/usr/bin/patchelf\" \"$tmp/patchelf\"; " +
-    "run_patchelf() { \"$loader\" --library-path \"$sdk/usr/lib/x86_64-linux-gnu:$sdk/lib/x86_64-linux-gnu\" \"$tmp/patchelf\" \"$@\"; }; " +
-    "for binary in $(find usr/bin usr/sbin usr/libexec/gcc* usr/lib/gcc-cross usr/lib/llvm-*/bin -type f -perm -u+x 2>/dev/null); do " +
-    "interpreter=$(run_patchelf --print-interpreter \"$binary\" 2>/dev/null) || continue; " +
-    "test -n \"$interpreter\" || continue; " +
-    "run_patchelf --set-interpreter \"$loader\" \"$binary\" >/dev/null 2>&1 || true; " +
-    "done; " +
-    "rm -rf \"$tmp\"",
-]
-
 VERSION_MATRIX = {
     "aarch64-linux-gcc_12.2.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/gcc/12.2.0:gcc.BUILD",
@@ -289,14 +267,9 @@ VERSION_MATRIX = {
         # carry an $ORIGIN rpath to their own libraries, and exporting the SDK's
         # glibc 2.41 via LD_LIBRARY_PATH would also be inherited by Bazel's own
         # process-wrapper, which is linked against the (older) host glibc.
-        "strip_prefix": "fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64",
-        "sha256": "4cf7f0191988795f316f276b56e370ad60fc371954a881d158ebba0284d9d3f5",
-        "url": "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta2/fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64.tar.gz",
-        # The SDK host binaries carry an $ORIGIN rpath into the SDK's own glibc 2.41
-        # but still request the host loader (/lib64/ld-linux-x86-64.so.2). Running a
-        # newer libc under an older ld.so aborts with "stack smashing detected", so
-        # repoint the interpreter at the SDK loader (what relocate-sdk.sh does).
-        "patch_cmds": _EBCLFSA_RELOCATE_CMDS,
+        "strip_prefix": "fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64-self-contained",
+        "sha256": "1e81b2bd210aeb44323eadcefaf9d0f57071ba3284c6de3bf53b21f865525650",
+        "url": "https://github.com/lurtz/eb_corbos_toolkit/releases/download/v2.0.0-beta2/fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64-self-contained.tar.gz",
     },
     "x86_64-qnx-sdp_8.0.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
