@@ -205,6 +205,97 @@ VERSION_MATRIX = {
         "sha256": "f44286c28d831dc40acdac08ef49f38a2e9cbb057bea38c25834964693785287",
         "url": "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta1/fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64.tar.gz",
     },
+    "aarch64-linux-sdk_2.0.0-beta2-ebclfsa": {
+        "build_file": "@score_bazel_cpp_toolchains//packages/linux/aarch64/ebclfsa/2.0.0-beta2:ebclfsa.BUILD",
+        "extra_c_compile_flags": [
+            "-nostdinc",
+            "-isystem",
+            "external/%{toolchain_pkg}%/usr/lib/gcc-cross/aarch64-linux-gnu/14/include",
+            "-isystem",
+            "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/include",
+            "-isystem",
+            "external/%{toolchain_pkg}%/usr/include/aarch64-linux-gnu",
+            "-L",
+            "external/%{toolchain_pkg}%/lib/aarch64-linux-gnu",
+            "-L",
+            "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/lib",
+            "-L",
+            "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
+            "--no-canonical-prefixes",
+        ],
+        "extra_cxx_compile_flags": [
+            "-nostdinc++",
+            "-isystem",
+            "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/include/c++/14",
+            "-isystem",
+            "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/include/c++/14/aarch64-linux-gnu",
+            "-isystem",
+            "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/include/c++/14/backward",
+            "-nostdinc",
+            "-isystem",
+            "external/%{toolchain_pkg}%/usr/lib/gcc-cross/aarch64-linux-gnu/14/include",
+            "-isystem",
+            "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/include",
+            "-isystem",
+            "external/%{toolchain_pkg}%/usr/include/aarch64-linux-gnu",
+            "-L",
+            "external/%{toolchain_pkg}%/lib/aarch64-linux-gnu",
+            "-L",
+            "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/lib",
+            "-L",
+            "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
+            "--no-canonical-prefixes",
+        ],
+        "extra_link_flags": [
+            "-B",
+            "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/bin",
+            "-L",
+            "external/%{toolchain_pkg}%/lib/aarch64-linux-gnu",
+            "-L",
+            "external/%{toolchain_pkg}%/usr/aarch64-linux-gnu/lib",
+            "-L",
+            "external/%{toolchain_pkg}%/usr/lib/x86_64-linux-gnu",
+            "-lm",
+            "-ldl",
+            "-lrt",
+            "-static-libstdc++",
+            "-static-libgcc",
+            "-static",
+            "--no-canonical-prefixes",
+        ],
+        # No `compiler_library_search_paths` on purpose: the SDK host binaries already
+        # carry an $ORIGIN rpath to their own libraries, and exporting the SDK's
+        # glibc 2.41 via LD_LIBRARY_PATH would also be inherited by Bazel's own
+        # process-wrapper, which is linked against the (older) host glibc.
+        "strip_prefix": "fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64",
+        "sha256": "4cf7f0191988795f316f276b56e370ad60fc371954a881d158ebba0284d9d3f5",
+        "url": "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta2/fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64.tar.gz",
+        # The SDK host binaries carry an $ORIGIN rpath into the SDK's own glibc 2.41
+        # but still request the host loader (/lib64/ld-linux-x86-64.so.2). Running a
+        # newer libc under an older ld.so aborts with "stack smashing detected", so
+        # repoint the interpreter at the SDK loader (what relocate-sdk.sh does).
+        # Rewrites the ELF interpreter of every host executable shipped by an EB corbos
+        # SDK to the loader bundled with that SDK. This is the same operation the SDK's
+        # own `relocate-sdk.sh` performs; it is inlined here because neither `patchelf`
+        # nor `file` can be assumed to exist on the host, and the SDK-provided `patchelf`
+        # cannot start before the interpreter is fixed (hence the explicit loader call).
+        # Each entry of `patch_cmds` is passed to a separate `bash -c`, so this has to
+        # stay a single command.
+        "patch_cmds": [
+            "sdk=$(pwd); " +
+            "loader=$sdk/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2; " +
+            "test -x \"$loader\" -a -x \"$sdk/usr/bin/patchelf\" || exit 1; " +
+            # patchelf lives inside the tree that is about to be rewritten, so work on a copy.
+            "tmp=$(mktemp -d); cp \"$sdk/usr/bin/patchelf\" \"$tmp/patchelf\"; " +
+            "run_patchelf() { \"$loader\" --library-path \"$sdk/usr/lib/x86_64-linux-gnu:$sdk/lib/x86_64-linux-gnu\" \"$tmp/patchelf\" \"$@\"; }; " +
+            "for binary in $(find usr/bin usr/sbin usr/libexec/gcc* usr/lib/gcc-cross usr/lib/llvm-*/bin -type f -perm -u+x 2>/dev/null); do " +
+            "interpreter=$(run_patchelf --print-interpreter \"$binary\" 2>/dev/null) || continue; " +
+            "test -n \"$interpreter\" || continue; " +
+            "run_patchelf --set-interpreter \"$loader\" \"$binary\" >/dev/null 2>&1 || true; " +
+            "done; " +
+            "rm -rf \"$tmp\"",
+        ],
+    },
     "x86_64-qnx-sdp_8.0.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
         "sha256": "f2e0cb21c6baddbcb65f6a70610ce498e7685de8ea2e0f1648f01b327f6bac63",

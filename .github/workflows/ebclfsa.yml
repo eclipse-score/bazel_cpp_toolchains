@@ -26,6 +26,11 @@ on:
 jobs:
   aarch64-ebclfsa:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [aarch64-linux-ebclfsa, aarch64-linux-ebclfsa-2.0.0-beta2]
+    name: Bazel Build (Aarch64-Linux)(ebclfsa) ${{ matrix.config }}
     defaults:
       run:
         working-directory: ./tests
@@ -41,7 +46,7 @@ jobs:
           cache-save: ${{ github.event_name == 'push' }}
       - name: Bazel Build (basic)
         run: |
-          bazel build --lockfile_mode=error --config=aarch64-linux-ebclfsa -- //:language_and_standards_tests //:feature_verification_tests
+          bazel build --lockfile_mode=error --config=${{ matrix.config }} -- //:language_and_standards_tests //:feature_verification_tests
       - name: Guardrail (no legacy features)
         run: |
-          bazel test --lockfile_mode=error --config=aarch64-linux-ebclfsa -- //:guardrail_tests
+          bazel test --lockfile_mode=error --config=${{ matrix.config }} -- //:guardrail_tests

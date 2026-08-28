@@ -39,6 +39,11 @@ _attrs_sdp = {
         default = "",
         doc = "package name of toolchain, default set to toolchain toolchain name + `_pkg`.",
     ),
+    "patch_cmds": attr.string_list(
+        mandatory = False,
+        default = [],
+        doc = "Bash commands executed in the extracted archive root after extraction.",
+    ),
     "sha256": attr.string(
         mandatory = False,
         default = "",
@@ -185,6 +190,7 @@ def _get_packages(tags):
         packages.append({
             "build_file": tag.build_file,
             "name": tag.name,
+            "patch_cmds": tag.patch_cmds,
             "sha256": tag.sha256,
             "strip_prefix": tag.strip_prefix,
             "url": tag.url,
@@ -211,7 +217,7 @@ def _get_toolchains(tags):
             "sdk_version": tag.sdk_version,
             "sdp_to_link": tag.sdp_to_link,
             "sdp_version": tag.sdp_version,
-            "tc_compiler_library_search_paths": [],
+            "tc_compiler_library_search_paths": tag.ld_library_paths,
             "tc_cpu": tag.target_cpu,
             "tc_extra_c_compile_flags": tag.extra_c_compile_flags,
             "tc_extra_compile_flags": tag.extra_compile_flags,
@@ -301,6 +307,7 @@ def _create_and_link_sdp(toolchain_info):
     return {
         "build_file": matrix["build_file"],
         "name": pkg_name,
+        "patch_cmds": matrix.get("patch_cmds", []),
         "sha256": matrix["sha256"],
         "strip_prefix": matrix["strip_prefix"],
         "url": matrix["url"],
@@ -389,6 +396,7 @@ def _impl(mctx):
             name = archive_info["name"],
             urls = [archive_info["url"]],
             build_file = archive_info["build_file"],
+            patch_cmds = archive_info["patch_cmds"],
             sha256 = archive_info["sha256"],
             strip_prefix = archive_info["strip_prefix"],
         )

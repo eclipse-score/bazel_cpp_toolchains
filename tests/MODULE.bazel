@@ -33,7 +33,7 @@ bazel_dep(name = "bazel_skylib", version = "1.9.0")
 bazel_dep(name = "platforms", version = "1.1.0")
 
 # TODO: DO NOT MERGE IT WITH THIS !!!!
-bazel_dep(name = "score_bazel_platforms", version = "1.0.0")
+bazel_dep(name = "score_bazel_platforms", version = "1.1.0")
 
 # *******************************************************************************
 # C++ Rules for Bazel
@@ -191,12 +191,25 @@ gcc.toolchain(
     target_os = "linux",
     use_default_package = True,
 )
+
+# *******************************************************************************
+# Setting EBcLfSA 2.0.0-beta2 GCC (CPU:aarch64|OS:Linux|V:ebclfsa-2.0.0-beta2|ES:ebclfsa)
+# *******************************************************************************
+gcc.toolchain(
+    name = "score_ebclfsa_2.0.0-beta2_toolchain",
+    runtime_ecosystem = "ebclfsa",
+    sdk_version = "2.0.0-beta2",
+    target_cpu = "aarch64",
+    target_os = "linux",
+    use_default_package = True,
+)
 use_repo(
     gcc,
     "my_toolchain",
     "score_aarch64_gcc_toolchain",
     "score_aarch64_gcc_toolchain_15",
     "score_autosd_10_toolchain",
+    "score_ebclfsa_2.0.0-beta2_toolchain",
     "score_ebclfsa_toolchain",
     "score_gcc_toolchain",
     "score_gcc_toolchain_15",
