@@ -33,12 +33,7 @@ bazel_dep(name = "bazel_skylib", version = "1.9.0")
 bazel_dep(name = "platforms", version = "1.1.0")
 
 # TODO: DO NOT MERGE IT WITH THIS !!!!
-bazel_dep(name = "score_bazel_platforms", version = "1.0.0")
-git_override(
-    module_name = "score_bazel_platforms",
-    branch = "add-ebclfsa-beta2",
-    remote = "https://github.com/eclipse-score/bazel_platforms.git",
-)
+bazel_dep(name = "score_bazel_platforms", version = "1.1.0")
 
 # *******************************************************************************
 # C++ Rules for Bazel
