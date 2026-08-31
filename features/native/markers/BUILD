@@ -56,7 +56,7 @@ cc_feature(
     visibility = ["//visibility:public"],
 )
 
-## Linux specficic
+## Linux specific
 cc_feature(
     name = "supports_fission",
     feature_name = "supports_fission",
