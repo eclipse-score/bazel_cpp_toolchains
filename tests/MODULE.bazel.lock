@@ -1370,8 +1370,8 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "e4PzsBTkajWLV4yWOnqLngVvXEo3PDlc28arEoj67Jo=",
-        "usagesDigest": "dWr2zFjJ8fBvweFk2KWoZzQqJ+aKnb9A8QACQhKlUfw=",
+        "bzlTransitiveDigest": "dffSoCJVMsbso/wS4jpQI/Uab9lB/i4ftLn6XkLcoAc=",
+        "usagesDigest": "3BxGiccNNlFja9y/vd4+7TlTcgtjWIybmed7P06K9QM=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -1935,8 +1935,7 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "ebclfsa",
               "gcc_version": "",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_config.bzl.template",
               "use_base_constraints_only": false
             }
           }
