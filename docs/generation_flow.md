@@ -44,27 +44,18 @@ representation needed by the templates and repository rules.
 
 `rules/gcc.bzl`
 
-Generates the toolchain repository. It decides whether Linux or QNX template
-content is required, performs placeholder substitution, and emits the final
-`BUILD`, `cc_toolchain_config.bzl`, `flags.bzl`, and Linux `gcov` wrapper
-files.
+Generates the toolchain repository. It performs placeholder substitution and
+emits the final `BUILD`, `cc_toolchain_config.bzl`, and `gcov` wrapper files,
+substituting OS-specific values (e.g. `compiler`, `abi_version`,
+`toolchain_identifier`) into the shared templates below.
 
 ## Template Families
 
-Linux templates:
+Shared templates (used by both Linux and QNX):
 
-- `templates/linux/cc_toolchain_config.bzl.template`
-- `templates/linux/cc_toolchain_flags.bzl.template`
-- `templates/linux/cc_gcov_wrapper.template`
-
-QNX templates:
-
-- `templates/qnx/cc_toolchain_config.bzl.template`
-- `templates/qnx/cc_toolchain_flags.bzl.template`
-
-Shared template:
-
+- `templates/cc_toolchain_config.bzl.template`
 - `templates/BUILD.template`
+- `templates/cc_gcov_wrapper.template`
 
 ## Important Implementation Details
 

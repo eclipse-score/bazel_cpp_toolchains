@@ -65,9 +65,7 @@ no_legacy_features_feature = feature(name = "no_legacy_features", enabled = True
 With this enabled, Bazel injects **nothing** implicitly. Every compile, link,
 and archive flag must come from a feature (or other toolchain wiring) declared
 explicitly in
-[`templates/linux/cc_toolchain_config.bzl.template`](../templates/linux/cc_toolchain_config.bzl.template)
-or
-[`templates/qnx/cc_toolchain_config.bzl.template`](../templates/qnx/cc_toolchain_config.bzl.template).
+[`templates/cc_toolchain_config.bzl.template`](../templates/cc_toolchain_config.bzl.template).
 
 The practical consequence: the command line is now fully described by this
 repository's feature set. What you see documented in
