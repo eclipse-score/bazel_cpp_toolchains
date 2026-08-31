@@ -41,7 +41,7 @@ jobs:
           cache-save: ${{ github.event_name == 'push' }}
       - name: Bazel Build (basic)
         run: |
-          bazel build --lockfile_mode=error --config=x86_64-linux-autosd10 -- //:language_and_standards_tests //:feature_verification_tests
+          bazel build --lockfile_mode=error --config=x86_64-linux-autosd10 --features=-default_link_flags -- //:language_and_standards_tests //:feature_verification_tests
       - name: Guardrail (no legacy features)
         run: |
-          bazel test --lockfile_mode=error --config=x86_64-linux-autosd10 -- //:guardrail_tests
+          bazel test --lockfile_mode=error --config=x86_64-linux-autosd10 --features=-default_link_flags -- //:guardrail_tests
