@@ -54,3 +54,7 @@ filegroup(
     name = "sysroot_dir",
     srcs = ["x86_64-unknown-linux-gnu/sysroot"],
 )
+
+filegroup(
+    name = "cxx_builtin_include_directories",
+)

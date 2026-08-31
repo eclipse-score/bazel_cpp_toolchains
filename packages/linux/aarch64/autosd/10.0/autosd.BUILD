@@ -59,3 +59,7 @@ filegroup(
         "lib64/**",
     ]),
 )
+
+filegroup(
+    name = "cxx_builtin_include_directories",
+)
