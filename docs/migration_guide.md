@@ -56,15 +56,14 @@ reproducible toolchain:
 
 ### The explicit (current) model
 
-Both toolchain configs set:
-
-```starlark
-no_legacy_features_feature = feature(name = "no_legacy_features", enabled = True)
-```
+Both toolchain configs always enable `no_legacy_features` — a `cc_feature`
+defined in `features/native/markers` and listed as initially-enabled in the
+ordered feature list built by `features/custom/linux/make_cc_features.bzl` /
+`features/custom/qnx/make_cc_features.bzl`.
 
 With this enabled, Bazel injects **nothing** implicitly. Every compile, link,
 and archive flag must come from a feature (or other toolchain wiring) declared
-explicitly in
+explicitly under [`features/`](../features) and wired in by
 [`templates/cc_toolchain_config.bzl.template`](../templates/cc_toolchain_config.bzl.template).
 
 The practical consequence: the command line is now fully described by this
@@ -93,8 +92,8 @@ toolchain, are summarized below.
 | `--sysroot` handling | **Supported, explicit (Linux)** | `sysroot_link_flags` at link; compile relies on `cxx_builtin_include_directories` |
 | Compiler / archiver / strip tool binding | **Supported, wiring** | `action_config` entries, not legacy `tool_paths` |
 | `gcov` | **Supported, wiring** | `tool_paths` (`gcov_wrapper`) |
-| Warnings (e.g. `-Wall`) added by default | **Linux: opt-in · QNX: on by default** | `minimal_warnings` (includes `-Wall`) is enabled by default on QNX but disabled on Linux. `strict_warnings` / `all_wall_warnings` are opt-in on both. |
-| `-Werror` | **Not implicit — opt-in** | `warnings_as_errors` (disabled by default) |
+| Warnings (e.g. `-Wall`) added by default | **Not part of this toolchain — injected** | `minimal_warnings` / `strict_warnings` / `all_wall_warnings` are defined by `score_cpp_policies`, not this toolchain, and only become available once brought in via `extra_known_features` / `extra_enabled_features`. |
+| `-Werror` | **Not part of this toolchain — injected** | `warnings_as_errors`, defined by `score_cpp_policies` and injected the same way as the other warning features. |
 | Sanitizers (asan/lsan/tsan/ubsan) | **Not part of this toolchain — injected (Linux)** | Defined by `score_cpp_policies` (`score_asan` / `score_lsan` / `score_tsan` / `score_ubsan`) and brought in via `extra_known_features` / `extra_enabled_features` |
 | Fully static link (`-static`) | **Not implicit — opt-in** | `fully_static_link` (disabled by default) |
 | `-pthread` | **Not implicit — opt-in (Linux)** | `use_pthread` (disabled by default) |
@@ -104,11 +103,11 @@ toolchain, are summarized below.
 Three categories deserve special attention because they are the most frequent
 migration surprises:
 
-1. **Warnings differ by platform.** On **Linux**, all warning features are
-   opt-in — if you expected `-Wall`-style warnings you must enable them. On
-   **QNX**, `minimal_warnings` (which includes `-Wall`) is enabled by default,
-   so those warnings do *not* disappear; `strict_warnings`,
-   `all_wall_warnings`, and `-Werror` remain opt-in on both platforms.
+1. **Warnings are not part of this toolchain on either platform.** All
+   warning-level features (`minimal_warnings`, `strict_warnings`,
+   `all_wall_warnings`, `warnings_as_errors`/`-Werror`) are defined by
+   `score_cpp_policies` and only become available once injected via
+   `extra_known_features` / `extra_enabled_features`.
 2. **`-pthread` and fully-static linking are opt-in.** These emit nothing until
    you enable the corresponding feature.
 3. **Sanitizers are not part of this toolchain.** They are defined by the
@@ -210,13 +209,21 @@ now?" case.
 
 **Symptom:** Code that used to warn (or fail on warnings) now builds clean.
 
-**Cause:** On **Linux**, all warning features are opt-in, so nothing is added by
-default under `no_legacy_features`. On **QNX**, `minimal_warnings` (`-Wall`) is
-enabled by default, but `strict_warnings`, `all_wall_warnings`, and `-Werror`
-are still opt-in — so stricter diagnostics can still appear to "disappear".
+**Cause:** Warning-level features are not defined by this toolchain at all —
+they are defined by `score_cpp_policies` and are only available once injected
+into the toolchain via `extra_known_features` / `extra_enabled_features` (see
+[Extension API](extension_api.md#feature-injection)).
 
-**Fix:** Enable the warning features you want. To restore a strict, fail-fast
-profile build-wide:
+**Fix:** Inject the desired warning feature(s) from `score_cpp_policies` on
+`gcc.toolchain(...)`, then enable them like any other feature:
+
+```starlark
+gcc.toolchain(
+    name = "score_gcc_toolchain",
+    ...
+    extra_known_features = ["@score_cpp_policies//features:strict_warnings", "@score_cpp_policies//features:warnings_as_errors"],
+)
+```
 
 ```bash
 # .bazelrc
@@ -233,6 +240,9 @@ cc_library(
     features = ["all_wall_warnings", "warnings_as_errors"],
 )
 ```
+
+> The exact `score_cpp_policies` feature labels above are illustrative — see
+> that module's documentation for the authoritative target names.
 
 ### Scenario B — "Undefined reference to pthread symbols"
 

@@ -23,10 +23,15 @@ toolchain repository through these steps:
 1. `extensions/gcc.bzl` collects `gcc.toolchain` and `gcc.sdp` tags.
 2. Package metadata is resolved from `packages/version_matrix.bzl` or from an
    explicit `gcc.sdp` declaration.
-3. `rules/gcc.bzl` renders a BUILD file and configuration files into a new
-   repository.
-4. Platform-specific templates from `templates/linux/` or `templates/qnx/` are
-   populated with CPU, version, licensing, and flag information.
+3. `rules/gcc.bzl` renders the shared `templates/BUILD.template` and
+   `templates/cc_toolchain_config.bzl.template` into a new repository,
+   substituting CPU, version, licensing, and flag placeholders.
+4. The rendered `BUILD` file wires in the toolchain's feature set:
+   per-instance features created at generation time (extra compile/link
+   flags, sysroot link flags, compiler library search paths) plus the
+   ordered `known_features`/`enabled_features` lists from
+   `features/custom/linux/` or `features/custom/qnx/`, which reference the
+   reusable `cc_feature` targets under `features/native/`.
 5. The consuming workspace enables the generated toolchain with
    `--extra_toolchains` and compatible platform constraints.
 
@@ -48,6 +53,14 @@ Generates the toolchain repository. It performs placeholder substitution and
 emits the final `BUILD`, `cc_toolchain_config.bzl`, and `gcov` wrapper files,
 substituting OS-specific values (e.g. `compiler`, `abi_version`,
 `toolchain_identifier`) into the shared templates below.
+
+`features/`
+
+Defines the toolchain's `cc_feature` / `cc_args` targets with
+`@rules_cc//cc/toolchains`. `features/native/` holds one reusable target per
+toolchain feature; `features/custom/linux/` and `features/custom/qnx/` hold
+OS-specific features plus the ordered `known_features`/`enabled_features`
+lists that `templates/BUILD.template` passes to `cc_toolchain_config`.
 
 ## Template Families
 

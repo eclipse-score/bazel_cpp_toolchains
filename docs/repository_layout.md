@@ -25,6 +25,7 @@ The repository is organized by subsystem rather than by platform product:
 |- tests/       Test workspace and validation suites
 |- extensions/  Bzlmod extension entry points
 |- packages/    Toolchain package descriptors and version matrix
+|- features/    Declarative cc_feature/cc_args toolchain-feature definitions
 |- rules/       Repository rules and shared helpers
 |- templates/   Generated file templates for toolchain repositories
 `- tools/       Standalone utility scripts
@@ -50,13 +51,24 @@ archives. The most important file is `packages/version_matrix.bzl`, which maps
 logical toolchain identifiers to URLs, checksums, build files, and any
 required extra flags.
 
+`features/`
+
+Holds declarative `cc_feature` / `cc_args` toolchain-feature definitions built
+with `@rules_cc//cc/toolchains`. `features/native/` has one reusable target
+per toolchain feature (mirroring the legacy Bazel C++ features); the
+OS-specific `features/custom/linux/` and `features/custom/qnx/` packages hold
+platform-only features (e.g. QNX `sdp_env`, `gcc_version_flags`) plus the
+ordered `known_features`/`enabled_features` lists that
+`templates/BUILD.template` passes to `cc_toolchain_config`.
+
 `templates/`
 
-Holds the template files used by repository rules. These templates are
-rendered into the generated toolchain repository and differ between Linux and
-QNX because the execution environment, sysroot layout, and licensing model are
-different.
-> NOTE: Future plan is to have a single template for toolchain configuration.
+Holds the shared template files rendered by repository rules into the
+generated toolchain repository: `BUILD.template`,
+`cc_toolchain_config.bzl.template`, and `cc_gcov_wrapper.template`. A single
+template pair now covers both Linux and QNX; OS-specific behavior comes from
+placeholder substitution in `rules/gcc.bzl` and from the OS-specific feature
+lists in `features/custom/`, not from separate template directories.
 
 `tests/`
 

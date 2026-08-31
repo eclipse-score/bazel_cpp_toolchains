@@ -73,65 +73,58 @@ means a broken build rather than a silent fallback.
 > libraries (e.g. AutoSD) cannot link fully static binaries, so that feature is
 > opt-in and its test is marked incompatible with such platforms.
 
-## In-Progress: Declarative `features/` Catalog
+## Toolchain Feature Catalog (`features/`)
 
-`features/` defines the same toolchain features declaratively with
-`@rules_cc//cc/toolchains` (`cc_feature` / `cc_args` / `cc_feature_set`), as a
-parallel catalog alongside the legacy `feature()` Starlark in
-`templates/cc_toolchain_config.bzl.template`. The **real** toolchain
-generation still goes exclusively through the legacy template, rendered by
-`rules/gcc.bzl`; nothing in the repository currently consumes
-`//features:linux_features` or `//features:qnx_features`.
+`features/` is the live source of the toolchain's `cc_feature` / `cc_args`
+definitions, built with `@rules_cc//cc/toolchains`. It replaced the legacy
+`feature()` Starlark calls that used to live directly in the per-OS
+`cc_toolchain_config.bzl.template` files; `templates/cc_toolchain_config.bzl.template`
+now only implements the `cc_toolchain_config` rule and turns
+`known_features`/`enabled_features` labels into the toolchain's feature list —
+it defines no features of its own.
 
-`features/BUILD` defines two ordered `cc_feature_set` targets, `linux_features`
-and `qnx_features`, whose `all_of` order intentionally mirrors the exact
-feature order in the corresponding template's `features = [...]` list (order is
-significant there — see the "order of the features is relevant" comment in both
-templates). Platform membership (Linux-only vs. QNX-only vs. both) is expressed
-purely by which set a feature is listed in; individual `cc_feature` targets no
-longer carry `requires_any_of = ["//features/linux_platform"]` /
-`["//features/qnx_platform"]` gates. `all_wall_warnings`, `minimal_warnings`,
-`strict_warnings`, and `warnings_as_errors` were removed from `features/`
-entirely — they are superseded by `score_cpp_policies` and injected via
-`extra_known_features` / `extra_enabled_features` instead.
+- `features/native/`: one reusable `cc_feature`/`cc_args` target per toolchain
+  feature (`default_compile_flags`, `include_paths`, `pic`,
+  `sysroot_link_flags`, ...), including the capability markers (`dbg`, `opt`,
+  `supports_pic`, ...). These mirror the removed legacy Bazel C++ features
+  one-for-one.
+- `features/custom/linux/` and `features/custom/qnx/`: OS-specific features
+  not covered by the native set (QNX `sdp_env`, `gcc_version_flags`), plus
+  `make_cc_features.bzl`, which defines the ordered `_LINUX_FEATURES` /
+  `_QNX_FEATURES` lists of `(label, initially_enabled)` pairs. Order here
+  mirrors the previous templates' `features = [...]` order exactly, since
+  feature order determines command-line flag order. `get_feature_lists()`
+  returns `(known_features, enabled_features)`, and `templates/BUILD.template`
+  passes those straight into `cc_toolchain_config`'s `known_features` /
+  `enabled_features` attributes — this is what the generated toolchain
+  actually uses.
+- Per-instance features whose content is dynamic per toolchain instance —
+  `extra_compile_flags`, `extra_c_compile_flags`, `extra_cxx_compile_flags`,
+  `extra_link_flags`, `compiler_library_search_paths`, `sysroot_link_flags` —
+  are *not* static `features/native/*` targets. Instead
+  `templates/BUILD.template` creates them at generation time (via
+  `make_extra_compile_features()`, `make_extra_link_features()`,
+  `make_compiler_library_search_paths()`, and `make_sysroot_link_flags()`, all
+  defined under `features/native/<name>/features.bzl`) using fixed local
+  target names (`:extra_compile_flags`, etc.), and `_LINUX_FEATURES` /
+  `_QNX_FEATURES` reference those fixed names at the correct position in the
+  ordered list. This keeps both feature order (repo-controlled) and
+  per-instance dynamic content (caller-controlled via `gcc.toolchain(...)`
+  attributes).
+- `all_wall_warnings`, `minimal_warnings`, `strict_warnings`, and
+  `warnings_as_errors` are not defined anywhere in this repository — they were
+  removed and are superseded by `score_cpp_policies`, injected via
+  `extra_known_features` / `extra_enabled_features` (same mechanism as the
+  sanitizers).
 
-### Open problem: the `extra_*_flags` hooks
-
-`extra_compile_flags`, `extra_c_compile_flags`, `extra_cxx_compile_flags`, and
-`extra_link_flags` are intentionally **not** part of `linux_features` /
-`qnx_features` yet. They don't fit the static-label model the rest of
-`features/` uses:
-
-- **Content is dynamic per toolchain instance.** The flag lists come from
-  `gcc.toolchain(extra_compile_flags = [...])` (see `extensions/gcc.bzl`) and
-  are substituted via `%{...}` placeholders directly into the generated
-  `cc_toolchain_config.bzl` by `rules/gcc.bzl` (`_impl`, `get_flag_groups()`) —
-  not a fixed BUILD label a `cc_feature_set` could reference.
-- **Position is order-sensitive.** `extra_compile_flags` /
-  `extra_c_compile_flags` / `extra_cxx_compile_flags` must land after
-  `preprocessor_defines` / `default_compile_flags` and before
-  `user_compile_flags`; `extra_link_flags` must land near the end, after
-  `user_link_flags`. The existing `extra_known_features` /
-  `extra_enabled_features` injection mechanism (used for `score_cpp_policies`
-  sanitizers/warnings) always appends via `features.extend(...)` at the very
-  end of the list — safe for position-independent features, unsafe for these.
-
-Options considered, decision still pending:
-
-1. **Leave as-is.** Keep the raw `%{...}` template-substitution mechanism
-   exactly as today; a static label structurally can't hold per-invocation
-   dynamic content, so these 4 simply stay outside the `features/` catalog.
-   Zero risk, matches current shipped behavior.
-2. **Label-typed "slots".** Add label attributes (e.g.
-   `extra_compile_flags_target = attr.label(providers = [CcArgsInfo])`) to the
-   toolchain config rule. The caller defines their own small `cc_args`/
-   `cc_feature` target with whatever flags they want and passes its label in;
-   the rule splices that label into the fixed position within the ordered
-   feature list — same trick as `extra_known_features`, but inserted at an
-   index instead of appended at the end. Preserves both order (repo controls
-   position) and dynamism (caller controls content). This is a real API change
-   touching `extensions/gcc.bzl` attrs, `rules/gcc.bzl` codegen, and
-   `docs/extension_api.md`.
+> **Known cleanup item:** `features/BUILD` also defines two `cc_feature_set`
+> targets (`linux` and `qnx`) that group the same features for
+> `requires_any_of`/`requires_all_of`-style constraints. Nothing in this
+> repository currently references them — `cc_toolchain_config`'s
+> `known_features`/`enabled_features` attributes require individual
+> `FeatureInfo`-providing labels, not a `cc_feature_set` grouping (see the
+> `compute_feature_lists()` docstring in `features/make_cc_features.bzl`).
+> These should either be wired to a consumer or removed.
 
 ## Common Gotchas
 
