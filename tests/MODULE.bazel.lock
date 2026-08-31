@@ -1,5 +1,5 @@
 {
-  "lockFileVersion": 18,
+  "lockFileVersion": 24,
   "registryFileHashes": {
     "https://bcr.bazel.build/bazel_registry.json": "8a28e4aff06ee60aed2a8c281907fb8bcbf3b753c91fb5a5c57da3215d5b3497",
     "https://bcr.bazel.build/modules/abseil-cpp/20210324.2/MODULE.bazel": "7cd0312e064fde87c8d1cd79ba06c876bd23630c83466e9500321be55c96ace2",
@@ -606,7 +606,7 @@
   "moduleExtensions": {
     "@@aspect_rules_js+//npm:extensions.bzl%pnpm": {
       "general": {
-        "bzlTransitiveDigest": "c+aduAtzWJ+Sfmy4J0UmLN9iqbGkiP1HPlR9NZBfOdU=",
+        "bzlTransitiveDigest": "mBV5IQWX7FWfZbz6MJP8c7oawhjJCmyPytourZpcJ94=",
         "usagesDigest": "ZYGEy1FrDUNPBzAzD+ujlHkMEsVPMYOvpHm9RhUexUE=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -704,7 +704,7 @@
     },
     "@@aspect_rules_py+//py:extensions.bzl%py_tools": {
       "general": {
-        "bzlTransitiveDigest": "dAWBz6nfg2GIP7kchPavcBdWoHNQ67aXhXo4MPJJqNk=",
+        "bzlTransitiveDigest": "VfJYy1B5v3oMq9SNoz4hGTKf+uJgqbxHJYD8rdhivHo=",
         "usagesDigest": "NC1b49l5tenTBVWEUGzzC0j5Kg1GH+l5lBw5JRCldIU=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -846,7 +846,7 @@
     },
     "@@pybind11_bazel+//:internal_configure.bzl%internal_configure_extension": {
       "general": {
-        "bzlTransitiveDigest": "G7xCmtNWXRuBtChRgB5OK5+gmM8Uoy8Mec/B7j3fhqs=",
+        "bzlTransitiveDigest": "NFQjcZF+fAvf5fDH+pqsx4JrfzP9PuHBz6S6ZutIbnw=",
         "usagesDigest": "D1r3lfzMuUBFxgG8V6o0bQTLMk3GkaGOaPzw53wrwyw=",
         "recordedFileInputs": {
           "@@pybind11_bazel+//MODULE.bazel": "e6f4c20442eaa7c90d7190d8dc539d0ab422f95c65a57cc59562170c58ae3d34"
@@ -876,7 +876,7 @@
     },
     "@@rules_buf+//buf:extensions.bzl%buf": {
       "general": {
-        "bzlTransitiveDigest": "nziVPz62Pjv2JecWM9NXmhpU/OjKhPz1MT9++4ObLUw=",
+        "bzlTransitiveDigest": "dSWqckK2ILN7aDIDHfv+Qrl1fb1hF7o7MDXY6T8C41s=",
         "usagesDigest": "vxN6C2h72rUERbAmd1476FWpxdxo1NhYoY5JSFXJT3g=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -901,7 +901,7 @@
     },
     "@@rules_fuzzing+//fuzzing/private:extensions.bzl%non_module_dependencies": {
       "general": {
-        "bzlTransitiveDigest": "v2H25KPHEkN56IHR41S67Kzp5Xjxd75GBiazhON8jzc=",
+        "bzlTransitiveDigest": "4LouzhF/yT117s7peGnNs9ROomiJXC6Zl5R0oI21jho=",
         "usagesDigest": "wy6ISK6UOcBEjj/mvJ/S3WeXoO67X+1llb9yPyFtPgc=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -984,7 +984,7 @@
     },
     "@@rules_kotlin+//src/main/starlark/core/repositories:bzlmod_setup.bzl%rules_kotlin_extensions": {
       "general": {
-        "bzlTransitiveDigest": "OlvsB0HsvxbR8ZN+J9Vf00X/+WVz/Y/5Xrq2LgcVfdo=",
+        "bzlTransitiveDigest": "nvW/NrBXlAmiQw99EMGKkLaD2KbNp2mQDlxdfpr+0Ls=",
         "usagesDigest": "QI2z8ZUR+mqtbwsf2fLqYdJAkPOHdOV+tF2yVAUgRzw=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -1218,7 +1218,7 @@
     },
     "@@rules_rust+//crate_universe/private:internal_extensions.bzl%cu_nr": {
       "general": {
-        "bzlTransitiveDigest": "oRwNDJU+OUmkvm5VgB12Uzf5d82zFgjjyx2akug8OTs=",
+        "bzlTransitiveDigest": "LY3h7UGxJswyK9i5VjXKBDtH6q5lVEKqAAl5FCJt5qE=",
         "usagesDigest": "dQ7SQZ7uSSL3vVKSMBKRxKJUm9OVrZZA+S1/QQfT570=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -1370,8 +1370,8 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "YbbJoOHV79wbmLSzyW0+FVq+0ih1OuW6v1am9MzMOmg=",
-        "usagesDigest": "3BxGiccNNlFja9y/vd4+7TlTcgtjWIybmed7P06K9QM=",
+        "bzlTransitiveDigest": "e4PzsBTkajWLV4yWOnqLngVvXEo3PDlc28arEoj67Jo=",
+        "usagesDigest": "dWr2zFjJ8fBvweFk2KWoZzQqJ+aKnb9A8QACQhKlUfw=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -1532,8 +1532,7 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "",
               "gcc_version": "12.2.0",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_config.bzl.template",
               "use_base_constraints_only": true
             }
           },
@@ -1559,8 +1558,7 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "",
               "gcc_version": "12.2.0",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_config.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1586,8 +1584,7 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "",
               "gcc_version": "15.3.0",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_config.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1613,8 +1610,7 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "",
               "gcc_version": "12.2.0",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_config.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1640,8 +1636,7 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "",
               "gcc_version": "15.3.0",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_config.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1669,8 +1664,7 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "",
               "gcc_version": "12.2.0",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_config.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1696,8 +1690,7 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "",
               "gcc_version": "12.2.0",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_config.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1723,8 +1716,7 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "",
               "gcc_version": "12.2.0",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/qnx:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_config.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1786,8 +1778,7 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "autosd10",
               "gcc_version": "",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_config.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1865,8 +1856,7 @@
               "tc_system_toolchain": false,
               "tc_runtime_ecosystem": "ebclfsa",
               "gcc_version": "",
-              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_config.bzl.template",
-              "cc_toolchain_flags": "@@score_bazel_cpp_toolchains+//templates/linux:cc_toolchain_flags.bzl.template",
+              "cc_toolchain_config": "@@score_bazel_cpp_toolchains+//templates:cc_toolchain_config.bzl.template",
               "use_base_constraints_only": false
             }
           },
@@ -1977,7 +1967,7 @@
     },
     "@@score_rules_imagefs+//extensions:imagefs.bzl%imagefs": {
       "general": {
-        "bzlTransitiveDigest": "x/MeLfkCFKL5zGGdqxO8ikFOoWzlkB1VBe5tts2t0NI=",
+        "bzlTransitiveDigest": "6ZLANe53LXwcnne1ZrZm9GkJ9H5VdsCLSgSNHyUrqA4=",
         "usagesDigest": "4LvOoMbWgpZh1KrPMaxsrJ/9n3DRlU6JijkThVx2Cw0=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -2025,6 +2015,172 @@
             "score_rules_imagefs",
             "score_rules_imagefs+"
           ]
+        ]
+      }
+    }
+  },
+  "facts": {
+    "@@rules_go+//go:extensions.bzl%go_sdk": {
+      "1.25.0": {
+        "aix_ppc64": [
+          "go1.25.0.aix-ppc64.tar.gz",
+          "e5234a7dac67bc86c528fe9752fc9d63557918627707a733ab4cac1a6faed2d4"
+        ],
+        "darwin_amd64": [
+          "go1.25.0.darwin-amd64.tar.gz",
+          "5bd60e823037062c2307c71e8111809865116714d6f6b410597cf5075dfd80ef"
+        ],
+        "darwin_arm64": [
+          "go1.25.0.darwin-arm64.tar.gz",
+          "544932844156d8172f7a28f77f2ac9c15a23046698b6243f633b0a0b00c0749c"
+        ],
+        "dragonfly_amd64": [
+          "go1.25.0.dragonfly-amd64.tar.gz",
+          "5ed3cf9a810a1483822538674f1336c06b51aa1b94d6d545a1a0319a48177120"
+        ],
+        "freebsd_386": [
+          "go1.25.0.freebsd-386.tar.gz",
+          "abea5d5c6697e6b5c224731f2158fe87c602996a2a233ac0c4730cd57bf8374e"
+        ],
+        "freebsd_amd64": [
+          "go1.25.0.freebsd-amd64.tar.gz",
+          "86e6fe0a29698d7601c4442052dac48bd58d532c51cccb8f1917df648138730b"
+        ],
+        "freebsd_arm": [
+          "go1.25.0.freebsd-arm.tar.gz",
+          "d90b78e41921f72f30e8bbc81d9dec2cff7ff384a33d8d8debb24053e4336bfe"
+        ],
+        "freebsd_arm64": [
+          "go1.25.0.freebsd-arm64.tar.gz",
+          "451d0da1affd886bfb291b7c63a6018527b269505db21ce6e14724f22ab0662e"
+        ],
+        "freebsd_riscv64": [
+          "go1.25.0.freebsd-riscv64.tar.gz",
+          "7b565f76bd8bda46549eeaaefe0e53b251e644c230577290c0f66b1ecdb3cdbe"
+        ],
+        "illumos_amd64": [
+          "go1.25.0.illumos-amd64.tar.gz",
+          "b1e1fdaab1ad25aa1c08d7a36c97d45d74b98b89c3f78c6d2145f77face54a2c"
+        ],
+        "linux_386": [
+          "go1.25.0.linux-386.tar.gz",
+          "8c602dd9d99bc9453b3995d20ce4baf382cc50855900a0ece5de9929df4a993a"
+        ],
+        "linux_amd64": [
+          "go1.25.0.linux-amd64.tar.gz",
+          "2852af0cb20a13139b3448992e69b868e50ed0f8a1e5940ee1de9e19a123b613"
+        ],
+        "linux_arm64": [
+          "go1.25.0.linux-arm64.tar.gz",
+          "05de75d6994a2783699815ee553bd5a9327d8b79991de36e38b66862782f54ae"
+        ],
+        "linux_armv6l": [
+          "go1.25.0.linux-armv6l.tar.gz",
+          "a5a8f8198fcf00e1e485b8ecef9ee020778bf32a408a4e8873371bfce458cd09"
+        ],
+        "linux_loong64": [
+          "go1.25.0.linux-loong64.tar.gz",
+          "cab86b1cf761b1cb3bac86a8877cfc92e7b036fc0d3084123d77013d61432afc"
+        ],
+        "linux_mips": [
+          "go1.25.0.linux-mips.tar.gz",
+          "d66b6fb74c3d91b9829dc95ec10ca1f047ef5e89332152f92e136cf0e2da5be1"
+        ],
+        "linux_mips64": [
+          "go1.25.0.linux-mips64.tar.gz",
+          "4082e4381a8661bc2a839ff94ba3daf4f6cde20f8fb771b5b3d4762dc84198a2"
+        ],
+        "linux_mips64le": [
+          "go1.25.0.linux-mips64le.tar.gz",
+          "70002c299ec7f7175ac2ef673b1b347eecfa54ae11f34416a6053c17f855afcc"
+        ],
+        "linux_mipsle": [
+          "go1.25.0.linux-mipsle.tar.gz",
+          "b00a3a39eff099f6df9f1c7355bf28e4589d0586f42d7d4a394efb763d145a73"
+        ],
+        "linux_ppc64": [
+          "go1.25.0.linux-ppc64.tar.gz",
+          "df166f33bd98160662560a72ff0b4ba731f969a80f088922bddcf566a88c1ec1"
+        ],
+        "linux_ppc64le": [
+          "go1.25.0.linux-ppc64le.tar.gz",
+          "0f18a89e7576cf2c5fa0b487a1635d9bcbf843df5f110e9982c64df52a983ad0"
+        ],
+        "linux_riscv64": [
+          "go1.25.0.linux-riscv64.tar.gz",
+          "c018ff74a2c48d55c8ca9b07c8e24163558ffec8bea08b326d6336905d956b67"
+        ],
+        "linux_s390x": [
+          "go1.25.0.linux-s390x.tar.gz",
+          "34e5a2e19f2292fbaf8783e3a241e6e49689276aef6510a8060ea5ef54eee408"
+        ],
+        "netbsd_386": [
+          "go1.25.0.netbsd-386.tar.gz",
+          "f8586cdb7aa855657609a5c5f6dbf523efa00c2bbd7c76d3936bec80aa6c0aba"
+        ],
+        "netbsd_amd64": [
+          "go1.25.0.netbsd-amd64.tar.gz",
+          "ae8dc1469385b86a157a423bb56304ba45730de8a897615874f57dd096db2c2a"
+        ],
+        "netbsd_arm": [
+          "go1.25.0.netbsd-arm.tar.gz",
+          "1ff7e4cc764425fc9dd6825eaee79d02b3c7cafffbb3691687c8d672ade76cb7"
+        ],
+        "netbsd_arm64": [
+          "go1.25.0.netbsd-arm64.tar.gz",
+          "e1b310739f26724216aa6d7d7208c4031f9ff54c9b5b9a796ddc8bebcb4a5f16"
+        ],
+        "openbsd_386": [
+          "go1.25.0.openbsd-386.tar.gz",
+          "4802a9b20e533da91adb84aab42e94aa56cfe3e5475d0550bed3385b182e69d8"
+        ],
+        "openbsd_amd64": [
+          "go1.25.0.openbsd-amd64.tar.gz",
+          "c016cd984bebe317b19a4f297c4f50def120dc9788490540c89f28e42f1dabe1"
+        ],
+        "openbsd_arm": [
+          "go1.25.0.openbsd-arm.tar.gz",
+          "a1e31d0bf22172ddde42edf5ec811ef81be43433df0948ece52fecb247ccfd8d"
+        ],
+        "openbsd_arm64": [
+          "go1.25.0.openbsd-arm64.tar.gz",
+          "343ea8edd8c218196e15a859c6072d0dd3246fbbb168481ab665eb4c4140458d"
+        ],
+        "openbsd_ppc64": [
+          "go1.25.0.openbsd-ppc64.tar.gz",
+          "694c14da1bcaeb5e3332d49bdc2b6d155067648f8fe1540c5de8f3cf8e157154"
+        ],
+        "openbsd_riscv64": [
+          "go1.25.0.openbsd-riscv64.tar.gz",
+          "aa510ad25cf54c06cd9c70b6d80ded69cb20188ac6e1735655eef29ff7e7885f"
+        ],
+        "plan9_386": [
+          "go1.25.0.plan9-386.tar.gz",
+          "46f8cef02086cf04bf186c5912776b56535178d4cb319cd19c9fdbdd29231986"
+        ],
+        "plan9_amd64": [
+          "go1.25.0.plan9-amd64.tar.gz",
+          "29b34391d84095e44608a228f63f2f88113a37b74a79781353ec043dfbcb427b"
+        ],
+        "plan9_arm": [
+          "go1.25.0.plan9-arm.tar.gz",
+          "0a047107d13ebe7943aaa6d54b1d7bbd2e45e68ce449b52915a818da715799c2"
+        ],
+        "solaris_amd64": [
+          "go1.25.0.solaris-amd64.tar.gz",
+          "9977f9e4351984364a3b2b78f8b88bfd1d339812356d5237678514594b7d3611"
+        ],
+        "windows_386": [
+          "go1.25.0.windows-386.zip",
+          "df9f39db82a803af0db639e3613a36681ab7a42866b1384b3f3a1045663961a7"
+        ],
+        "windows_amd64": [
+          "go1.25.0.windows-amd64.zip",
+          "89efb4f9b30812eee083cc1770fdd2913c14d301064f6454851428f9707d190b"
+        ],
+        "windows_arm64": [
+          "go1.25.0.windows-arm64.zip",
+          "27bab004c72b3d7bd05a69b6ec0fc54a309b4b78cc569dd963d8b3ec28bfdb8c"
         ]
       }
     }
