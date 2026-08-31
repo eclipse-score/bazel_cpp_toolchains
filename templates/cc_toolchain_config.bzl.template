@@ -1,0 +1,178 @@
+# *******************************************************************************
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# SPDX-License-Identifier: Apache-2.0
+# *******************************************************************************
+
+"""C/C++ toolchain definition"""
+
+load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
+load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
+    "action_config",
+    "flag_group",
+    "flag_set",
+    "tool",
+    "tool_path",
+)
+load("@rules_cc//cc:defs.bzl", "cc_common", "CcToolchainConfigInfo")
+load("@rules_cc//cc/toolchains:feature_injection.bzl", "convert_feature", "FeatureInfo")
+
+def _impl(ctx):
+    assemble_action = action_config(
+        action_name = ACTION_NAMES.assemble,
+        tools = [tool(tool = ctx.executable.cc_binary)],
+    )
+    preprocess_assemble_action = action_config(
+        action_name = ACTION_NAMES.preprocess_assemble,
+        tools = [tool(tool = ctx.executable.cc_binary)],
+    )
+    c_compile_action = action_config(
+        action_name = ACTION_NAMES.c_compile,
+        tools = [tool(tool = ctx.executable.cc_binary)],
+    )
+    cpp_compile_action = action_config(
+        action_name = ACTION_NAMES.cpp_compile,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_executable_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_executable,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_dynamic_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_dynamic_library,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_nodeps_dynamic_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+        tools = [tool(tool = ctx.executable.cxx_binary)],
+    )
+    cpp_link_static_library_action = action_config(
+        action_name = ACTION_NAMES.cpp_link_static_library,
+        tools = [tool(tool = ctx.executable.ar_binary)],
+        implies = ["archiver_flags"],
+    )
+    strip_action = action_config(
+        action_name = ACTION_NAMES.strip,
+        tools = [tool(tool = ctx.executable.strip_binary)],
+        flag_sets = [
+            flag_set(
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-g",
+                            "-p",
+                        ],
+                    ),
+                    flag_group(
+                        iterate_over = "stripopts",
+                        flags = ["%{stripopts}"],
+                    ),
+                    flag_group(
+                        flags = [
+                            "%{input_file}",
+                            "%{output_file}",
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    action_configs = [
+        assemble_action,
+        c_compile_action,
+        cpp_compile_action,
+        cpp_link_dynamic_library_action,
+        cpp_link_executable_action,
+        cpp_link_nodeps_dynamic_library_action,
+        cpp_link_static_library_action,
+        preprocess_assemble_action,
+        strip_action,
+    ]
+
+    features = [
+        convert_feature(known_feature[FeatureInfo], enabled = known_feature in ctx.attr.enabled_features)
+        for known_feature in ctx.attr.known_features
+    ]
+
+    extra_rules_based_features = depset(ctx.attr.extra_enabled_features + ctx.attr.extra_known_features)
+    features.extend([convert_feature(extra_feature[FeatureInfo], enabled = extra_feature in ctx.attr.extra_enabled_features) for extra_feature in extra_rules_based_features.to_list()])
+
+    # Get builtin include directories from attribute if provided
+    cxx_builtin_include_directories = [
+        "/proc/self/cwd/{}".format(include_directory.path)
+        for include_directory in ctx.files.cxx_builtin_include_directories
+    ]
+
+    sysroot = None
+    if ctx.attr.sysroot != None:
+        sysroot = ctx.attr.sysroot[DefaultInfo].files.to_list()[0].path
+
+    # TODO: Once https://github.com/bazelbuild/rules_cc/issues/351 is fixed remove this.
+    tool_paths = [tool_path(name = "gcov", path = "gcov_wrapper")]
+
+    return cc_common.create_cc_toolchain_config_info(
+        ctx = ctx,
+        abi_version = "%{tc_abi_version}",
+        abi_libc_version = "unknown",
+        builtin_sysroot = sysroot,
+        compiler = "%{tc_compiler}",
+        cxx_builtin_include_directories = cxx_builtin_include_directories,
+        features =  features,
+        action_configs = action_configs,
+        host_system_name = "local",
+        target_system_name = "%{tc_cpu}-%{tc_os}",
+        target_cpu =  ctx.attr.target_cpu,
+        target_libc = "unknown",
+        toolchain_identifier = "%{tc_identifier}",
+        tool_paths = tool_paths,
+    )
+
+cc_toolchain_config = rule(
+    implementation = _impl,
+    provides = [CcToolchainConfigInfo],
+    attrs = {
+        "ar_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "cc_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "cxx_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "gcov_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "strip_binary": attr.label(allow_single_file = True, executable = True, cfg = "exec", mandatory = True),
+        "target_cpu": attr.string(mandatory = True),
+        "target_os": attr.string(mandatory = True),
+        "sysroot": attr.label(default = None),
+        "cxx_builtin_include_directories": attr.label_list(allow_files = True, default = []),
+        "known_features": attr.label_list(
+            providers = [FeatureInfo],
+            mandatory = True,
+        ),
+        "enabled_features": attr.label_list(
+            providers = [FeatureInfo],
+            mandatory = True,
+        ),
+        "extra_enabled_features": attr.label_list(
+            providers = [FeatureInfo],
+            default = [],
+            doc = """
+Extra `cc_feature` features to add to this toolchain in an initially enabled state.
+This attribute has limited integration with `cc_feature`, and does not run additional correctness checks or handle things like `data` files.
+This is only offered as a migration bridge for projects transitioning to rule-based toolchain configurations, or sharing of simple argument sets with older toolchains.
+""",
+        ),
+        "extra_known_features": attr.label_list(
+            providers = [FeatureInfo],
+            default = [],
+            doc = """
+Extra `cc_feature` features to add to this toolchain in an initially disabled state.
+This attribute has limited integration with `cc_feature`, and does not run additional correctness checks or handle things like `data` files.
+This is only offered as a migration bridge for projects transitioning to rule-based toolchain configurations, or sharing of simple argument sets with older toolchains.
+""",
+        ),
+    },
+)

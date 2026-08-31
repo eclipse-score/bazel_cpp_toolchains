@@ -1,9 +1,7 @@
 # Toolchain Features
 
-These are the `cc_toolchain` features defined by the toolchain configs in
-[`templates/linux/cc_toolchain_config.bzl.template`](../templates/linux/cc_toolchain_config.bzl.template)
-and
-[`templates/qnx/cc_toolchain_config.bzl.template`](../templates/qnx/cc_toolchain_config.bzl.template).
+These are the `cc_toolchain` features defined by the shared toolchain config in
+[`templates/cc_toolchain_config.bzl.template`](../templates/cc_toolchain_config.bzl.template).
 
 Both toolchains enable **`no_legacy_features`**, which turns off the features
 Bazel would otherwise add implicitly. As a result every flag the toolchain emits

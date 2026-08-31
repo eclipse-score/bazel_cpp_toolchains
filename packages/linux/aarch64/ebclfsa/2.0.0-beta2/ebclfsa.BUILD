@@ -74,3 +74,7 @@ filegroup(
     name = "sysroot_dir",
     srcs = ["."],
 )
+
+filegroup(
+    name = "cxx_builtin_include_directories",
+)

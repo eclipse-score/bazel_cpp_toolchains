@@ -73,6 +73,59 @@ means a broken build rather than a silent fallback.
 > libraries (e.g. AutoSD) cannot link fully static binaries, so that feature is
 > opt-in and its test is marked incompatible with such platforms.
 
+## Toolchain Feature Catalog (`features/`)
+
+`features/` is the live source of the toolchain's `cc_feature` / `cc_args`
+definitions, built with `@rules_cc//cc/toolchains`. It replaced the legacy
+`feature()` Starlark calls that used to live directly in the per-OS
+`cc_toolchain_config.bzl.template` files; `templates/cc_toolchain_config.bzl.template`
+now only implements the `cc_toolchain_config` rule and turns
+`known_features`/`enabled_features` labels into the toolchain's feature list —
+it defines no features of its own.
+
+- `features/native/`: one reusable `cc_feature`/`cc_args` target per toolchain
+  feature (`default_compile_flags`, `include_paths`, `pic`,
+  `sysroot_link_flags`, ...), including the capability markers (`dbg`, `opt`,
+  `supports_pic`, ...). These mirror the removed legacy Bazel C++ features
+  one-for-one.
+- `features/custom/linux/` and `features/custom/qnx/`: OS-specific features
+  not covered by the native set (QNX `sdp_env`, `gcc_version_flags`), plus
+  `make_cc_features.bzl`, which defines the ordered `_LINUX_FEATURES` /
+  `_QNX_FEATURES` lists of `(label, initially_enabled)` pairs. Order here
+  mirrors the previous templates' `features = [...]` order exactly, since
+  feature order determines command-line flag order. `get_feature_lists()`
+  returns `(known_features, enabled_features)`, and `templates/BUILD.template`
+  passes those straight into `cc_toolchain_config`'s `known_features` /
+  `enabled_features` attributes — this is what the generated toolchain
+  actually uses.
+- Per-instance features whose content is dynamic per toolchain instance —
+  `extra_compile_flags`, `extra_c_compile_flags`, `extra_cxx_compile_flags`,
+  `extra_link_flags`, `compiler_library_search_paths`, `sysroot_link_flags` —
+  are *not* static `features/native/*` targets. Instead
+  `templates/BUILD.template` creates them at generation time (via
+  `make_extra_compile_features()`, `make_extra_link_features()`,
+  `make_compiler_library_search_paths()`, and `make_sysroot_link_flags()`, all
+  defined under `features/native/<name>/features.bzl`) using fixed local
+  target names (`:extra_compile_flags`, etc.), and `_LINUX_FEATURES` /
+  `_QNX_FEATURES` reference those fixed names at the correct position in the
+  ordered list. This keeps both feature order (repo-controlled) and
+  per-instance dynamic content (caller-controlled via `gcc.toolchain(...)`
+  attributes).
+- `all_wall_warnings`, `minimal_warnings`, `strict_warnings`, and
+  `warnings_as_errors` are not defined anywhere in this repository — they were
+  removed and are superseded by `score_cpp_policies`, injected via
+  `extra_known_features` / `extra_enabled_features` (same mechanism as the
+  sanitizers).
+
+> **Known cleanup item:** `features/BUILD` also defines two `cc_feature_set`
+> targets (`linux` and `qnx`) that group the same features for
+> `requires_any_of`/`requires_all_of`-style constraints. Nothing in this
+> repository currently references them — `cc_toolchain_config`'s
+> `known_features`/`enabled_features` attributes require individual
+> `FeatureInfo`-providing labels, not a `cc_feature_set` grouping (see the
+> `compute_feature_lists()` docstring in `features/make_cc_features.bzl`).
+> These should either be wired to a consumer or removed.
+
 ## Common Gotchas
 
 - runtime-specific toolchains may need extra include and link flags that do not

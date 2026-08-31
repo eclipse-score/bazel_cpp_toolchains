@@ -61,9 +61,10 @@ Problems detected:
 
 To fix it:
 
-- Re-add / re-enable the `no_legacy_features` feature (`enabled = True`) in the
-  toolchain config templates under `templates/linux/` and `templates/qnx/`, and
-  keep it in each template's `features` list.
+- Re-add / re-enable the `no_legacy_features` feature (`enabled = True`) in
+  `features/custom/linux/make_cc_features.bzl` and
+  `features/custom/qnx/make_cc_features.bzl`, and keep it in the ordered
+  `_LINUX_FEATURES` / `_QNX_FEATURES` list.
 - Provide any behavior you need through an **explicit** feature rather than
   relying on a Bazel legacy default. See
   [docs/migration_guide.md](../../docs/migration_guide.md) for the supported

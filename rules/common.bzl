@@ -22,6 +22,19 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl", "flag_group")
 # uses the older identifier.
 SDP_VERSION_MAPPING = {"8.0.4": "8.0.0"}
 
+def get_flag_strings(flags):
+    """Converts a list of warning flags into a Bazel flag group representation.
+
+    Args:
+        flags (list[str]): A list of compiler warning flags.
+
+    Returns:
+        str: A formatted string representing the flag group in Bazel syntax.
+    """
+    if len(flags):
+        return "[" + ", ".join(['"%s"' % f for f in flags]) + "]"
+    return "None"
+
 def get_flag_groups(flags):
     """Converts a list of warning flags into a Bazel flag group representation.
 

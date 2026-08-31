@@ -14,7 +14,7 @@
 """ Module rule for defining GCC toolchains in Bazel.
 """
 
-load("@score_bazel_cpp_toolchains//rules:common.bzl", "SDP_VERSION_MAPPING", "get_flag_groups", "label_list_to_string")
+load("@score_bazel_cpp_toolchains//rules:common.bzl", "SDP_VERSION_MAPPING", "get_flag_groups", "get_flag_strings", "label_list_to_string")
 
 # Constants
 _OS_QNX = "qnx"
@@ -52,8 +52,7 @@ def _get_cc_config_linux(rctx):
     Returns:
         str: BUILD file content defining filegroup and cc_toolchain_config for Linux.
     """
-    return """
-filegroup(
+    return """filegroup(
     name = "all_files",
     srcs = [
         "@{tc_pkg_repo}//:all_files",
@@ -71,6 +70,9 @@ cc_toolchain_config(
     sysroot = "@{tc_pkg_repo}//:sysroot_dir",
     target_cpu = "{tc_cpu}",
     target_os = "{tc_os}",
+    known_features = _KNOWN_FEATURES,
+    enabled_features = _ENABLED_FEATURES,
+    cxx_builtin_include_directories = ["@{tc_pkg_repo}//:cxx_builtin_include_directories"],
     extra_known_features = {tc_extra_known_features},
     extra_enabled_features = {tc_extra_enabled_features},
     visibility = ["//visibility:public"],
@@ -108,11 +110,11 @@ cc_toolchain_config(
     cxx_binary = "@{tc_pkg_repo}//:cxx",
     gcov_binary = "@{tc_pkg_repo}//:gcov",
     strip_binary = "@{tc_pkg_repo}//:strip",
-    host_dir = "@{tc_pkg_repo}//:host_dir",
-    target_dir = "@{tc_pkg_repo}//:target_dir",
-    cxx_builtin_include_directories = "@{tc_pkg_repo}//:cxx_builtin_include_directories",
+    cxx_builtin_include_directories = ["@{tc_pkg_repo}//:cxx_builtin_include_directories"],
     target_cpu = "{tc_cpu}",
     target_os = "{tc_os}",
+    known_features = _KNOWN_FEATURES,
+    enabled_features = _ENABLED_FEATURES,
     extra_known_features = {tc_extra_known_features},
     extra_enabled_features = {tc_extra_enabled_features},
     visibility = ["//visibility:public"],
@@ -124,6 +126,34 @@ cc_toolchain_config(
         tc_extra_known_features = label_list_to_string(rctx.attr.extra_known_features),
         tc_extra_enabled_features = label_list_to_string(rctx.attr.extra_enabled_features),
     )
+
+def get_custom_cc_features_linux(rctx):
+    return ""
+
+def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
+    # host_dir/target_dir must be plain resolved paths, not labels: cc_args'
+    # `env` rejects format() variables that aren't builtin cc_toolchain
+    # variables ("The variable host_dir does not exist").
+
+    # TODO: Once Bazel enables label resolution in cc_args' env, we can use labels instead of resolved paths.
+
+    custom_load = """load("@score_bazel_cpp_toolchains//features/custom/qnx/sdp_env:feature.bzl", "make_sdp_env_feature")"""
+    custom_features = """
+make_sdp_env_feature(
+    host_dir = "{host_dir}",
+    target_dir = "{target_dir}",
+    license_path = "{license_path}",
+    license_info_variable = "{license_info_variable}",
+    license_info_value = "{license_info_value}",
+)
+""".format(
+        host_dir = "/proc/self/cwd/external/{canonical_pkg}/host/linux/x86_64".format(canonical_pkg = canonical_pkg_name),
+        target_dir = "/proc/self/cwd/external/{canonical_pkg}/target/qnx".format(canonical_pkg = canonical_pkg_name),
+        license_path = rctx.attr.license_path,
+        license_info_variable = rctx.attr.license_info_variable,
+        license_info_value = rctx.attr.license_info_value,
+    )
+    return custom_load, custom_features
 
 def _normalize_cpu(cpu):
     """Converts CPU name to its normalized form for toolchain paths.
@@ -210,24 +240,6 @@ def _impl(rctx):
             tc_identifier_short_2 = "-{}".format(rctx.attr.tc_runtime_ecosystem)
             tc_identifier_long_2 = "[\"@score_bazel_platforms//runtime_es:{}\"]".format(rctx.attr.tc_runtime_ecosystem)
 
-    rctx.template(
-        "BUILD",
-        rctx.attr._cc_toolchain_build,
-        {
-            "%{cc_toolchain_config}": cc_toolchain_config,
-            "%{tc_cpu}": rctx.attr.tc_cpu,
-            "%{tc_identifier}": tc_identifier,
-            "%{tc_os}": rctx.attr.tc_os,
-            "%{tc_pkg_repo}": rctx.attr.tc_pkg_repo,
-            "%{tc_runtime_es}": rctx.attr.tc_runtime_ecosystem,
-            "%{tc_version}": rctx.attr.gcc_version,
-            "%{tc_identifier_short_1}": tc_identifier_short_1,
-            "%{tc_identifier_short_2}": tc_identifier_short_2,
-            "%{tc_identifier_long_1}": tc_identifier_long_1,
-            "%{tc_identifier_long_2}": tc_identifier_long_2,
-        },
-    )
-
     # Get canonical repository name for the toolchain package
     canonical_pkg_name = _get_canonical_pkg_name(rctx)
 
@@ -235,15 +247,43 @@ def _impl(rctx):
     def replace_placeholder(flags):
         return [flag.replace(_PLACEHOLDER_TOOLCHAIN_PKG, canonical_pkg_name) for flag in flags]
 
+    compiler_library_search_paths = replace_placeholder(rctx.attr.tc_compiler_library_search_paths)
+    compiler_library_search_paths_str = ":".join(["/proc/self/cwd/" + entry for entry in compiler_library_search_paths])
+
+    rctx.template(
+        "BUILD",
+        rctx.attr._cc_toolchain_build,
+        {
+            "%{tc_custom_feature_load}": get_custom_cc_features_qnx(rctx, canonical_pkg_name)[0] if rctx.attr.tc_os == _OS_QNX else "",
+            "%{tc_custom_features}": get_custom_cc_features_qnx(rctx, canonical_pkg_name)[1] if rctx.attr.tc_os == _OS_QNX else "",
+            "%{cc_toolchain_config}": cc_toolchain_config,
+            "%{tc_cpu}": rctx.attr.tc_cpu,
+            "%{tc_identifier}": tc_identifier,
+            "%{tc_os}": rctx.attr.tc_os,
+            "%{tc_pkg_repo}": rctx.attr.tc_pkg_repo,
+            "%{tc_runtime_es}": rctx.attr.tc_runtime_ecosystem,
+            "%{tc_version}": rctx.attr.gcc_version,
+            "%{tc_sysroot}": "@{tc_pkg_repo}//:sysroot_dir".format(tc_pkg_repo = rctx.attr.tc_pkg_repo),
+            "%{tc_extra_compile_flags}": get_flag_strings(replace_placeholder(rctx.attr.extra_compile_flags)),
+            "%{tc_extra_c_compile_flags}": get_flag_strings(replace_placeholder(rctx.attr.extra_c_compile_flags)),
+            "%{tc_extra_cxx_compile_flags}": get_flag_strings(replace_placeholder(rctx.attr.extra_cxx_compile_flags)),
+            "%{tc_extra_link_flags}": get_flag_strings(replace_placeholder(rctx.attr.extra_link_flags)),
+            "%{tc_compiler_library_search_paths}": compiler_library_search_paths_str,
+            "%{tc_identifier_short_1}": tc_identifier_short_1,
+            "%{tc_identifier_short_2}": tc_identifier_short_2,
+            "%{tc_identifier_long_1}": tc_identifier_long_1,
+            "%{tc_identifier_long_2}": tc_identifier_long_2,
+        },
+    )
+
     extra_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_compile_flags))
     extra_c_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_c_compile_flags))
     extra_cxx_compile_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_cxx_compile_flags))
     extra_link_flags = get_flag_groups(replace_placeholder(rctx.attr.extra_link_flags))
-    compiler_library_search_paths = replace_placeholder(rctx.attr.tc_compiler_library_search_paths)
 
     template_dict = {
         "%{compiler_library_search_paths_switch}": "True" if len(rctx.attr.tc_compiler_library_search_paths) else "False",
-        "%{compiler_library_search_paths}": ":".join(["/proc/self/cwd/" + entry for entry in compiler_library_search_paths]),
+        "%{compiler_library_search_paths}": compiler_library_search_paths_str,
         "%{extra_c_compile_flags_switch}": "True" if len(rctx.attr.extra_c_compile_flags) else "False",
         "%{extra_c_compile_flags}": extra_c_compile_flags,
         "%{extra_compile_flags_switch}": "True" if len(rctx.attr.extra_compile_flags) else "False",
@@ -252,6 +292,7 @@ def _impl(rctx):
         "%{extra_cxx_compile_flags}": extra_cxx_compile_flags,
         "%{extra_link_flags_switch}": "True" if len(rctx.attr.extra_link_flags) else "False",
         "%{extra_link_flags}": extra_link_flags,
+        "%{tc_compiler}": "gcc",
         "%{tc_cpu}": _normalize_cpu(rctx.attr.tc_cpu),
         "%{tc_identifier}": "gcc",
         "%{tc_runtime_es}": rctx.attr.tc_runtime_ecosystem,
@@ -260,12 +301,16 @@ def _impl(rctx):
 
     if rctx.attr.tc_os == _OS_QNX:
         mapped_sdp_version = _apply_sdp_version_mapping(rctx.attr.sdp_version)
+        qnx_identifier = "{cpu}-qnx{sdp}".format(cpu = _normalize_cpu(rctx.attr.tc_cpu), sdp = mapped_sdp_version)
         extra_template_dict = {
             "%{license_info_value}": rctx.attr.license_info_value,
             "%{license_info_variable}": rctx.attr.license_info_variable,
             "%{license_path}": rctx.attr.license_path,
             "%{sdp_version}": mapped_sdp_version,
+            "%{tc_abi_version}": qnx_identifier,
+            "%{tc_compiler}": "qcc",
             "%{tc_cpu_cxx}": _normalize_cpu(rctx.attr.tc_cpu),
+            "%{tc_identifier}": qnx_identifier,
             "%{use_license_info}": "False" if rctx.attr.license_info_value == "" else "True",
         }
         template_dict = dict_union(template_dict, extra_template_dict)
@@ -274,12 +319,6 @@ def _impl(rctx):
         "cc_toolchain_config.bzl",
         rctx.attr.cc_toolchain_config,
         template_dict,
-    )
-
-    rctx.template(
-        "flags.bzl",
-        rctx.attr.cc_toolchain_flags,
-        {},
     )
 
     if rctx.attr.tc_os == _OS_LINUX:
@@ -320,9 +359,6 @@ gcc_toolchain = repository_rule(
         "cc_toolchain_config": attr.label(
             doc = "Path to the cc_config.bzl template file.",
         ),
-        "cc_toolchain_flags": attr.label(
-            doc = "Path to the Bazel BUILD file template for the toolchain.",
-        ),
         "extra_c_compile_flags": attr.string_list(doc = "Extra/Additional C-specific compile flags."),
         "extra_compile_flags": attr.string_list(doc = "Extra/Additional compile flags."),
         "extra_cxx_compile_flags": attr.string_list(doc = "Extra/Additional C++-specific compile flags."),
@@ -344,7 +380,7 @@ gcc_toolchain = repository_rule(
         "tc_runtime_ecosystem": attr.string(doc = "Runtime ecosystem."),
         "tc_system_toolchain": attr.bool(doc = "Boolean flag to state if this is a system toolchain"),
         "_cc_gcov_wrapper_script": attr.label(
-            default = "@score_bazel_cpp_toolchains//templates/linux:cc_gcov_wrapper.template",
+            default = "@score_bazel_cpp_toolchains//templates:cc_gcov_wrapper.template",
         ),
         "_cc_toolchain_build": attr.label(
             default = "@score_bazel_cpp_toolchains//templates:BUILD.template",

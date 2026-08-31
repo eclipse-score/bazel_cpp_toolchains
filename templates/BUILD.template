@@ -15,7 +15,36 @@
 """
 
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
+load("@score_bazel_cpp_toolchains//features/custom/%{tc_os}:make_cc_features.bzl", "get_feature_lists")
+load("@score_bazel_cpp_toolchains//features/native/extra_compile_flags:features.bzl", "make_extra_compile_features")
+load("@score_bazel_cpp_toolchains//features/native/extra_link_flags:features.bzl", "make_extra_link_features")
+load("@score_bazel_cpp_toolchains//features/native/compiler_library_search_paths:features.bzl", "make_compiler_library_search_paths")
+load("@score_bazel_cpp_toolchains//features/native/sysroot_link_flags:features.bzl", "make_sysroot_link_flags")
+%{tc_custom_feature_load}
 load(":cc_toolchain_config.bzl", "cc_toolchain_config")
+
+make_extra_compile_features(
+    extra_compile_flags = %{tc_extra_compile_flags},
+    extra_c_compile_flags = %{tc_extra_c_compile_flags},
+    extra_cxx_compile_flags = %{tc_extra_cxx_compile_flags},
+)
+
+make_extra_link_features(
+    extra_link_flags = %{tc_extra_link_flags}
+)
+
+make_compiler_library_search_paths(
+    compiler_library_search_paths = "%{tc_compiler_library_search_paths}",
+)
+
+make_sysroot_link_flags(
+    target_os = "%{tc_os}",
+    sysroot = "%{tc_sysroot}",
+)
+%{tc_custom_features}
+# known_features must list every feature (enabled or opt-in); enabled_features is
+# the order-irrelevant subset that should start on. See compute_feature_lists().
+_KNOWN_FEATURES, _ENABLED_FEATURES = get_feature_lists()
 
 filegroup(
     name = "empty",
