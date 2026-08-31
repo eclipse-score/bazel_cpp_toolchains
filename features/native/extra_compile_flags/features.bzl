@@ -15,11 +15,9 @@ load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
 load("@rules_cc//cc/toolchains:feature.bzl", "cc_feature")
 
 def make_extra_compile_features(
-    extra_compile_flags = None,
-    extra_c_compile_flags = None,
-    extra_cxx_compile_flags = None,
-):
-
+        extra_compile_flags = None,
+        extra_c_compile_flags = None,
+        extra_cxx_compile_flags = None):
     cc_args(
         name = "extra_compile_flags_args",
         actions = ["@rules_cc//cc/toolchains/actions:source_compile_actions"],

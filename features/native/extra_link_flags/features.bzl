@@ -15,8 +15,7 @@ load("@rules_cc//cc/toolchains:args.bzl", "cc_args")
 load("@rules_cc//cc/toolchains:feature.bzl", "cc_feature")
 
 def make_extra_link_features(
-    extra_link_flags = None,
-):
+        extra_link_flags = None):
     cc_args(
         name = "extra_link_flags_args",
         actions = ["@rules_cc//cc/toolchains/actions:link_actions"],

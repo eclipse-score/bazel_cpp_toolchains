@@ -136,7 +136,7 @@ def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
     # variables ("The variable host_dir does not exist").
 
     # TODO: Once Bazel enables label resolution in cc_args' env, we can use labels instead of resolved paths.
-    
+
     custom_load = """load("@score_bazel_cpp_toolchains//features/custom/qnx/sdp_env:feature.bzl", "make_sdp_env_feature")"""
     custom_features = """
 make_sdp_env_feature(
