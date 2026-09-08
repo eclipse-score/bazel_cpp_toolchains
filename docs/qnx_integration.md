@@ -74,6 +74,22 @@ QNX SDP 8.0.4 currently uses the `sdp_8.0.0` platform constraint because
 8.0.4 toolchain still has `sdp_8.0.0` in its generated Bazel label. The archive
 selected by `sdp_version` is nevertheless the actual 8.0.4 archive.
 
+The download and platform constraint are resolved separately. The archive is
+looked up in `packages/version_matrix.bzl` under the real version key, such as
+`x86_64-qnx-sdp_8.0.4`. The constraint and generated toolchain label use the
+version after `SDP_VERSION_MAPPING` in `rules/common.bzl` is applied, which
+currently maps `8.0.4` to `8.0.0`.
+
+When adding a future patch release, such as 8.0.5, add the corresponding
+`x86_64-qnx-sdp_8.0.5` and `aarch64-qnx-sdp_8.0.5` entries to
+`packages/version_matrix.bzl` with the new URL, SHA-256 digest, and strip
+prefix. If the SDP still uses the `qnx8.0.0` target triple and GCC 12.2.0,
+reuse the existing `packages/qnx/<cpu>/sdp/8.0.0/sdp.BUILD` descriptor and add
+`"8.0.5": "8.0.0"` to `SDP_VERSION_MAPPING`. If the SDK layout or compiler
+version changes, add a new package BUILD directory instead. If the release
+needs a distinct platform constraint, add that constraint and its platforms to
+`bazel_platforms` as well.
+
 To use QNX SDP 8.0.4 instead, change only the version in the toolchain
 declaration:
 
@@ -192,7 +208,7 @@ gcc.toolchain(
     name = "qnx_aarch64",
     target_cpu = "aarch64",
     target_os = "qnx",
-    sdp_version = "7.1.0",
+    sdp_version = "8.0.0",
     use_default_package = True,
 )
 ```
