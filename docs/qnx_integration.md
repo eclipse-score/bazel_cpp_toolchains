@@ -53,7 +53,7 @@ gcc.toolchain(
     name = "qnx_toolchain",
     target_cpu = "x86_64",                      # or "aarch64"
     target_os = "qnx",
-    sdp_version = "8.0.0",                      # match your SDP version but keep in mind proper platform constraint must exist otherwise toolchain resolution will fail.
+    sdp_version = "8.0.0",
     use_default_package = True,                 # only if you're using reference integration QNX SDP package provided by QNX for S-CORE.
     license_path = "/path/to/your/qnx/license", # default location `/opt/score_qnx/license/licenses`
 )
@@ -61,7 +61,59 @@ gcc.toolchain(
 use_repo(gcc, "qnx_toolchain")
 ```
 
-For other target architectures and SDP versions, adjust `target_cpu` and `sdp_version` accordingly.
+The `sdp_version` selects the exact SDP package to download. The currently
+supported values are:
+
+| `sdp_version` | Package selected | Platform and toolchain label used today |
+|---------------|------------------|------------------------------------------|
+| `8.0.0` | QNX SDP 8.0.0 | `sdp_8.0.0` |
+| `8.0.4` | QNX SDP 8.0.4 | `sdp_8.0.0` |
+
+QNX SDP 8.0.4 currently uses the `sdp_8.0.0` platform constraint because
+`bazel_platforms` does not yet define an `sdp_8.0.4` constraint. Therefore, an
+8.0.4 toolchain still has `sdp_8.0.0` in its generated Bazel label. The archive
+selected by `sdp_version` is nevertheless the actual 8.0.4 archive.
+
+To use QNX SDP 8.0.4 instead, change only the version in the toolchain
+declaration:
+
+```starlark
+gcc.toolchain(
+    name = "qnx_toolchain",
+    target_cpu = "x86_64",                      # or "aarch64"
+    target_os = "qnx",
+    sdp_version = "8.0.4",
+    use_default_package = True,
+    license_path = "/path/to/your/qnx/license",
+)
+```
+
+If both SDP versions are needed in the same workspace, declare them with
+different repository names so that either one can be selected explicitly:
+
+```starlark
+gcc.toolchain(
+    name = "qnx_800_toolchain",
+    target_cpu = "x86_64",
+    target_os = "qnx",
+    sdp_version = "8.0.0",
+    use_default_package = True,
+)
+
+gcc.toolchain(
+    name = "qnx_804_toolchain",
+    target_cpu = "x86_64",
+    target_os = "qnx",
+    sdp_version = "8.0.4",
+    use_default_package = True,
+)
+
+use_repo(gcc, "qnx_800_toolchain", "qnx_804_toolchain")
+```
+
+Use the corresponding generated repository in each Bazel configuration. Do
+not register both toolchains in the same configuration: they currently have
+the same target compatibility constraints.
 
 #### Step 2: Add Bazel Configuration
 
@@ -79,6 +131,23 @@ build:aarch64-qnx --sandbox_writable_path=/var/tmp
 ```
 
 > NOTE: Configuration variables are just an example, it's not mandatory to use exact configuration variables.
+
+The platform label remains `sdp_8.0.0` when selecting the 8.0.4 package. If
+both versions are declared as in Step 1, separate configurations can select
+them as follows:
+
+```text
+# QNX SDP 8.0.0
+build:x86_64-qnx-800 --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:x86_64-qnx-800 --extra_toolchains=@qnx_800_toolchain//:x86_64-qnx-sdp_8.0.0
+
+# QNX SDP 8.0.4
+build:x86_64-qnx-804 --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:x86_64-qnx-804 --extra_toolchains=@qnx_804_toolchain//:x86_64-qnx-sdp_8.0.0
+```
+
+Notice that the generated target uses an underscore in `sdp_8.0.0`; a label
+such as `x86_64-qnx-sdp-8.0.0` does not exist.
 
 #### Step 3: Test the Integration
 
@@ -236,7 +305,18 @@ cc_binary(
 
 You can verify the toolchain by building with explicit platform and toolchain selection:
 
-For **x86_64-qnx**:
+For **x86_64-qnx with QNX SDP 8.0.0**:
+```bash
+bazel build \
+  --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix \
+  --extra_toolchains=@qnx_toolchain//:x86_64-qnx-sdp_8.0.0 \
+  //:hello_qnx
+```
+
+For **x86_64-qnx with QNX SDP 8.0.4**, use `sdp_version = "8.0.4"` in
+`MODULE.bazel`. The platform and generated toolchain target still use the
+`sdp_8.0.0` label:
+
 ```bash
 bazel build \
   --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix \
@@ -516,7 +596,7 @@ bazel test --config=aarch64-qnx //...
 
 When adapting the template above for your module, consider:
 
-- [ ] **Replace SDP version**: Update `8.0.0` to your module's target SDP version
+- [ ] **Replace SDP version**: Set `sdp_version` to the exact SDP package version; for SDP 8.0.4, keep the `sdp_8.0.0` platform/toolchain label until an `sdp_8.0.4` constraint is available
 - [ ] **Update paths**: Adapt default paths and examples to your environment conventions
 - [ ] **Update configuration variables**: Adapt configuration variables to your moodule configurations
 - [ ] **Add module-specific targets**: Include examples of building your actual targets, not just generic `//...`
