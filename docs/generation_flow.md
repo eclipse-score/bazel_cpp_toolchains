@@ -45,7 +45,8 @@ to download metadata and, when needed, extra compiler or linker flags.
 `rules/common.bzl`
 
 Provides small helpers that convert lists of flags into the Bazel `flag_group`
-representation needed by the templates and repository rules.
+representation needed by the templates and repository rules. It also defines
+the SDP version mappings used to map package releases to platform constraints.
 
 `rules/gcc.bzl`
 
@@ -80,10 +81,10 @@ Shared templates (used by both Linux and QNX):
   underlying SDK layout. This normalization is a QNX-specific convention,
   centralized in the `_normalize_cpu()` helper. Linux toolchain binaries use
   the CPU name unchanged (e.g., `aarch64-unknown-linux-gnu-gcov`).
-- SDP version mapping is handled through the `_SDP_VERSION_MAPPING` configuration
-  in `rules/gcc.bzl`. Currently, SDP version `8.0.4` is mapped to `8.0.0` because
-  platform constraint support uses the older identifier. This mapping is
-  configurable for future extensibility.
+- SDP version mapping is handled through `SDP_VERSION_MAPPING` in
+  `rules/common.bzl`. Currently, SDP version `8.0.4` is mapped to `8.0.0`
+  because platform constraint support uses the older identifier. This mapping
+  is configurable for future extensibility.
 - Linux toolchains generate an extra `gcov_wrapper` script to work around the
   current `rules_cc` coverage integration behavior. The gcov path uses the
   `{cpu}-unknown-linux-gnu-gcov` naming convention.
