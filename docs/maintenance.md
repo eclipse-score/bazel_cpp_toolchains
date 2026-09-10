@@ -117,15 +117,6 @@ it defines no features of its own.
   `extra_known_features` / `extra_enabled_features` (same mechanism as the
   sanitizers).
 
-> **Known cleanup item:** `features/BUILD` also defines two `cc_feature_set`
-> targets (`linux` and `qnx`) that group the same features for
-> `requires_any_of`/`requires_all_of`-style constraints. Nothing in this
-> repository currently references them — `cc_toolchain_config`'s
-> `known_features`/`enabled_features` attributes require individual
-> `FeatureInfo`-providing labels, not a `cc_feature_set` grouping (see the
-> `compute_feature_lists()` docstring in `features/make_cc_features.bzl`).
-> These should either be wired to a consumer or removed.
-
 ## Common Gotchas
 
 - runtime-specific toolchains may need extra include and link flags that do not
