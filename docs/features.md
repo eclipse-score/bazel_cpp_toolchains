@@ -27,12 +27,20 @@ enabled by default.
 - **`supports_header_path_normalization`** (Linux) — Suppresses absolute-path
   warnings for system headers.
 - **`dbg`** / **`opt`** (both) — Well-known build-mode markers used to select flags.
+- **`gnu11`** (Linux) *opt-in* — Switches C compilation from the default
+  `-std=c11` to `-std=gnu11`.
+- **`c99`** (both) *opt-in* — Switches C compilation from the default
+  `-std=c11` to `-std=c99`.
 
 ## Compilation
 - **`unfiltered_compile_flags`** (both) — Redacts `__DATE__`/`__TIME__`/`__TIMESTAMP__`
   for reproducible builds.
 - **`default_compile_flags`** (both) — Core compile flags plus `dbg`/`opt`
-  build-mode variants (exact flags differ per target).
+  build-mode variants (exact flags differ per target). C compilation defaults
+  to `-std=c11`; request `--features=gnu11` (Linux) or `--features=c99` (both)
+  to switch the C standard. Only one of `c11`/`gnu11`/`c99` should be active
+  at a time — requesting `gnu11` and `c99` together applies both `-std=` flags,
+  with the compiler honoring the last one seen.
 - **`pic`** (Linux) — Emits `-fPIC` when the `pic` build variable is available.
   QNX declares the `supports_pic` capability marker but does not add `-fPIC` in
   the default compile flags.

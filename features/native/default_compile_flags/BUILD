@@ -53,12 +53,20 @@ cc_args(
 
 cc_feature_constraint(
     name = "not_gnu11",
-    none_of = ["//features/native/markers:gnu11"],
+    none_of = [
+        "//features/native/markers:gnu11",
+        "//features/native/markers:c99",
+    ],
 )
 
 cc_feature_constraint(
     name = "is_gnu11",
     all_of = ["//features/native/markers:gnu11"],
+)
+
+cc_feature_constraint(
+    name = "is_c99",
+    all_of = ["//features/native/markers:c99"],
 )
 
 cc_args(
@@ -73,6 +81,13 @@ cc_args(
     actions = ["@rules_cc//cc/toolchains/actions:c_compile_actions"],
     args = ["-std=gnu11"],
     requires_any_of = [":is_gnu11"],
+)
+
+cc_args(
+    name = "c_std_c99_args",
+    actions = ["@rules_cc//cc/toolchains/actions:c_compile_actions"],
+    args = ["-std=c99"],
+    requires_any_of = [":is_c99"],
 )
 
 cc_args(
@@ -152,6 +167,7 @@ cc_feature(
         ":target_cpu_flags_args",
         ":c_std_c11_args",
         ":c_std_gnu11_args",
+        ":c_std_c99_args",
         ":default_cxx_compile_flags_args",
         ":dbg_compile_flags_args",
         ":opt_compile_flags_args",

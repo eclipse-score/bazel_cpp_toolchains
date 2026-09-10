@@ -75,6 +75,12 @@ cc_feature(
     visibility = ["//visibility:public"],
 )
 
+cc_feature(
+    name = "c99",
+    feature_name = "c99",
+    visibility = ["//visibility:public"],
+)
+
 ## QNX only
 cc_feature(
     name = "dependency_file_named_implicitly",

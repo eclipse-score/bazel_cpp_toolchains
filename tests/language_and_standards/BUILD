@@ -38,6 +38,17 @@ cc_test(
     copts = ["-std=c99"],
 )
 
+# Test for: the `c99` toolchain feature (as opposed to explicit -std= copts)
+# Verifies: enabling the `c99` feature switches the compiler onto -std=c99;
+#           a negative-array-size typedef gated on __STDC_VERSION__ only
+#           compiles under c99, so it fails to build if the feature didn't
+#           take effect
+cc_test(
+    name = "c99_feature_test",
+    srcs = ["c99_feature_test.c"],
+    features = ["c99"],
+)
+
 # ============================================================================
 # C++ Standard Version Tests
 # ============================================================================

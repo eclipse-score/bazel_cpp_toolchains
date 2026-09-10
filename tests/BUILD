@@ -23,6 +23,7 @@ Root test suite definition combining all test categories.
 test_suite(
     name = "language_and_standards_tests",
     tests = [
+        "//language_and_standards:c99_feature_test",
         "//language_and_standards:c_lang_test",
         "//language_and_standards:cpp11_test",
         "//language_and_standards:cpp14_test",
