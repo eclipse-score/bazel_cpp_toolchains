@@ -51,21 +51,40 @@ cc_args(
     visibility = ["//visibility:public"],
 )
 
+# requires_any_of is an OR, so each std flag needs a single constraint that fully describes its case.
 cc_feature_constraint(
-    name = "not_gnu11",
-    none_of = ["//features/native/markers:gnu11"],
+    name = "is_c11",
+    none_of = [
+        "//features/native/markers:gnu11",
+        "//features/native/markers:c_std_c99",
+    ],
 )
 
 cc_feature_constraint(
     name = "is_gnu11",
     all_of = ["//features/native/markers:gnu11"],
+    none_of = ["//features/native/markers:c_std_c99"],
+)
+
+cc_feature_constraint(
+    name = "is_c99",
+    all_of = ["//features/native/markers:c_std_c99"],
+)
+
+cc_args(
+    name = "c_std_c99_args",
+    actions = ["@rules_cc//cc/toolchains/actions:c_compile_actions"],
+    args = ["-std=iso9899:1999"],
+    requires_any_of = [
+        ":is_c99",
+    ],
 )
 
 cc_args(
     name = "c_std_c11_args",
     actions = ["@rules_cc//cc/toolchains/actions:c_compile"],
     args = ["-std=c11"],
-    requires_any_of = [":not_gnu11"],
+    requires_any_of = [":is_c11"],
 )
 
 cc_args(
@@ -152,6 +171,7 @@ cc_feature(
         ":target_cpu_flags_args",
         ":c_std_c11_args",
         ":c_std_gnu11_args",
+        ":c_std_c99_args",
         ":default_cxx_compile_flags_args",
         ":dbg_compile_flags_args",
         ":opt_compile_flags_args",

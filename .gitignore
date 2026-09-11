@@ -13,3 +13,6 @@
 
 # Bazel
 bazel-*
+
+# Visual Studio Code
+.vscode/

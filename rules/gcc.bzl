@@ -90,15 +90,26 @@ def get_custom_cc_features_linux(rctx):
     return ""
 
 def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
-    # host_dir/target_dir must be plain resolved paths, not labels: cc_args'
-    # `env` rejects format() variables that aren't builtin cc_toolchain
-    # variables ("The variable host_dir does not exist"). _get_gcov_path has
-    # the same limitation for the gcov binary path.
+    # sdp_env's host_dir/target_dir must be plain resolved paths, not labels:
+    # cc_args' `env` rejects format() variables that aren't builtin cc_toolchain
+    # variables ("The variable host_dir does not exist").
 
     # TODO: Once Bazel enables label resolution in cc_args' env, we can use labels instead of resolved paths.
 
-    custom_load = """load("@score_bazel_cpp_toolchains//features/custom/qnx/sdp_env:feature.bzl", "make_sdp_env_feature")
-load("@score_bazel_cpp_toolchains//features/custom/qnx/gcc_version_flags:feature.bzl", "make_gcc_version_flags_feature")"""
+    target_dir = "/proc/self/cwd/external/{canonical_pkg}/target/qnx".format(canonical_pkg = canonical_pkg_name)
+
+    # io_pkt_ddk's cc_args (unlike sdp_env's env) supports label resolution via
+    # `format`, so it references the package's own target_dir filegroup directly
+    # instead of a hardcoded path. Uses the plain declared repo name (like
+    # sysroot/cxx_builtin_include_directories above), not canonical_pkg_name --
+    # that form is only valid for on-disk "/proc/self/cwd/external/..." paths.
+    target_dir_label = "@{tc_pkg_repo}//:target_dir".format(tc_pkg_repo = rctx.attr.tc_pkg_repo)
+
+    custom_load = "\n".join([
+        """load("@score_bazel_cpp_toolchains//features/custom/qnx/sdp_env:feature.bzl", "make_sdp_env_feature")""",
+        """load("@score_bazel_cpp_toolchains//features/custom/qnx/gcc_version_flags:feature.bzl", "make_gcc_version_flags_feature")""",
+        """load("@score_bazel_cpp_toolchains//features/custom/qnx/io_pkt_ddk:feature.bzl", "make_io_pkt_ddk_feature")""",
+    ])
     custom_features = """
 make_sdp_env_feature(
     host_dir = "{host_dir}",
@@ -112,9 +123,15 @@ make_gcc_version_flags_feature(
     cpu = "{gcc_version_cpu}",
     version = "{gcc_version}",
 )
+make_io_pkt_ddk_feature(
+    target_dir = "{target_dir_label}",
+    cpu = "{cpu}",
+)
 """.format(
         host_dir = "/proc/self/cwd/external/{canonical_pkg}/host/linux/x86_64".format(canonical_pkg = canonical_pkg_name),
-        target_dir = "/proc/self/cwd/external/{canonical_pkg}/target/qnx".format(canonical_pkg = canonical_pkg_name),
+        target_dir = target_dir,
+        target_dir_label = target_dir_label,
+        cpu = rctx.attr.tc_cpu,
         license_path = rctx.attr.license_path,
         license_info_variable = rctx.attr.license_info_variable,
         license_info_value = rctx.attr.license_info_value,
