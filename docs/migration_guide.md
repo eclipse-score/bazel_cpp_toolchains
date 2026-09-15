@@ -89,7 +89,7 @@ toolchain, are summarized below.
 | Default / hardening link flags | **Supported, explicit** | `default_link_flags` feature |
 | `-L` library search paths, `-Wl,-rpath` | **Supported, explicit** | `library_search_directories`, `runtime_library_search_directories` |
 | Static archive creation (`ar`) | **Supported, explicit** | `archiver_flags` feature + `cpp_link_static_library` action |
-| `--sysroot` handling | **Supported, explicit (Linux)** | `sysroot_link_flags` at link; compile relies on `cxx_builtin_include_directories` |
+| `--sysroot` handling | **Supported, explicit (Linux)** | `sysroot_link_flags` at link and assemble/preprocess-assemble; C/C++ compile-time header resolution relies on `cxx_builtin_include_directories` |
 | Compiler / archiver / strip tool binding | **Supported, wiring** | `action_config` entries, not legacy `tool_paths` |
 | `gcov` | **Supported, wiring** | `tool_paths` (`gcov_wrapper`) |
 | Warnings (e.g. `-Wall`) added by default | **Not part of this toolchain — injected** | `minimal_warnings` / `strict_warnings` / `all_wall_warnings` are defined by `score_cpp_policies`, not this toolchain, and only become available once brought in via `extra_known_features` / `extra_enabled_features`. |

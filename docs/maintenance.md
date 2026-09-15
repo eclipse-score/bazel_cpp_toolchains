@@ -53,10 +53,12 @@ feature, though; some behavior is provided by other toolchain wiring:
 - **`gcov`** is provided via `tool_paths` (`gcov_wrapper`).
 - **Sysroot (Linux)** — the sysroot path is passed as `builtin_sysroot` to
   `create_cc_toolchain_config_info`; compile-time header resolution relies on
-  `cxx_builtin_include_directories`, so no `--sysroot` is needed at compile.
-  Link-time `--sysroot` / `-Wl,--sysroot` is emitted by the custom
-  `sysroot_link_flags` feature. There is intentionally no legacy `sysroot`
-  compile feature.
+  `cxx_builtin_include_directories`, so no `--sysroot` is needed for c/cxx
+  compiles. Link-time `--sysroot` / `-Wl,--sysroot` and assembly-time
+  `--sysroot` (assemble / preprocess-assemble; needed for `.S` sources since
+  the extra_*_compile_flags include paths do not apply there) are emitted by
+  the custom `sysroot_link_flags` feature. There is intentionally no legacy
+  `sysroot` compile feature.
 - **Sysroot / system includes (QNX)** — QNX does not use `builtin_sysroot`;
   system include roots come from `cxx_builtin_include_directories` (SDP paths),
   and the SDP environment is injected by the `sdp_env` feature.

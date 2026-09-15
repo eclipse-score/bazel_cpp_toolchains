@@ -11,6 +11,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
+"""Feature definition for sysroot link flags.
+"""
+
 load("@rules_cc//cc/toolchains:feature.bzl", "cc_feature")
 load("@rules_cc//cc/toolchains/args:sysroot.bzl", "cc_sysroot")
 
@@ -21,6 +24,7 @@ def make_sysroot_link_flags(target_os, sysroot):
     "-Wl,--sysroot={sysroot}" needs to be listed here.
 
     Args:
+        target_os: the target operating system for this toolchain (e.g., "linux").
         sysroot: label of the directory rule for this toolchain's sysroot.
     """
     if target_os == "linux":
@@ -31,8 +35,17 @@ def make_sysroot_link_flags(target_os, sysroot):
             sysroot = sysroot,
         )
 
+        cc_sysroot(
+            name = "sysroot_assembly_flags_args",
+            actions = ["@rules_cc//cc/toolchains/actions:assembly_actions"],
+            sysroot = sysroot,
+        )
+
         cc_feature(
             name = "sysroot_link_flags",
-            args = [":sysroot_link_flags_args"],
+            args = [
+                ":sysroot_link_flags_args",
+                ":sysroot_assembly_flags_args",
+            ],
             feature_name = "sysroot_link_flags",
         )

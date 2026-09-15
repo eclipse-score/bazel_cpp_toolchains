@@ -70,7 +70,9 @@ enabled by default.
 - **`output_execpath_flags`** (both) — `-o` for the link output.
 - **`libraries_to_link`** (both) — Handles whole-archive, static, object-file,
   dynamic, and versioned-dynamic library linking.
-- **`sysroot_link_flags`** (Linux) — Adds `--sysroot` / `-Wl,--sysroot` at link.
+- **`sysroot_link_flags`** (Linux) — Adds `--sysroot` / `-Wl,--sysroot` at link,
+  and `--sysroot` for assemble/preprocess-assemble actions (preprocessed `.S`
+  sources need it to resolve sysroot headers).
 
 ### Opt-in link features (Linux)
 These mirror Bazel's legacy features and are guarded, so they are no-ops until
