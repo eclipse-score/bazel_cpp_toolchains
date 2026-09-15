@@ -54,10 +54,7 @@ filegroup(
 # since it contains usr/ and lib64/ at the root
 filegroup(
     name = "sysroot_dir",
-    srcs = glob([
-        "usr/**",
-        "lib64/**",
-    ]),
+    srcs = ["."],
 )
 
 filegroup(
