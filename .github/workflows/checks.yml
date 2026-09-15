@@ -21,9 +21,9 @@ on:
       - main
 jobs:
   copyright-check:
-    uses: eclipse-score/cicd-workflows/.github/workflows/copyright.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/copyright.yml@37eaadadfefc263d94a858d25665735659e916fa # 2026-09-02
   formatting-check:
-    uses: eclipse-score/cicd-workflows/.github/workflows/format.yml@main
+    uses: eclipse-score/cicd-workflows/.github/workflows/format.yml@37eaadadfefc263d94a858d25665735659e916fa # 2026-09-02
   bzlmod-lock:
     uses: eclipse-score/cicd-workflows/.github/workflows/bzlmod-lock-check.yml@c1c90b1a82a1fab0fc202979dde6686b2162d5a8 # v0.0.0
     with:
