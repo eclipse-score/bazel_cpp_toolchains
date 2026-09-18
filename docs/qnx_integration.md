@@ -265,7 +265,7 @@ QNX directory structure after extraction. A typical installation looks like:
 └── ...
 ```
 
-Where `{TRIPLE}` is the target triple, e.g. `aarch64-unknown-nto-qnx7.1.0`.
+Where `{TRIPLE}` is the target triple, e.g. `aarch64-unknown-nto-qnx8.0.0`.
 
 The toolchain locates these directories via the `QNX_HOST` and `QNX_TARGET` environment
 variables, which are set automatically by the toolchain's `sdp_env` feature.

@@ -43,56 +43,14 @@ def dict_union(x, y):
     z.update(y)
     return z
 
-def _get_cc_config_linux(rctx):
-    """Generates cc_toolchain_config filegroup and rule content for Linux targets.
+def _get_cc_config(rctx):
+    """Generates cc_toolchain_config filegroup and rule content for a toolchain.
 
     Args:
         rctx: RepositoryContext object with toolchain attributes.
 
     Returns:
-        str: BUILD file content defining filegroup and cc_toolchain_config for Linux.
-    """
-    return """filegroup(
-    name = "all_files",
-    srcs = [
-        "@{tc_pkg_repo}//:all_files",
-        "gcov_wrapper",
-    ]
-)
-
-cc_toolchain_config(
-    name = "cc_toolchain_config",
-    ar_binary = "@{tc_pkg_repo}//:ar",
-    cc_binary = "@{tc_pkg_repo}//:cc",
-    cxx_binary = "@{tc_pkg_repo}//:cxx",
-    gcov_binary = "@{tc_pkg_repo}//:gcov",
-    strip_binary = "@{tc_pkg_repo}//:strip",
-    sysroot = "@{tc_pkg_repo}//:sysroot_dir",
-    target_cpu = "{tc_cpu}",
-    target_os = "{tc_os}",
-    known_features = _KNOWN_FEATURES,
-    enabled_features = _ENABLED_FEATURES,
-    cxx_builtin_include_directories = ["@{tc_pkg_repo}//:cxx_builtin_include_directories"],
-    extra_known_features = {tc_extra_known_features},
-    extra_enabled_features = {tc_extra_enabled_features},
-    visibility = ["//visibility:public"],
-)
-""".format(
-        tc_pkg_repo = rctx.attr.tc_pkg_repo,
-        tc_cpu = rctx.attr.tc_cpu,
-        tc_os = rctx.attr.tc_os,
-        tc_extra_known_features = label_list_to_string(rctx.attr.extra_known_features),
-        tc_extra_enabled_features = label_list_to_string(rctx.attr.extra_enabled_features),
-    )
-
-def _get_cc_config_qnx(rctx):
-    """Generates cc_toolchain_config filegroup and rule content for QNX targets.
-
-    Args:
-        rctx: RepositoryContext object with toolchain attributes.
-
-    Returns:
-        str: BUILD file content defining filegroup and cc_toolchain_config for QNX.
+        str: BUILD file content defining filegroup and cc_toolchain_config.
     """
     return """
 filegroup(
@@ -110,6 +68,7 @@ cc_toolchain_config(
     cxx_binary = "@{tc_pkg_repo}//:cxx",
     gcov_binary = "@{tc_pkg_repo}//:gcov",
     strip_binary = "@{tc_pkg_repo}//:strip",
+    sysroot = "@{tc_pkg_repo}//:sysroot_dir",
     cxx_builtin_include_directories = ["@{tc_pkg_repo}//:cxx_builtin_include_directories"],
     target_cpu = "{tc_cpu}",
     target_os = "{tc_os}",
@@ -133,7 +92,8 @@ def get_custom_cc_features_linux(rctx):
 def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
     # host_dir/target_dir must be plain resolved paths, not labels: cc_args'
     # `env` rejects format() variables that aren't builtin cc_toolchain
-    # variables ("The variable host_dir does not exist").
+    # variables ("The variable host_dir does not exist"). _get_gcov_path has
+    # the same limitation for the gcov binary path.
 
     # TODO: Once Bazel enables label resolution in cc_args' env, we can use labels instead of resolved paths.
 
@@ -181,6 +141,38 @@ def _apply_sdp_version_mapping(sdp_version):
     """
     return _SDP_VERSION_MAPPING.get(sdp_version, sdp_version)
 
+def _get_gcov_path(rctx, canonical_pkg_name):
+    """Computes the gcov binary path used by the gcov_wrapper template.
+
+    NOTE: The path is hand-built using Bazel's default exec-path convention
+    ("external/<repo>/...") because a repository rule cannot resolve a
+    label's execpath (that only exists at analysis/execution time). This will
+    break under --experimental_sibling_repository_layout ("../<repo>/...").
+    See the related TODO in get_custom_cc_features_qnx.
+
+    Args:
+        rctx: RepositoryContext object with toolchain attributes.
+        canonical_pkg_name: str, canonical repository name of the toolchain package.
+
+    Returns:
+        str: Path to the gcov binary, relative to the execroot.
+    """
+    if rctx.attr.tc_os == _OS_LINUX:
+        return "external/{canonical_pkg}/bin/{cpu}-unknown-linux-gnu-gcov".format(
+            canonical_pkg = canonical_pkg_name,
+            cpu = rctx.attr.tc_cpu,
+        )
+
+    mapped_sdp_version = _apply_sdp_version_mapping(rctx.attr.sdp_version)
+    if rctx.attr.tc_cpu == _CPU_AARCH64:
+        gcov_triple = _TRIPLE_AARCH64_QNX_FMT.format(sdp = mapped_sdp_version)
+    else:
+        gcov_triple = _TRIPLE_GENERIC_QNX_FMT.format(cpu = rctx.attr.tc_cpu, sdp = mapped_sdp_version)
+    return "external/{canonical_pkg}/host/linux/x86_64/usr/bin/{triple}-gcov".format(
+        canonical_pkg = canonical_pkg_name,
+        triple = gcov_triple,
+    )
+
 def _get_canonical_pkg_name(rctx):
     """Resolves the canonical repository name for the toolchain package.
 
@@ -216,16 +208,13 @@ def _impl(rctx):
     """
     tc_identifier = rctx.attr.tc_identifier
 
-    if rctx.attr.tc_os == _OS_QNX:
-        cc_toolchain_config = _get_cc_config_qnx(rctx)
-    elif rctx.attr.tc_os == _OS_LINUX:
-        cc_toolchain_config = _get_cc_config_linux(rctx)
-    else:
+    if rctx.attr.tc_os not in (_OS_QNX, _OS_LINUX):
         fail("Unsupported OS '{}' detected! Supported values: {}, {}".format(
             rctx.attr.tc_os,
             _OS_LINUX,
             _OS_QNX,
         ))
+    cc_toolchain_config = _get_cc_config(rctx)
 
     # Build constraint identifiers for toolchain registration
     tc_identifier_short_1 = ""
@@ -321,37 +310,15 @@ def _impl(rctx):
         template_dict,
     )
 
-    if rctx.attr.tc_os == _OS_LINUX:
-        # There is an issue with gcov and cc_toolchain config.
-        # See: https://github.com/bazelbuild/rules_cc/issues/351
-        rctx.template(
-            "gcov_wrapper",
-            rctx.attr._cc_gcov_wrapper_script,
-            {
-                "%{tc_gcov_path}": "external/{canonical_pkg}/bin/{cpu}-unknown-linux-gnu-gcov".format(
-                    canonical_pkg = canonical_pkg_name,
-                    cpu = rctx.attr.tc_cpu,
-                ),
-            },
-        )
-    elif rctx.attr.tc_os == _OS_QNX:
-        # Generate gcov wrapper for QNX toolchains to enable `bazel coverage`.
-        # See: https://github.com/bazelbuild/rules_cc/issues/351
-        mapped_sdp_version = _apply_sdp_version_mapping(rctx.attr.sdp_version)
-        if rctx.attr.tc_cpu == _CPU_AARCH64:
-            gcov_triple = _TRIPLE_AARCH64_QNX_FMT.format(sdp = mapped_sdp_version)
-        else:
-            gcov_triple = _TRIPLE_GENERIC_QNX_FMT.format(cpu = rctx.attr.tc_cpu, sdp = mapped_sdp_version)
-        rctx.template(
-            "gcov_wrapper",
-            rctx.attr._cc_gcov_wrapper_script,
-            {
-                "%{tc_gcov_path}": "external/{canonical_pkg}/host/linux/x86_64/usr/bin/{triple}-gcov".format(
-                    canonical_pkg = canonical_pkg_name,
-                    triple = gcov_triple,
-                ),
-            },
-        )
+    # There is an issue with gcov and cc_toolchain config.
+    # See: https://github.com/bazelbuild/rules_cc/issues/351
+    rctx.template(
+        "gcov_wrapper",
+        rctx.attr._cc_gcov_wrapper_script,
+        {
+            "%{tc_gcov_path}": _get_gcov_path(rctx, canonical_pkg_name),
+        },
+    )
 
 gcc_toolchain = repository_rule(
     implementation = _impl,

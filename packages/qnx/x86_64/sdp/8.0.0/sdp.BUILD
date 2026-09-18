@@ -64,6 +64,11 @@ filegroup(
 )
 
 filegroup(
+    name = "sysroot_dir",
+    srcs = ["."],
+)
+
+filegroup(
     name = "target_dir",
     srcs = ["target/qnx"],
 )
