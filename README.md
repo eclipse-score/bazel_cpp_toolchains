@@ -38,6 +38,7 @@ validates the setup, and how QNX-specific authentication and licensing fit in.
 - [QNX integration](docs/qnx_integration.md)
 - [Test Suite](docs/test_suite.md)
 - [Maintenance](docs/maintenance.md)
+- [Fast LLVM repository](docs/fast_llvm_repo.md)
 
 ## Quick Summary
 
@@ -54,4 +55,5 @@ validates the setup, and how QNX-specific authentication and licensing fit in.
 - Define Linux and QNX toolchains through a Bzlmod extension.
 - Resolve default package metadata through `packages/version_matrix.bzl`.
 - Generate toolchain repositories from platform-specific templates.
+- Optionally materialize prebuilt LLVM distributions with fast extraction.
 - Validate toolchain selections through the workspace test matrix.
