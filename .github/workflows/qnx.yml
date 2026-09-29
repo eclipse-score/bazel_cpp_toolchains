@@ -54,13 +54,6 @@ jobs:
         with:
           ref: ${{ github.head_ref || github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
-      - name: Setup Bazel with shared caching
-        uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 #v0.19.0
-        with:
-          disk-cache: ${{ matrix.bazel-config }}
-          repository-cache: true
-          bazelisk-cache: true
-          cache-save: ${{ github.event_name == 'push' }}
       - uses: eclipse-score/cicd-actions/unblock-user-namespace-for-linux-sandbox@30ed908edcf367bc38ebff5b386a244f9b6417a7 # 2025-06-04
       - name: Setup QNX SDP usage
         uses: eclipse-score/cicd-actions/setup-qnx-sdp@a2b3c36fc7d1b9d03880d19935c7ac9cfffe58c6 # 2026-05-19
