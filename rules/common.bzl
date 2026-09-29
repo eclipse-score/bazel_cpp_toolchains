@@ -24,6 +24,13 @@ SDP_VERSION_MAPPING = {
     "8.0.4": "8.0.0",
 }
 
+# GCC version bundled with each QNX SDP major release, keyed by SDP major version.
+# Used to default/validate a toolchain's `version` attribute from its `sdp_version`.
+QNX_SDP_TO_GCC_VERSION = {
+    "7": "8.3.0",
+    "8": "12.2.0",
+}
+
 def get_flag_strings(flags):
     """Converts a list of warning flags into a Bazel flag group representation.
 

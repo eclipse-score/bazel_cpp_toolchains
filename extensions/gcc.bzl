@@ -16,7 +16,7 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@score_bazel_cpp_toolchains//packages:version_matrix.bzl", "VERSION_MATRIX")
-load("@score_bazel_cpp_toolchains//rules:common.bzl", "SDP_VERSION_MAPPING")
+load("@score_bazel_cpp_toolchains//rules:common.bzl", "QNX_SDP_TO_GCC_VERSION", "SDP_VERSION_MAPPING")
 load("@score_bazel_cpp_toolchains//rules:gcc.bzl", "gcc_toolchain")
 
 # Constants
@@ -24,9 +24,11 @@ _PACKAGE_SUFFIX = "_pkg"
 _IDENTIFIER_GCC = "gcc"
 _IDENTIFIER_SDK = "sdk"
 _IDENTIFIER_SDP = "sdp"
+_OS_QNX = "qnx"
 _SUPPORTED_CPUS = ["x86_64", "aarch64"]
 _SUPPORTED_OSS = ["linux", "qnx"]
 _SDP_VERSION_MAPPING = SDP_VERSION_MAPPING
+_QNX_SDP_TO_GCC_VERSION = QNX_SDP_TO_GCC_VERSION
 
 # GCC interface API for archive tag class
 _attrs_sdp = {
@@ -381,6 +383,39 @@ def _resolve_identifier(toolchain_info):
 
     return "{}_{}".format(identifier, version)
 
+def _resolve_qnx_gcc_version(toolchain_info):
+    """Defaults or validates gcc_version against the GCC version bundled with sdp_version.
+
+    Args:
+        toolchain_info: dict holding toolchain configuration (modified in-place).
+
+    Fails:
+        If an explicit `version` doesn't match the GCC version bundled with the SDP's
+        major release, per QNX_SDP_TO_GCC_VERSION.
+    """
+    if toolchain_info["tc_os"] != _OS_QNX or toolchain_info["sdp_version"] == "":
+        return
+
+    sdp_major = toolchain_info["sdp_version"].split(".")[0]
+    expected_gcc_version = _QNX_SDP_TO_GCC_VERSION.get(sdp_major)
+    if expected_gcc_version == None:
+        return
+
+    if toolchain_info["gcc_version"] == "":
+        toolchain_info["gcc_version"] = expected_gcc_version
+    elif toolchain_info["gcc_version"] != expected_gcc_version:
+        fail((
+            "Toolchain '{name}': version = '{actual}' does not match GCC {expected}, " +
+            "which is what QNX SDP {sdp_major}.x (sdp_version = '{sdp_version}') ships. " +
+            "Either drop the explicit version or set it to '{expected}'."
+        ).format(
+            name = toolchain_info["name"],
+            actual = toolchain_info["gcc_version"],
+            expected = expected_gcc_version,
+            sdp_major = sdp_major,
+            sdp_version = toolchain_info["sdp_version"],
+        ))
+
 def _get_info(mctx):
     """Extracts and validates toolchain and package information from module configuration.
 
@@ -415,10 +450,13 @@ def _get_info(mctx):
 
         # need to be sure not to link package in case of system toolchain.
         if tc["use_system_toolchain"]:
+            _resolve_qnx_gcc_version(tc)
             continue
 
         if tc["use_default_package"]:
             packages.append(_create_and_link_sdp(tc))
+
+        _resolve_qnx_gcc_version(tc)
 
     return toolchains, packages
 

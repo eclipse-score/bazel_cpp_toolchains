@@ -97,7 +97,8 @@ def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
 
     # TODO: Once Bazel enables label resolution in cc_args' env, we can use labels instead of resolved paths.
 
-    custom_load = """load("@score_bazel_cpp_toolchains//features/custom/qnx/sdp_env:feature.bzl", "make_sdp_env_feature")"""
+    custom_load = """load("@score_bazel_cpp_toolchains//features/custom/qnx/sdp_env:feature.bzl", "make_sdp_env_feature")
+load("@score_bazel_cpp_toolchains//features/custom/qnx/gcc_version_flags:feature.bzl", "make_gcc_version_flags_feature")"""
     custom_features = """
 make_sdp_env_feature(
     host_dir = "{host_dir}",
@@ -106,12 +107,19 @@ make_sdp_env_feature(
     license_info_variable = "{license_info_variable}",
     license_info_value = "{license_info_value}",
 )
+
+make_gcc_version_flags_feature(
+    cpu = "{gcc_version_cpu}",
+    version = "{gcc_version}",
+)
 """.format(
         host_dir = "/proc/self/cwd/external/{canonical_pkg}/host/linux/x86_64".format(canonical_pkg = canonical_pkg_name),
         target_dir = "/proc/self/cwd/external/{canonical_pkg}/target/qnx".format(canonical_pkg = canonical_pkg_name),
         license_path = rctx.attr.license_path,
         license_info_variable = rctx.attr.license_info_variable,
         license_info_value = rctx.attr.license_info_value,
+        gcc_version_cpu = _normalize_cpu(rctx.attr.tc_cpu),
+        gcc_version = rctx.attr.gcc_version,
     )
     return custom_load, custom_features
 
