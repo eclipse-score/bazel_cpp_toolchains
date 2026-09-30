@@ -31,6 +31,7 @@ validates the setup, and how QNX-specific authentication and licensing fit in.
 - [Overview](docs/overview.md)
 - [Repository layout](docs/repository_layout.md)
 - [Extension API](docs/extension_api.md)
+- [Fast LLVM extraction (opt-in)](docs/fast_llvm_repo.md)
 - [Generation flow](docs/generation_flow.md)
 - [Toolchain features](docs/features.md)
 - [Migration guide (explicit-feature model)](docs/migration_guide.md)

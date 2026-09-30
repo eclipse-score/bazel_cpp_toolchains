@@ -183,3 +183,57 @@ behavior explicitly, see the
   for the injected feature names.
 - QNX toolchains use additional licensing and include-path parameters that do
   not apply to Linux toolchains.
+
+## LLVM Extension (Optional, Faster Alternative)
+
+The `llvm` module extension in
+`@score_bazel_cpp_toolchains//extensions:llvm.bzl` is an optional, opt-in
+alternative for consumers who already use (or plan to use)
+[`toolchains_llvm`](https://github.com/bazel-contrib/toolchains_llvm) and want
+faster LLVM archive extraction. It is not a replacement for `toolchains_llvm`
+in general — it only swaps the repository that provides the LLVM
+distribution. See [Fast LLVM repository](fast_llvm_repo.md) for the
+rationale and measured performance numbers (~220s → ~70s).
+
+### Consumer Entry Point
+
+```starlark
+bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.5.4")
+
+llvm = use_extension("@score_bazel_cpp_toolchains//extensions:llvm.bzl", "llvm")
+llvm.toolchain(
+    name = "llvm_toolchain",
+    version = "19.1.1",
+)
+
+use_repo(llvm, "llvm_toolchain", "llvm_toolchain_pkg")
+```
+
+Consumers do not need their own `bazel_dep(toolchains_llvm)`:
+`score_bazel_cpp_toolchains` already depends on `toolchains_llvm`, and the
+extension loads it internally.
+
+### `llvm.toolchain(...)` Attributes
+
+- `name` (mandatory): name of the generated LLVM toolchain repository. The
+  companion package repository (produced by `fast_llvm_repo`) is generated
+  alongside it as `<name>_pkg`.
+- `version` (mandatory): LLVM version to extract. Must be one of the versions
+  pinned in [`fast_llvm_repo.bzl`](../rules/fast_llvm_repo.bzl).
+
+### Activation In A Workspace
+
+```text
+--extra_toolchains=@llvm_toolchain//:<toolchain-target>
+```
+
+### Behavior Notes
+
+- The extension is intended for the root module only, the same restriction as
+  `gcc`.
+- It is an alternative, not a replacement, for `toolchains_llvm`.
+- Only the versions and architectures pinned in `fast_llvm_repo.bzl` are
+  supported; requesting any other version fails at package-fetch time.
+- Each `llvm.toolchain(...)` tag creates its own package repo. There is no
+  sharing or deduplication across multiple toolchain tags requesting the same
+  version — this is intentionally kept simple.
