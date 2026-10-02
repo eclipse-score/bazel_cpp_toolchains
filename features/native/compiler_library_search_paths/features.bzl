@@ -18,7 +18,7 @@ _ALL_ACTIONS = [
     "@rules_cc//cc/toolchains/actions:compile_actions",
     "@rules_cc//cc/toolchains/actions:link_actions",
     "@rules_cc//cc/toolchains/actions:strip",
-    "@rules_cc//cc/toolchains/actions:ar_actions",
+    "@rules_cc//cc/toolchains/actions:cpp_link_static_library",
 ]
 
 def make_compiler_library_search_paths(compiler_library_search_paths):

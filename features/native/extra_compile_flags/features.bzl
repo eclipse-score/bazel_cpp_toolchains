@@ -33,7 +33,7 @@ def make_extra_compile_features(
 
     cc_args(
         name = "extra_c_compile_flags_args",
-        actions = ["@rules_cc//cc/toolchains/actions:c_compile_actions"],
+        actions = ["@rules_cc//cc/toolchains/actions:c_compile"],
         args = extra_c_compile_flags,
     )
 
@@ -46,7 +46,7 @@ def make_extra_compile_features(
 
     cc_args(
         name = "extra_cxx_compile_flags_args",
-        actions = ["@rules_cc//cc/toolchains/actions:cpp_compile_actions"],
+        actions = ["@rules_cc//cc/toolchains/actions:cpp_compile"],
         args = extra_cxx_compile_flags,
     )
 

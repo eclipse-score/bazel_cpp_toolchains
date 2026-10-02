@@ -18,7 +18,7 @@ cc_args(
     name = "linker_param_file_args",
     actions = [
         "@rules_cc//cc/toolchains/actions:link_actions",
-        "@rules_cc//cc/toolchains/actions:ar_actions",
+        "@rules_cc//cc/toolchains/actions:cpp_link_static_library",
     ],
     args = ["@{linker_param_file}"],
     format = {"linker_param_file": "@rules_cc//cc/toolchains/variables:linker_param_file"},

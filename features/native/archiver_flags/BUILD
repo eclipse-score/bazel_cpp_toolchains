@@ -17,14 +17,14 @@ load("@rules_cc//cc/toolchains:nested_args.bzl", "cc_nested_args")
 
 cc_args(
     name = "archiver_static_flag_args",
-    actions = ["@rules_cc//cc/toolchains/actions:ar_actions"],
+    actions = ["@rules_cc//cc/toolchains/actions:cpp_link_static_library"],
     args = ["rcsD"],
     visibility = ["//visibility:public"],
 )
 
 cc_args(
     name = "archiver_output_execpath_args",
-    actions = ["@rules_cc//cc/toolchains/actions:ar_actions"],
+    actions = ["@rules_cc//cc/toolchains/actions:cpp_link_static_library"],
     args = ["{output_execpath}"],
     format = {"output_execpath": "@rules_cc//cc/toolchains/variables:output_execpath"},
     requires_not_none = "@rules_cc//cc/toolchains/variables:output_execpath",
@@ -59,7 +59,7 @@ cc_nested_args(
 
 cc_args(
     name = "archiver_libraries_args",
-    actions = ["@rules_cc//cc/toolchains/actions:ar_actions"],
+    actions = ["@rules_cc//cc/toolchains/actions:cpp_link_static_library"],
     nested = [":archiver_iterate_libraries"],
     requires_not_none = "@rules_cc//cc/toolchains/variables:libraries_to_link",
     visibility = ["//visibility:public"],

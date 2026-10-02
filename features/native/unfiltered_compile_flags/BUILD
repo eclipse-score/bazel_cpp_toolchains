@@ -17,8 +17,8 @@ load("@rules_cc//cc/toolchains:feature.bzl", "cc_feature")
 cc_args(
     name = "unfiltered_compile_flags_args",
     actions = [
-        "@rules_cc//cc/toolchains/actions:c_compile_actions",
-        "@rules_cc//cc/toolchains/actions:cpp_compile_actions",
+        "@rules_cc//cc/toolchains/actions:c_compile",
+        "@rules_cc//cc/toolchains/actions:cpp_compile",
     ],
     args = [
         "-D__DATE__=\"redacted\"",

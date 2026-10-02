@@ -63,21 +63,21 @@ cc_feature_constraint(
 
 cc_args(
     name = "c_std_c11_args",
-    actions = ["@rules_cc//cc/toolchains/actions:c_compile_actions"],
+    actions = ["@rules_cc//cc/toolchains/actions:c_compile"],
     args = ["-std=c11"],
     requires_any_of = [":not_gnu11"],
 )
 
 cc_args(
     name = "c_std_gnu11_args",
-    actions = ["@rules_cc//cc/toolchains/actions:c_compile_actions"],
+    actions = ["@rules_cc//cc/toolchains/actions:c_compile"],
     args = ["-std=gnu11"],
     requires_any_of = [":is_gnu11"],
 )
 
 cc_args(
     name = "default_cxx_compile_flags_args",
-    actions = ["@rules_cc//cc/toolchains/actions:cpp_compile_actions"],
+    actions = ["@rules_cc//cc/toolchains/actions:cpp_compile"],
     args = ["-std=c++17"] +
            select({
                "@platforms//os:qnx": [
