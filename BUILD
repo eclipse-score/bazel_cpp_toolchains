@@ -44,6 +44,7 @@ copyright_checker(
         "packages",
         "rules",
         "templates",
+        "tests",
         "tools",
         "//:BUILD",
         "//:MODULE.bazel",

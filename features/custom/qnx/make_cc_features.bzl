@@ -38,10 +38,13 @@ _QNX_FEATURES = [
     ("@score_bazel_cpp_toolchains//features/native/markers:no_legacy_features", True),
     ("@score_bazel_cpp_toolchains//features/native/unfiltered_compile_flags", True),
     (":gcc_version_flags", True),  # per-instance, see templates/BUILD.template
+    ("@score_bazel_cpp_toolchains//features/native/markers:gnu11", False),  # opt-in
+    ("@score_bazel_cpp_toolchains//features/native/markers:c_std_c99", False),  # opt-in
     ("@score_bazel_cpp_toolchains//features/native/default_compile_flags", True),
     ("@score_bazel_cpp_toolchains//features/native/random_seed", True),
     ("@score_bazel_cpp_toolchains//features/native/include_paths", True),
     ("@score_bazel_cpp_toolchains//features/native/preprocessor_defines", True),
+    (":io_pkt_ddk", False),  # per-instance, opt-in -- see features/custom/qnx/io_pkt_ddk
     (":extra_compile_flags", True),  # per-instance, see templates/BUILD.template
     (":extra_c_compile_flags", True),  # per-instance, see templates/BUILD.template
     (":extra_cxx_compile_flags", True),  # per-instance, see templates/BUILD.template
