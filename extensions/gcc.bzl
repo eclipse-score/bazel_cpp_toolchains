@@ -87,6 +87,11 @@ _attrs_sdp = {
         default = "",
         doc = "Strip prefix from toolchain archive.",
     ),
+    "type": attr.string(
+        mandatory = False,
+        default = "",
+        doc = "Archive type (e.g. `tar.gz`); required when the url has no archive file extension.",
+    ),
     "url": attr.string(
         mandatory = False,
         default = "",
@@ -229,6 +234,7 @@ def _get_packages(tags):
             "patch_tool": tag.patch_tool,
             "sha256": tag.sha256,
             "strip_prefix": tag.strip_prefix,
+            "type": tag.type,
             "url": tag.url,
             "patches": tag.patches,
             "files": tag.files,
@@ -351,6 +357,7 @@ def _create_and_link_sdp(toolchain_info):
         "patch_tool": matrix.get("patch_tool", ""),
         "sha256": matrix["sha256"],
         "strip_prefix": matrix["strip_prefix"],
+        "type": matrix.get("type", ""),
         "url": matrix["url"],
         "patches": matrix.get("patches"),
         "files": matrix.get("files"),
@@ -481,6 +488,7 @@ def _impl(mctx):
             patch_tool = archive_info["patch_tool"],
             sha256 = archive_info["sha256"],
             strip_prefix = archive_info["strip_prefix"],
+            type = archive_info["type"],
             patches = archive_info["patches"],
             files = archive_info["files"],
         )

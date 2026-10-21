@@ -1622,7 +1622,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "AMZ+S3y9T9OnCRdN9W9kKTJoNQIpmXGjAmhW67185oM=",
+        "bzlTransitiveDigest": "XLUUfH84Y2lbakP9+fdfFL45Nw0jJgWaIAPJFqtkuLA=",
         "usagesDigest": "3BxGiccNNlFja9y/vd4+7TlTcgtjWIybmed7P06K9QM=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -1641,6 +1641,7 @@
               "patch_tool": "",
               "sha256": "457f5f20f57528033cb840d708b507050d711ae93e009388847e113b11bf3600",
               "strip_prefix": "x86_64-unknown-linux-gnu",
+              "type": "",
               "patches": [],
               "files": {}
             }
@@ -1658,6 +1659,7 @@
               "patch_tool": "",
               "sha256": "e9b9a7a63a5f8271b76d6e2057906b95c7a244e4931a8e10edeaa241e9f7c11e",
               "strip_prefix": "x86_64-unknown-linux-gnu",
+              "type": "",
               "patches": [],
               "files": {}
             }
@@ -1675,6 +1677,7 @@
               "patch_tool": "",
               "sha256": "e9b9a7a63a5f8271b76d6e2057906b95c7a244e4931a8e10edeaa241e9f7c11e",
               "strip_prefix": "x86_64-unknown-linux-gnu",
+              "type": "",
               "patches": [],
               "files": {}
             }
@@ -1692,6 +1695,7 @@
               "patch_tool": "",
               "sha256": "c65e21725d4d9993bab0b4ef2aed7065a4bf1b0f232a068d778eb670f80daa60",
               "strip_prefix": "x86_64-unknown-linux-gnu",
+              "type": "",
               "patches": [],
               "files": {}
             }
@@ -1709,6 +1713,7 @@
               "patch_tool": "",
               "sha256": "7279b1adb50361b21f5266b001980b6febb35fa8d83170901196b9edae3f06d9",
               "strip_prefix": "aarch64-unknown-linux-gnu",
+              "type": "",
               "patches": [],
               "files": {}
             }
@@ -1726,6 +1731,7 @@
               "patch_tool": "",
               "sha256": "ff9fe6caed22f15a1dd87a93bff5cfa1536b5dddcff3364827f97ebc01a494a1",
               "strip_prefix": "aarch64-unknown-linux-gnu",
+              "type": "",
               "patches": [],
               "files": {}
             }
@@ -1743,6 +1749,7 @@
               "patch_tool": "",
               "sha256": "146312c0bf22aab66e8294a06403f2ec6cfeeb074d8fa11549faffd84b7fe778",
               "strip_prefix": "",
+              "type": "",
               "patches": [],
               "files": {}
             }
@@ -1760,6 +1767,7 @@
               "patch_tool": "",
               "sha256": "146312c0bf22aab66e8294a06403f2ec6cfeeb074d8fa11549faffd84b7fe778",
               "strip_prefix": "",
+              "type": "",
               "patches": [],
               "files": {}
             }
@@ -1777,6 +1785,7 @@
               "patch_tool": "",
               "sha256": "25991056bd29d4cb37b11e42d0c09f55dc61d0b9d703f75d854cf614f688c96f",
               "strip_prefix": "sysroot",
+              "type": "",
               "patches": [],
               "files": {}
             }
@@ -1794,6 +1803,7 @@
               "patch_tool": "",
               "sha256": "f44286c28d831dc40acdac08ef49f38a2e9cbb057bea38c25834964693785287",
               "strip_prefix": "fastdev-sdk-ubuntu-ebclfsa-ebcl-qemuarm64",
+              "type": "",
               "patches": [],
               "files": {}
             }
@@ -1813,6 +1823,7 @@
               "patch_tool": "",
               "sha256": "4cf7f0191988795f316f276b56e370ad60fc371954a881d158ebba0284d9d3f5",
               "strip_prefix": "fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64",
+              "type": "",
               "patches": [],
               "files": {}
             }
