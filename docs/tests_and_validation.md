@@ -81,7 +81,8 @@ for the exact `--config` names):
 - Linux host toolchains (`x86_64-linux`, `x86_64-linux-custom`, `x86_64-linux-bp`)
 - Linux cross-compilation toolchains (`aarch64-linux`)
 - runtime-specific Linux toolchains such as AutoSD (`x86_64-linux-autosd10`)
-  and EB corbos Linux for Safety Applications (`aarch64-linux-ebclfsa`)
+  and EB corbos Linux for Safety Applications
+  (`aarch64-linux-ebclfsa-2.0.0-beta2`)
 - packaged QNX toolchains (`x86_64-qnx`, `aarch64-qnx`)
 
 ## Useful Commands

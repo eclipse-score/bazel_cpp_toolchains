@@ -192,18 +192,6 @@ gcc.toolchain(
 )
 
 # *******************************************************************************
-# Setting EBcLfSA 0.1.0 GCC (CPU:aarch64|OS:Linux|V:ebclfsa-0.1.0|ES:ebclfsa)
-# *******************************************************************************
-gcc.toolchain(
-    name = "score_ebclfsa_toolchain",
-    runtime_ecosystem = "ebclfsa",
-    sdk_version = "0.1.0",
-    target_cpu = "aarch64",
-    target_os = "linux",
-    use_default_package = True,
-)
-
-# *******************************************************************************
 # Setting EBcLfSA 2.0.0-beta2 GCC (CPU:aarch64|OS:Linux|V:ebclfsa-2.0.0-beta2|ES:ebclfsa)
 # *******************************************************************************
 gcc.toolchain(
@@ -221,7 +209,6 @@ use_repo(
     "score_aarch64_gcc_toolchain_15",
     "score_autosd_10_toolchain",
     "score_ebclfsa_2.0.0-beta2_toolchain",
-    "score_ebclfsa_toolchain",
     "score_gcc_toolchain",
     "score_gcc_toolchain_15",
     "score_gcc_toolchain_bp",
