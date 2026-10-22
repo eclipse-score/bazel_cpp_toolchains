@@ -41,6 +41,15 @@ bazel test --config x86_64-linux //:language_and_standards_tests
 
 ## Test Categories
 
+### EBcLfSA ELF Enabler (`tests/ebclfsa/`)
+
+Run `bazel test --config=aarch64-linux-ebclfsa-2.0.0-beta2 //:elf_enabler_tests`
+from `tests/`. This suite uses the real SDK to post-process a cross-compiled
+AArch64 executable and checks ELF supervision metadata
+on the build host, without executing the target binary. It is included in
+`//:all_tests` and skipped on incompatible platforms. See
+[ELF enabler tests](ebclfsa/elf_enabler.md#tests) for details.
+
 ### Feature Verification Tests (`tests/feature_verification/`)
 
 These tests verify that specific toolchain features are correctly implemented and functioning. They validate compilation flags, linking behavior, and advanced toolchain capabilities.

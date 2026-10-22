@@ -72,8 +72,16 @@ test_suite(
 # ============================================================================
 
 test_suite(
+    name = "elf_enabler_tests",
+    tests = [
+        "//ebclfsa:integration_test",
+    ],
+)
+
+test_suite(
     name = "all_tests",
     tests = [
+        ":elf_enabler_tests",
         ":feature_verification_tests",
         ":guardrail_tests",
         ":language_and_standards_tests",

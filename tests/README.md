@@ -30,6 +30,9 @@ bazel test --config x86_64-linux //:feature_verification_tests
 
 # Language and standards tests  
 bazel test --config x86_64-linux //:language_and_standards_tests
+
+# ELF enabler tests (host-side checks using real AArch64 EBcLfSA outputs)
+bazel test --config=aarch64-linux-ebclfsa-2.0.0-beta2 //:elf_enabler_tests
 ```
 
 > NOTE: `bazel test` executes the compiled binaries, so it is only valid when
@@ -43,6 +46,8 @@ bazel test --config x86_64-linux //:language_and_standards_tests
 
 - **`feature_verification/`** - Toolchain feature validation tests
 - **`language_and_standards/`** - C and C++ standard version tests
+- **`ebclfsa/`** - SDK ELF enabler tests; checks run on
+  the host without executing the cross-compiled binaries
 
 ## Documentation
 
