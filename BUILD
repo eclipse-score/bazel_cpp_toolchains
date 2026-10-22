@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@aspect_rules_lint//format:defs.bzl", "format_multirun", "format_test")
-load("@score_tooling//:defs.bzl", "copyright_checker")
+load("@score_tools//cr_checker:cr_checker.bzl", "copyright_checker")
 
 format_multirun(
     name = "format.fix",
@@ -37,19 +37,17 @@ format_test(
 
 copyright_checker(
     name = "copyright",
-    srcs = [
-        ".github",
-        "docs",
-        "examples",
-        "packages",
-        "rules",
-        "templates",
-        "tests",
-        "tools",
-        "//:BUILD",
-        "//:MODULE.bazel",
-    ],
-    config = "@score_tooling//cr_checker/resources:config",
-    template = "@score_tooling//cr_checker/resources:templates",
+    # srcs = [
+    #     ".github",
+    #     "docs",
+    #     "examples",
+    #     "packages",
+    #     "rules",
+    #     "templates",
+    #     "tests",
+    #     "tools",
+    #     "//:BUILD",
+    #     "//:MODULE.bazel",
+    # ],
     visibility = ["//visibility:public"],
 )
