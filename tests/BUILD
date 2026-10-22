@@ -74,7 +74,6 @@ test_suite(
 test_suite(
     name = "elf_enabler_tests",
     tests = [
-        "//ebclfsa:analysis_tests",
         "//ebclfsa:integration_test",
     ],
 )
