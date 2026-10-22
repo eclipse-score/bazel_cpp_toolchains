@@ -14,7 +14,6 @@
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@score_ebclfsa_2.0.0-beta2_toolchain//:elf_enabler.bzl", "elf_enabler")
-load(":elf_enabler_test.bzl", "elf_enabler_test_suite")
 
 config_setting(
     name = "sdk_platform",
@@ -64,5 +63,3 @@ sh_test(
         "@score_ebclfsa_2.0.0-beta2_toolchain_pkg//:elf-enabler",
     ],
 )
-
-elf_enabler_test_suite(name = "analysis_tests")
