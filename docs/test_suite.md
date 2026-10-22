@@ -1,3 +1,16 @@
+<!-- ----------------------------------------------------------------------------
+  Copyright (c) 2026 Contributors to the Eclipse Foundation
+
+  See the NOTICE file(s) distributed with this work for additional
+  information regarding copyright ownership.
+
+  This program and the accompanying materials are made available under the
+  terms of the Apache License Version 2.0 which is available at
+  https://www.apache.org/licenses/LICENSE-2.0
+
+  SPDX-License-Identifier: Apache-2.0
+----------------------------------------------------------------------------- -->
+
 # Toolchain Test Suite
 
 This document provides comprehensive information about the SCORE Bazel C++ toolchain test suite, which validates toolchain functionality across different platforms and language standards.
@@ -258,7 +271,7 @@ bazel test --config x86_64-linux //...
 #### Cross configurations (QNX, aarch64-linux, runtime-specific)
 
 Configs such as `x86_64-qnx`, `aarch64-qnx`, `aarch64-linux`,
-`x86_64-linux-autosd10`, and `aarch64-linux-ebclfsa` target platforms that
+`x86_64-linux-autosd10`, and `aarch64-linux-ebclfsa-2.0.0-beta2` target platforms that
 differ from a typical x86_64 Linux host. Do **not** run `bazel test` for these
 configs on the host — the produced binaries are not executable there.
 
