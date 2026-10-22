@@ -257,6 +257,13 @@ def _impl(rctx):
     # Get canonical repository name for the toolchain package
     canonical_pkg_name = _get_canonical_pkg_name(rctx)
 
+    if rctx.attr.tc_os == _OS_LINUX and rctx.attr.tc_runtime_ecosystem == "ebclfsa":
+        rctx.template(
+            "elf_enabler.bzl",
+            rctx.attr._elf_enabler,
+            {"%{tc_pkg_repo}": rctx.attr.tc_pkg_repo},
+        )
+
     # Replace %{toolchain_pkg}% placeholder in extra flags with canonical name
     def replace_placeholder(flags):
         return [flag.replace(_PLACEHOLDER_TOOLCHAIN_PKG, canonical_pkg_name) for flag in flags]
@@ -373,6 +380,9 @@ gcc_toolchain = repository_rule(
         "tc_system_toolchain": attr.bool(doc = "Boolean flag to state if this is a system toolchain"),
         "_cc_gcov_wrapper_script": attr.label(
             default = "@score_bazel_cpp_toolchains//templates:cc_gcov_wrapper.template",
+        ),
+        "_elf_enabler": attr.label(
+            default = "@score_bazel_cpp_toolchains//rules/ebclfsa:elf_enabler.bzl.template",
         ),
         "_cc_toolchain_build": attr.label(
             default = "@score_bazel_cpp_toolchains//templates:BUILD.template",

@@ -43,6 +43,10 @@ into repository rule invocations.
 
 Contains the repository rules that materialize a toolchain repository.
 `rules/gcc.bzl` renders BUILD and configuration files from templates.
+`rules/ebclfsa/` holds SDK-specific ELF post-processing support and its
+generated entry point template; `tests/ebclfsa/` validates it using the
+EBcLfSA SDK in the separate test workspace. Related documentation is in
+`docs/ebclfsa/`.
 
 `packages/`
 

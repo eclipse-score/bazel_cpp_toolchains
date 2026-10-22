@@ -55,6 +55,8 @@ Generates the toolchain repository. It performs placeholder substitution and
 emits the final `BUILD`, `cc_toolchain_config.bzl`, and `gcov` wrapper files,
 substituting OS-specific values (e.g. `compiler`, `abi_version`,
 `toolchain_identifier`) into the shared templates below.
+For EBcLfSA Linux toolchains it also emits `elf_enabler.bzl`, bound to that
+toolchain's SDK package. See [EBcLfSA ELF enabler](ebclfsa/elf_enabler.md).
 
 `features/`
 

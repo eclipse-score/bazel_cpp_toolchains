@@ -45,3 +45,6 @@ jobs:
       - name: Guardrail (no legacy features)
         run: |
           bazel test --lockfile_mode=error --config=${{ matrix.config }} -- //:guardrail_tests
+      - name: ELF enabler tests
+        run: |
+          bazel test --lockfile_mode=error --config=${{ matrix.config }} -- //:elf_enabler_tests
