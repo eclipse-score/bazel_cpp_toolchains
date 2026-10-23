@@ -70,6 +70,17 @@ jobs:
           bazel build --config ${{ matrix.bazel-config }} \
             --credential_helper=*.qnx.com="${QNX_CREDENTIAL_HELPER}" -- \
             //:all_tests
+      - name: Guardrail for QNX toolchain (runs on Linux host)
+        run: |
+          set -euo pipefail
+
+          bazel test --config ${{ matrix.bazel-config }} \
+            --run_under=/usr/bin/env \
+            --test_lang_filters= \
+            --@bazel_tools//tools/test:incompatible_use_default_test_toolchain=false \
+            --test_output=errors \
+            --credential_helper=*.qnx.com="${QNX_CREDENTIAL_HELPER}" -- \
+            //:guardrail_tests
       - name: Install qemu
         run: |
           sudo apt-get update
