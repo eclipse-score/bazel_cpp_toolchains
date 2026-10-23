@@ -70,16 +70,11 @@ jobs:
           bazel build --config ${{ matrix.bazel-config }} \
             --credential_helper=*.qnx.com="${QNX_CREDENTIAL_HELPER}" -- \
             //:all_tests
-      - name: Install qemu
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system
-      - name: Enable KVM group permissions
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0660", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-          sudo chown "$USER":kvm /dev/kvm && sudo chmod 0660 /dev/kvm
+      - name: Setup latest QEMU
+        uses: eclipse-score/score_cicd-actions/setup-qemu-latest@main
+        with:
+          qemu-targets: aarch64-softmmu,x86_64-softmmu
+          extra-build-deps: libattr1-dev libffi-dev
       - name: Test with QNX toolchain
         run: |
           set -euo pipefail
