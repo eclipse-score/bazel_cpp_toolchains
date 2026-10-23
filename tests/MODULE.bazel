@@ -20,7 +20,7 @@ module(
 #        Pin `rules_go` to 0.61.1 because a newer transitive `rules_go` version
 #        pulled by upstream dependencies does not yet support Bazel 9.
 #        Remove once upstream is updated.
-bazel_dep(name = "rules_go", version = "0.61.1")
+bazel_dep(name = "rules_go", version = "0.64.2")
 
 # *******************************************************************************
 # Common useful functions and rules for Bazel
@@ -31,8 +31,6 @@ bazel_dep(name = "bazel_skylib", version = "1.9.0")
 # Constraint values for specifying platforms and toolchains
 # *******************************************************************************
 bazel_dep(name = "platforms", version = "1.1.0")
-
-# TODO: DO NOT MERGE IT WITH THIS !!!!
 bazel_dep(name = "score_bazel_platforms", version = "1.1.0")
 
 # *******************************************************************************
@@ -192,18 +190,6 @@ gcc.toolchain(
 )
 
 # *******************************************************************************
-# Setting EBcLfSA 0.1.0 GCC (CPU:aarch64|OS:Linux|V:ebclfsa-0.1.0|ES:ebclfsa)
-# *******************************************************************************
-gcc.toolchain(
-    name = "score_ebclfsa_toolchain",
-    runtime_ecosystem = "ebclfsa",
-    sdk_version = "0.1.0",
-    target_cpu = "aarch64",
-    target_os = "linux",
-    use_default_package = True,
-)
-
-# *******************************************************************************
 # Setting EBcLfSA 2.0.0-beta2 GCC (CPU:aarch64|OS:Linux|V:ebclfsa-2.0.0-beta2|ES:ebclfsa)
 # *******************************************************************************
 gcc.toolchain(
@@ -221,7 +207,6 @@ use_repo(
     "score_aarch64_gcc_toolchain_15",
     "score_autosd_10_toolchain",
     "score_ebclfsa_2.0.0-beta2_toolchain",
-    "score_ebclfsa_toolchain",
     "score_gcc_toolchain",
     "score_gcc_toolchain_15",
     "score_gcc_toolchain_bp",
