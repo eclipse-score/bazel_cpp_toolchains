@@ -39,7 +39,7 @@ jobs:
           bazel build --config=aarch64-linux -- //:language_and_standards_tests //:feature_verification_tests
       - name: Guardrail (no legacy features)
         run: |
-          bazel test --config=aarch64-linux -- //:guardrail_tests
+          bazel test --config=aarch64-linux --@bazel_tools//tools/test:incompatible_use_default_test_toolchain=false -- //:guardrail_tests
   generic-aarch64-linux-gcc15:
     runs-on: ubuntu-latest
     defaults:
@@ -55,4 +55,4 @@ jobs:
           bazel build --config=aarch64-linux-gcc15 -- //:language_and_standards_tests //:feature_verification_tests
       - name: Guardrail (no legacy features)
         run: |
-          bazel test --config=aarch64-linux-gcc15 -- //:guardrail_tests
+          bazel test --config=aarch64-linux-gcc15 --@bazel_tools//tools/test:incompatible_use_default_test_toolchain=false -- //:guardrail_tests
