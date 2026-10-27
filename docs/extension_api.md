@@ -129,10 +129,13 @@ Archive attributes can be supplied either directly through `gcc.sdp(...)` or thr
 
 ### Private GitHub Release Assets
 
+The extension instantiates archives through the `http_archive` wrapper in
+`rules/http_archive.bzl`, which has the same interface as the native rule.
 If `url` is a GitHub REST API release asset URL
 (`https://api.github.com/repos/<owner>/<repo>/releases/assets/<id>`), the
-extension uses the `github_release_archive` repository rule from
-`rules/github_release_archive.bzl` instead of `http_archive`.
+wrapper uses the `github_release_archive` repository rule from
+`rules/github_release_archive.bzl`; all other URLs go to the native
+`http_archive`.
 The attributes stay the same, but `sha256` and `type` are mandatory.
 Bazel 8 cannot download such assets itself: its downloader always sends a
 browser-like `Accept` header, so GitHub answers with JSON metadata instead of

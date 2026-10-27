@@ -14,11 +14,10 @@
 """ Module extension for setting up GCC toolchains in Bazel.
 """
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@score_bazel_cpp_toolchains//packages:version_matrix.bzl", "VERSION_MATRIX")
 load("@score_bazel_cpp_toolchains//rules:common.bzl", "QNX_SDP_TO_GCC_VERSION", "SDP_VERSION_MAPPING")
 load("@score_bazel_cpp_toolchains//rules:gcc.bzl", "gcc_toolchain")
-load("@score_bazel_cpp_toolchains//rules:github_release_archive.bzl", "github_release_archive", "is_github_release_asset_url")
+load("@score_bazel_cpp_toolchains//rules:http_archive.bzl", "http_archive")
 
 # Constants
 _PACKAGE_SUFFIX = "_pkg"
@@ -472,22 +471,16 @@ def _impl(mctx):
     """Implementation of the gcc module extension.
 
     Processes toolchain and package configurations, instantiates http_archive rules
-    (or github_release_archive rules for GitHub API release asset URLs) for dependencies,
-    and creates gcc_toolchain rules with proper configuration.
+    for dependencies, and creates gcc_toolchain rules with proper configuration.
 
     Args:
         mctx: ModuleContext object holding module information.
     """
     toolchains, archives = _get_info(mctx)
     for archive_info in archives:
-        if is_github_release_asset_url(archive_info["url"]):
-            archive_rule = github_release_archive
-            archive_location = {"url": archive_info["url"]}
-        else:
-            archive_rule = http_archive
-            archive_location = {"urls": [archive_info["url"]]}
-        archive_rule(
+        http_archive(
             name = archive_info["name"],
+            urls = [archive_info["url"]],
             build_file = archive_info["build_file"],
             patch_args = archive_info["patch_args"],
             patch_cmds = archive_info["patch_cmds"],
@@ -498,7 +491,6 @@ def _impl(mctx):
             type = archive_info["type"],
             patches = archive_info["patches"],
             files = archive_info["files"],
-            **archive_location
         )
 
     for toolchain_info in toolchains:

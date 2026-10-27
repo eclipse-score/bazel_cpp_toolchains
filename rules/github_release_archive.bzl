@@ -97,6 +97,7 @@ github_release_archive = repository_rule(
     doc = """Downloads and extracts an archive published as a GitHub release asset.
 
 Use this rule instead of `http_archive` for release assets of private repositories.
+The `http_archive` wrapper in `rules/http_archive.bzl` selects it automatically for such URLs.
 The archive is fetched through the GitHub REST API by `tools/fetch_github_release_asset.py`.
 The script reads the token from `SCORE_GITHUB_TOKEN`, `GITHUB_TOKEN` or `GH_TOKEN`, or from the
 netrc entry for `api.github.com` or `github.com`.
