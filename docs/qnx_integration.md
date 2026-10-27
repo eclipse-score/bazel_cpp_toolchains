@@ -453,6 +453,10 @@ The helper reads credentials in this order:
 - `SCORE_QNX_USER` and `SCORE_QNX_PASSWORD`
 - `~/.netrc` entry for `qnx.com`
 
+An SDP repackaged as a private GitHub release asset needs no credential
+helper.
+See [Private GitHub Release Assets](extension_api.md#private-github-release-assets).
+
 ---
 
 ## Licensing

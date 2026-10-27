@@ -1626,7 +1626,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "zi7lLeZEaUeJHTgRdQnTUZZpl7gerPZznsDSfmh2Z1s=",
+        "bzlTransitiveDigest": "cNJApRNAZBiMOKA4zoU7SSOphoARgjR3aSPhTvZXHHc=",
         "usagesDigest": "+ZSOYEkVEW2//7U9qlUlmzWBAROuoAzG1q47OVMahLE=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -1635,9 +1635,6 @@
           "my_toolchain_pkg": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "urls": [
-                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/0.0.1/x86_64-unknown-linux-gnu_gcc12.tar.gz"
-              ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
               "patch_args": [],
               "patch_cmds": [],
@@ -1647,15 +1644,15 @@
               "strip_prefix": "x86_64-unknown-linux-gnu",
               "type": "",
               "patches": [],
-              "files": {}
+              "files": {},
+              "urls": [
+                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/0.0.1/x86_64-unknown-linux-gnu_gcc12.tar.gz"
+              ]
             }
           },
           "score_gcc_toolchain_bp_pkg": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "urls": [
-                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/x86_64-unknown-linux-gnu_gcc12.tar.gz"
-              ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
               "patch_args": [],
               "patch_cmds": [],
@@ -1665,15 +1662,15 @@
               "strip_prefix": "x86_64-unknown-linux-gnu",
               "type": "",
               "patches": [],
-              "files": {}
+              "files": {},
+              "urls": [
+                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/x86_64-unknown-linux-gnu_gcc12.tar.gz"
+              ]
             }
           },
           "score_gcc_toolchain_pkg": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "urls": [
-                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/x86_64-unknown-linux-gnu_gcc12.tar.gz"
-              ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
               "patch_args": [],
               "patch_cmds": [],
@@ -1683,15 +1680,15 @@
               "strip_prefix": "x86_64-unknown-linux-gnu",
               "type": "",
               "patches": [],
-              "files": {}
+              "files": {},
+              "urls": [
+                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/x86_64-unknown-linux-gnu_gcc12.tar.gz"
+              ]
             }
           },
           "score_gcc_toolchain_15_pkg": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "urls": [
-                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.5/x86_64-unknown-linux-gnu_gcc15.tar.gz"
-              ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/gcc/15.3.0:gcc.BUILD",
               "patch_args": [],
               "patch_cmds": [],
@@ -1701,15 +1698,15 @@
               "strip_prefix": "x86_64-unknown-linux-gnu",
               "type": "",
               "patches": [],
-              "files": {}
+              "files": {},
+              "urls": [
+                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.5/x86_64-unknown-linux-gnu_gcc15.tar.gz"
+              ]
             }
           },
           "score_aarch64_gcc_toolchain_pkg": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "urls": [
-                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/aarch64-unknown-linux-gnu_gcc12.tar.gz"
-              ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/aarch64/gcc/12.2.0:gcc.BUILD",
               "patch_args": [],
               "patch_cmds": [],
@@ -1719,15 +1716,15 @@
               "strip_prefix": "aarch64-unknown-linux-gnu",
               "type": "",
               "patches": [],
-              "files": {}
+              "files": {},
+              "urls": [
+                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.4/aarch64-unknown-linux-gnu_gcc12.tar.gz"
+              ]
             }
           },
           "score_aarch64_gcc_toolchain_15_pkg": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "urls": [
-                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.5/aarch64-unknown-linux-gnu_gcc15.tar.gz"
-              ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/aarch64/gcc/15.3.0:gcc.BUILD",
               "patch_args": [],
               "patch_cmds": [],
@@ -1737,15 +1734,15 @@
               "strip_prefix": "aarch64-unknown-linux-gnu",
               "type": "",
               "patches": [],
-              "files": {}
+              "files": {},
+              "urls": [
+                "https://github.com/eclipse-score/toolchains_gcc_packages/releases/download/v0.0.5/aarch64-unknown-linux-gnu_gcc15.tar.gz"
+              ]
             }
           },
           "score_qcc_toolchain_pkg": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "urls": [
-                "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz"
-              ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
               "patch_args": [],
               "patch_cmds": [],
@@ -1755,15 +1752,15 @@
               "strip_prefix": "",
               "type": "",
               "patches": [],
-              "files": {}
+              "files": {},
+              "urls": [
+                "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz"
+              ]
             }
           },
           "score_qcc_arm_toolchain_pkg": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "urls": [
-                "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz"
-              ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/qnx/aarch64/sdp/8.0.0:sdp.BUILD",
               "patch_args": [],
               "patch_cmds": [],
@@ -1773,15 +1770,15 @@
               "strip_prefix": "",
               "type": "",
               "patches": [],
-              "files": {}
+              "files": {},
+              "urls": [
+                "https://www.qnx.com/download/download/88447/installation_qnx_804_260520.tar.xz"
+              ]
             }
           },
           "score_autosd_10_toolchain_pkg": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "urls": [
-                "https://github.com/eclipse-score/os_autosd/releases/download/v0.0.2/autosd-toolchain-x86_64.tar.gz"
-              ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/x86_64/autosd/10.0:autosd.BUILD",
               "patch_args": [],
               "patch_cmds": [],
@@ -1791,15 +1788,15 @@
               "strip_prefix": "sysroot",
               "type": "",
               "patches": [],
-              "files": {}
+              "files": {},
+              "urls": [
+                "https://github.com/eclipse-score/os_autosd/releases/download/v0.0.2/autosd-toolchain-x86_64.tar.gz"
+              ]
             }
           },
           "score_ebclfsa_2.0.0-beta2_toolchain_pkg": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
-              "urls": [
-                "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta2/fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64.tar.gz"
-              ],
               "build_file": "@@score_bazel_cpp_toolchains+//packages/linux/aarch64/ebclfsa/2.0.0-beta2:ebclfsa.BUILD",
               "patch_args": [],
               "patch_cmds": [
@@ -1811,7 +1808,10 @@
               "strip_prefix": "fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64",
               "type": "",
               "patches": [],
-              "files": {}
+              "files": {},
+              "urls": [
+                "https://github.com/Elektrobit/eb_corbos_toolkit/releases/download/v2.0.0-beta2/fastdev-sdk-trixie-ebclfsa-ebcl-qemuarm64.tar.gz"
+              ]
             }
           },
           "score_gcc_toolchain_bp": {

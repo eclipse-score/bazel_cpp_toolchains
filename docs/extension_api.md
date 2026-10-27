@@ -127,6 +127,44 @@ full semantics. Its attributes are:
 
 Archive attributes can be supplied either directly through `gcc.sdp(...)` or through `packages/version_matrix.bzl`; the extension forwards matrix values for `patches`, `patch_args`, `patch_cmds`, `patch_strip`, `patch_tool`, and `files` to `http_archive` when present. Entries that omit these optional fields use the native `http_archive` defaults.
 
+### Private GitHub Release Assets
+
+If `url` is a GitHub REST API release asset URL
+(`https://api.github.com/repos/<owner>/<repo>/releases/assets/<id>`), the
+extension uses the `github_release_archive` repository rule from
+`rules/github_release_archive.bzl` instead of `http_archive`.
+The attributes stay the same, but `sha256` and `type` are mandatory.
+Bazel 8 cannot download such assets itself: its downloader always sends a
+browser-like `Accept` header, so GitHub answers with JSON metadata instead of
+the archive.
+
+`tools/fetch_github_release_asset.py` downloads the asset and hands it to
+Bazel as a local file, so the checksum check and the repository cache still
+apply.
+Once the archive is in the repository cache, no token or network access is
+needed.
+The short-lived signed download URL never reaches Bazel, so it does not
+appear in the console output or the Build Event Protocol.
+The script requires `python3` on the host and reads the token in this order:
+
+- `SCORE_GITHUB_TOKEN`, `GITHUB_TOKEN` or `GH_TOKEN`
+- the netrc entry for `api.github.com` or `github.com` (`$NETRC` or `~/.netrc`)
+
+The token needs read access to the repository contents.
+It is not part of the repository definition, so rotating it does not trigger
+a refetch.
+No `--credential_helper` is needed for these URLs.
+
+```starlark
+gcc.sdp(
+    name = "my_qnx_sdp_pkg",
+    build_file = "@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
+    sha256 = "<sha256 of the asset>",
+    type = "tar.gz",
+    url = "https://api.github.com/repos/<owner>/<repo>/releases/assets/<id>",
+)
+```
+
 ## Feature Injection
 
 `extra_known_features` and `extra_enabled_features` let a workspace add
