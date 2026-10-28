@@ -195,6 +195,17 @@ gcc.toolchain(
 )
 
 # *******************************************************************************
+# Setting AutoSD 10 GCC cross (CPU:aarch64|OS:Linux|ES:autosd10-crossland, x86_64 host)
+# *******************************************************************************
+gcc.toolchain(
+    name = "score_autosd_10_cross_toolchain",
+    runtime_ecosystem = "autosd10-crossland",
+    target_cpu = "aarch64",
+    target_os = "linux",
+    use_default_package = True,
+)
+
+# *******************************************************************************
 # Setting EBcLfSA 2.0.0-beta2 GCC (CPU:aarch64|OS:Linux|V:ebclfsa-2.0.0-beta2|ES:ebclfsa)
 # *******************************************************************************
 gcc.toolchain(
@@ -218,6 +229,7 @@ use_repo(
     "my_toolchain",
     "score_aarch64_gcc_toolchain",
     "score_aarch64_gcc_toolchain_15",
+    "score_autosd_10_cross_toolchain",
     "score_autosd_10_toolchain",
     "score_ebclfsa_2.0.0-beta2_toolchain",
     "score_ebclfsa_2.0.0-beta3_toolchain",
