@@ -142,7 +142,8 @@ bazel test --config x86_64-linux //:language_and_standards_tests
 
 The available `--config` values (for example `x86_64-linux`, `aarch64-linux`,
 `x86_64-qnx`, `aarch64-qnx`, `x86_64-linux-autosd10`,
-`aarch64-linux-ebclfsa-2.0.0-beta2`)
+`aarch64-linux-ebclfsa-2.0.0-beta2`,
+`aarch64-linux-ebclfsa-2.0.0-beta3`)
 are defined in `tests/.bazelrc`.
 
 For documentation-only changes, build or preview the Markdown site to catch

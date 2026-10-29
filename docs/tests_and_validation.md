@@ -80,7 +80,8 @@ for the exact `--config` names):
 - Linux cross-compilation toolchains (`aarch64-linux`)
 - runtime-specific Linux toolchains such as AutoSD (`x86_64-linux-autosd10`)
   and EB corbos Linux for Safety Applications
-  (`aarch64-linux-ebclfsa-2.0.0-beta2`)
+  (`aarch64-linux-ebclfsa-2.0.0-beta2`,
+  `aarch64-linux-ebclfsa-2.0.0-beta3`)
 - packaged QNX toolchains (`x86_64-qnx`, `aarch64-qnx`)
 
 ## Useful Commands
