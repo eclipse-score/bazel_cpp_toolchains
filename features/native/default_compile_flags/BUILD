@@ -33,6 +33,7 @@ cc_args(
                 "-z noexecstack",
             ],
             "@platforms//os:qnx": [
+                "-D_QNX_SOURCE",
                 "-fno-canonical-system-headers",
             ],
             "//conditions:default": [],
