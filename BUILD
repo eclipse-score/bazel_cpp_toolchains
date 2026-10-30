@@ -37,17 +37,5 @@ format_test(
 
 copyright_checker(
     name = "copyright",
-    # srcs = [
-    #     ".github",
-    #     "docs",
-    #     "examples",
-    #     "packages",
-    #     "rules",
-    #     "templates",
-    #     "tests",
-    #     "tools",
-    #     "//:BUILD",
-    #     "//:MODULE.bazel",
-    # ],
     visibility = ["//visibility:public"],
 )

@@ -86,10 +86,16 @@ cc_toolchain_config(
         tc_extra_enabled_features = label_list_to_string(rctx.attr.extra_enabled_features),
     )
 
-def get_custom_cc_features_linux(rctx):
-    return ""
-
 def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
+    """Returns the QNX-specific feature loads and generated feature declarations.
+
+    Args:
+        rctx: RepositoryContext object with toolchain attributes.
+        canonical_pkg_name: Canonical repository name of the toolchain package.
+
+    Returns:
+        A tuple of the Starlark load statements and feature declarations.
+    """
     # sdp_env's host_dir/target_dir must be plain resolved paths, not labels:
     # cc_args' `env` rejects format() variables that aren't builtin cc_toolchain
     # variables ("The variable host_dir does not exist").

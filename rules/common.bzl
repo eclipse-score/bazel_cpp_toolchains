@@ -57,23 +57,6 @@ def get_flag_groups(flags):
         return "[flag_group(flags = [" + ", ".join(['"%s"' % f for f in flags]) + "])]"
     return "[]"
 
-def get_flag_group(flags):
-    """Helper function to create a flag_group.
-
-    Args:
-        flags (list[str]): A list of compiler or linker flags.
-
-    Returns:
-        flag_group: A Bazel flag_group object containing the provided flags.
-    """
-    if len(flags):
-        return [
-            flag_group(
-                flags = flags,
-            ),
-        ]
-    return []
-
 def label_list_to_string(input_list):
     """ Small helper function to transform label list into string list
 
