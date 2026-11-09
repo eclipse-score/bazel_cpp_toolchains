@@ -1,0 +1,34 @@
+diff --git a/runtime_es/BUILD b/runtime_es/BUILD
+--- a/runtime_es/BUILD
++++ b/runtime_es/BUILD
+@@ -38,6 +38,11 @@ constraint_value(
+     constraint_setting = ":runtime_ecosystem",
+ )
+ 
++constraint_value(
++    name = "ebclfsa-hi",
++    constraint_setting = ":runtime_ecosystem",
++)
++
+ constraint_value(
+     name = "posix",
+     constraint_setting = ":runtime_ecosystem",
+diff --git a/BUILD b/BUILD
+--- a/BUILD
++++ b/BUILD
+@@ -184,6 +184,15 @@ platform(
+     parents = [":aarch64-linux"],
+ )
+ 
++platform(
++    name = "aarch64-linux-sdk_2.0.0-beta3-ebclfsa-hi",
++    constraint_values = [
++        "@score_bazel_platforms//version:sdk_2.0.0-beta3",
++        "@score_bazel_platforms//runtime_es:ebclfsa-hi",
++    ],
++    parents = [":aarch64-linux"],
++)
++
+ # --------------------------------------------------------------------------------
+ # List of aliases (deprecated targets) to keep compatibility
+ # --------------------------------------------------------------------------------

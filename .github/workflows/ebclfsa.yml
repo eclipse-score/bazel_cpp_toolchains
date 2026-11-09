@@ -24,6 +24,25 @@ on:
     types: [checks_requested]
   workflow_call:
 jobs:
+  aarch64-ebclfsa-hi:
+    runs-on: ubuntu-24.04
+    name: Bazel Test (Aarch64-Linux)(ebclfsa HI)
+    defaults:
+      run:
+        working-directory: ./tests
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@0.18.0
+      - name: Install AArch64 userspace emulator
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends qemu-user
+      - name: Verify high-integrity configuration and restrictions
+        run: |
+          bazel test --lockfile_mode=error --config=aarch64-linux-ebclfsa-hi --test_lang_filters=-cc -- //:ebclfsa_hi_tests //:guardrail_tests
+      - name: Run high-integrity runtime test
+        run: |
+          bazel test --lockfile_mode=error --config=aarch64-linux-ebclfsa-hi --run_under=/usr/bin/qemu-aarch64 -- //ebclfsa_hi:runtime_test
   aarch64-ebclfsa:
     runs-on: ubuntu-24.04
     strategy:

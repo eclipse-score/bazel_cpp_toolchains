@@ -44,7 +44,10 @@ make_sysroot_link_flags(
 %{tc_custom_features}
 # known_features must list every feature (enabled or opt-in); enabled_features is
 # the order-irrelevant subset that should start on. See get_feature_lists().
-_KNOWN_FEATURES, _ENABLED_FEATURES = get_feature_lists()
+_KNOWN_FEATURES, _ENABLED_FEATURES = (
+    get_feature_lists(runtime_ecosystem = "%{tc_runtime_es}")
+    if "%{tc_os}" == "linux" else get_feature_lists()
+)
 
 filegroup(
     name = "empty",

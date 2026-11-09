@@ -35,6 +35,8 @@ bazel_dep(name = "score_bazel_platforms", version = "1.1.0")
 git_override(
     module_name = "score_bazel_platforms",
     commit = "081dcf7bdbc94d05bbe354291e13a775dbf8f3e6",
+    patch_strip = 1,
+    patches = ["//patches:score_bazel_platforms-ebclfsa-hi.patch"],
     remote = "https://github.com/eclipse-score/bazel_platforms.git",
 )
 
@@ -224,6 +226,14 @@ gcc.toolchain(
     target_os = "linux",
     use_default_package = True,
 )
+gcc.toolchain(
+    name = "score_ebclfsa_hi_toolchain",
+    runtime_ecosystem = "ebclfsa-hi",
+    sdk_version = "2.0.0-beta3",
+    target_cpu = "aarch64",
+    target_os = "linux",
+    use_default_package = True,
+)
 use_repo(
     gcc,
     "my_toolchain",
@@ -233,6 +243,8 @@ use_repo(
     "score_autosd_10_toolchain",
     "score_ebclfsa_2.0.0-beta2_toolchain",
     "score_ebclfsa_2.0.0-beta3_toolchain",
+    "score_ebclfsa_hi_toolchain",
+    "score_ebclfsa_hi_toolchain_pkg",
     "score_gcc_toolchain",
     "score_gcc_toolchain_15",
     "score_gcc_toolchain_bp",
