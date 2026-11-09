@@ -1400,7 +1400,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "izgy/ujYOiU7xY3U8lVNBGhhr7Vq82WmtNDmKBWhRCk=",
+        "bzlTransitiveDigest": "JGlxCTNSgVs79PkM9q+OKNohhtSpSE8tHCBKaYwNyFg=",
         "usagesDigest": "pR+TVhlRpqjkxePeXQSg5d+/ipnXwGImTIWJwzaKH+U=",
         "recordedInputs": [
           "REPO_MAPPING:,score_bazel_cpp_toolchains score_bazel_cpp_toolchains+",

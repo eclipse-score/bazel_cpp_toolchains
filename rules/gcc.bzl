@@ -280,6 +280,7 @@ def _impl(rctx):
             "%{tc_cpu}": rctx.attr.tc_cpu,
             "%{tc_identifier}": tc_identifier,
             "%{tc_os}": rctx.attr.tc_os,
+            "%{tc_feature_os}": "ebclfsa_hi" if rctx.attr.tc_os == _OS_LINUX and rctx.attr.tc_runtime_ecosystem == "ebclfsa-hi" else rctx.attr.tc_os,
             "%{tc_pkg_repo}": rctx.attr.tc_pkg_repo,
             "%{tc_runtime_es}": rctx.attr.tc_runtime_ecosystem,
             "%{tc_version}": rctx.attr.gcc_version,

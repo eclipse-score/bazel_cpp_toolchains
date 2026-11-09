@@ -88,16 +88,22 @@ it defines no features of its own.
   `sysroot_link_flags`, ...), including the capability markers (`dbg`, `opt`,
   `supports_pic`, ...). These mirror the removed legacy Bazel C++ features
   one-for-one.
-- `features/custom/linux/` and `features/custom/qnx/`: OS-specific features
+- `features/custom/linux/`, `features/custom/qnx/`, and
+  `features/custom/ebclfsa_hi/`: OS-specific features
   not covered by the native set (QNX `sdp_env`, `gcc_version_flags`), plus
   `make_cc_features.bzl`, which defines the ordered `_LINUX_FEATURES` /
-  `_QNX_FEATURES` lists of `(label, initially_enabled)` pairs. Order here
+  `_QNX_FEATURES` / `_EBCLFSA_HI_FEATURES` lists of
+  `(label, initially_enabled)` pairs. Order here
   mirrors the previous templates' `features = [...]` order exactly, since
   feature order determines command-line flag order. `get_feature_lists()`
   returns `(known_features, enabled_features)`, and `templates/BUILD.template`
   passes those straight into `cc_toolchain_config`'s `known_features` /
   `enabled_features` attributes — this is what the generated toolchain
   actually uses.
+  The repository rule selects `ebclfsa_hi` for Linux toolchains with
+  `runtime_ecosystem = "ebclfsa-hi"`; otherwise it selects the target OS.
+  This keeps the restricted HI compile flags and feature list separate from
+  generic Linux without changing platform OS constraints.
 - Per-instance features whose content is dynamic per toolchain instance —
   `extra_compile_flags`, `extra_c_compile_flags`, `extra_cxx_compile_flags`,
   `extra_link_flags`, `compiler_library_search_paths`, `sysroot_link_flags` —

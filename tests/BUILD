@@ -60,6 +60,7 @@ test_suite(
 test_suite(
     name = "guardrail_tests",
     tests = [
+        "//guardrails:feature_lists_test",
         "//guardrails:no_legacy_features_guard_test",
     ],
 )

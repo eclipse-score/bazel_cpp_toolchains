@@ -67,38 +67,10 @@ def linux_enabled_features():
     """Subset of Linux feature labels that start enabled — order is irrelevant here."""
     return [label for label, enabled in _LINUX_FEATURES if enabled]
 
-def get_feature_lists(runtime_ecosystem = ""):
+def get_feature_lists():
     """Returns the flat known/enabled feature label lists for Linux.
-
-    Args:
-        runtime_ecosystem: Select the feature profile for this runtime.
 
     Returns:
         (known_features, enabled_features) tuple of flat label lists.
     """
-    if runtime_ecosystem != "ebclfsa-hi":
-        return linux_known_features(), linux_enabled_features()
-
-    omitted = [
-        "default_link_flags",
-        "static_libgcc",
-        "gcc_coverage_map_format",
-        "coverage",
-        "supports_dynamic_linker",
-        "shared_flag",
-        "runtime_library_search_directories",
-        "fission_support",
-        "supports_fission",
-    ]
-    features = [
-        (
-            "@score_bazel_cpp_toolchains//features/custom/linux/ebclfsa_hi:compile_flags" if label == "@score_bazel_cpp_toolchains//features/native/default_compile_flags" else label,
-            enabled,
-        )
-        for label, enabled in _LINUX_FEATURES
-        if label.split(":")[-1].split("/")[-1] not in omitted
-    ]
-    return (
-        [label for label, _enabled in features],
-        [label for label, enabled in features if enabled],
-    )
+    return linux_known_features(), linux_enabled_features()

@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""EBcLfSA High Integrity-specific compiler features."""
+
 load("@rules_cc//cc/toolchains:feature.bzl", "cc_feature")
 
 package(default_visibility = ["//visibility:public"])
