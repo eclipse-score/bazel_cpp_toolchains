@@ -13,4 +13,5 @@
 
 exports_files([
     "ebclfsa.BUILD",
+    "ebclfsa_hi.BUILD",
 ])

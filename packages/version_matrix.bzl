@@ -384,3 +384,61 @@ VERSION_MATRIX = {
         "gcc_version": "12.2.0",
     },
 }
+
+# Both integrity variants share archive metadata; the HI profile additionally
+# repairs LLVM's host-library lookup without exporting LD_LIBRARY_PATH.
+_EBCLFSA_HI_ROOT = "external/%{toolchain_pkg}%"
+_EBCLFSA_HI_C_FLAGS = [
+    "--target=aarch64-linux-gnu",
+    "-nostdinc",
+    "-isystem",
+    _EBCLFSA_HI_ROOT + "/opt/lisa-libc/include",
+    "-isystem",
+    _EBCLFSA_HI_ROOT + "/usr/lib/llvm-20/lib/clang/20/include",
+    "-fno-omit-frame-pointer",
+    "-ffunction-sections",
+    "-fdata-sections",
+]
+VERSION_MATRIX["aarch64-linux-sdk_2.0.0-beta3-ebclfsa-hi"] = dict(
+    VERSION_MATRIX["aarch64-linux-sdk_2.0.0-beta3-ebclfsa"],
+    compiler = "clang",
+    target_libc = "musl",
+    build_file = "@score_bazel_cpp_toolchains//packages/linux/aarch64/ebclfsa/2.0.0-beta3:ebclfsa_hi.BUILD",
+    # Keep host libraries local to the tools, not in the action environment:
+    # LD_LIBRARY_PATH would also affect Bazel's host process-wrapper.
+    patch_cmds = [
+        "set -eu; sdk=$(pwd); libs=$sdk/usr/lib/x86_64-linux-gnu; " +
+        "loader=$libs/ld-linux-x86-64.so.2; " +
+        "tmp=$(mktemp -d); trap 'rm -rf \"$tmp\"' EXIT; " +
+        "cp \"$sdk/usr/bin/patchelf\" \"$tmp/patchelf\"; " +
+        "run_patchelf() { \"$loader\" --library-path \"$libs/sdk-libc:$libs\" \"$tmp/patchelf\" \"$@\"; }; " +
+        "for binary in usr/lib/llvm-20/bin/clang usr/lib/llvm-20/bin/lld " +
+        "usr/bin/aarch64-linux-gnu-ar usr/bin/aarch64-linux-gnu-strip " +
+        "usr/bin/aarch64-linux-gnu-readelf usr/bin/lisa-elf-enabler; do " +
+        "run_patchelf --set-interpreter \"$loader\" \"$binary\"; " +
+        "run_patchelf --force-rpath --set-rpath \"$libs/sdk-libc:$libs\" \"$binary\"; " +
+        "done; " +
+        "run_patchelf --force-rpath --set-rpath '$ORIGIN/sdk-libc:$ORIGIN' \"$libs/libLLVM.so.20.1\"",
+    ],
+    extra_c_compile_flags = _EBCLFSA_HI_C_FLAGS,
+    extra_cxx_compile_flags = [
+        "-nostdinc++",
+        "-isystem",
+        _EBCLFSA_HI_ROOT + "/opt/lisa-libcxx/include/c++/v1",
+        "-fno-exceptions",
+        "-fno-rtti",
+    ] + _EBCLFSA_HI_C_FLAGS,
+    extra_link_flags = [
+        "--target=aarch64-linux-gnu",
+        "--ld-path=" + _EBCLFSA_HI_ROOT + "/usr/lib/llvm-20/bin/ld.lld",
+        "-nostdlib",
+        "-static",
+        "-Wl,--start-group",
+        _EBCLFSA_HI_ROOT + "/opt/lisa-libcxx/lib/libc++.a",
+        _EBCLFSA_HI_ROOT + "/opt/lisa-libcxx/lib/libc++abi.a",
+        _EBCLFSA_HI_ROOT + "/usr/lib/llvm-20/lib/clang/20/lib/linux/libclang_rt.builtins-aarch64.a",
+        _EBCLFSA_HI_ROOT + "/opt/lisa-libc/lib/aarch64-linux-gnu/crt1.o",
+        _EBCLFSA_HI_ROOT + "/opt/lisa-libc/lib/aarch64-linux-gnu/libc.a",
+        "-Wl,--end-group",
+    ],
+)

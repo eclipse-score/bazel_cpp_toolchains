@@ -54,7 +54,8 @@ required extra flags.
 Holds declarative `cc_feature` / `cc_args` toolchain-feature definitions built
 with `@rules_cc//cc/toolchains`. `features/native/` has one reusable target
 per toolchain feature (mirroring the legacy Bazel C++ features); the
-OS-specific `features/custom/linux/` and `features/custom/qnx/` packages hold
+OS-specific `features/custom/linux/`, `features/custom/qnx/`, and
+`features/custom/ebclfsa_hi/` packages hold
 platform-only features (e.g. QNX `sdp_env`, `gcc_version_flags`) plus the
 ordered `known_features`/`enabled_features` lists that
 `templates/BUILD.template` passes to `cc_toolchain_config`.
@@ -64,7 +65,8 @@ ordered `known_features`/`enabled_features` lists that
 Holds the shared template files rendered by repository rules into the
 generated toolchain repository: `BUILD.template`,
 `cc_toolchain_config.bzl.template`, and `cc_gcov_wrapper.template`. A single
-template pair now covers both Linux and QNX; OS-specific behavior comes from
+template pair covers Linux, QNX, and the EBcLfSA HI feature profile;
+OS-specific behavior comes from
 placeholder substitution in `rules/gcc.bzl` and from the OS-specific feature
 lists in `features/custom/`, not from separate template directories.
 

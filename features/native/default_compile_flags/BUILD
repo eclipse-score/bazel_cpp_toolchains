@@ -79,6 +79,7 @@ cc_args(
     requires_any_of = [
         ":is_c99",
     ],
+    visibility = ["//visibility:public"],
 )
 
 cc_args(
@@ -86,6 +87,7 @@ cc_args(
     actions = ["@rules_cc//cc/toolchains/actions:c_compile"],
     args = ["-std=c11"],
     requires_any_of = [":is_c11"],
+    visibility = ["//visibility:public"],
 )
 
 cc_args(
@@ -93,6 +95,7 @@ cc_args(
     actions = ["@rules_cc//cc/toolchains/actions:c_compile"],
     args = ["-std=gnu11"],
     requires_any_of = [":is_gnu11"],
+    visibility = ["//visibility:public"],
 )
 
 cc_args(
@@ -105,6 +108,7 @@ cc_args(
                ],
                "//conditions:default": [],
            }),
+    visibility = ["//visibility:public"],
 )
 
 cc_feature_constraint(
@@ -120,6 +124,7 @@ cc_args(
         "-g3",
     ],
     requires_any_of = [":is_dbg"],
+    visibility = ["//visibility:public"],
 )
 
 cc_feature_constraint(
@@ -143,6 +148,7 @@ cc_args(
         ":is_opt",
         ":is_fastbuild",
     ],
+    visibility = ["//visibility:public"],
 )
 
 cc_args(
