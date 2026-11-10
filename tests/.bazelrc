@@ -78,6 +78,22 @@ test:aarch64-qnx --run_under=@score_qnx_unit_tests//src:run_under_qnx
 test:aarch64-qnx --test_lang_filters=cc
 
 # -------------------------------------------------------------------------------
+# Toolchain configuration for x86_64-qnx with SDP 8.0.4 (target)
+# -------------------------------------------------------------------------------
+build:x86_64-qnx-804 --config=x86_64-linux
+build:x86_64-qnx-804 --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:x86_64-qnx-804 --extra_toolchains=@score_qcc_804_toolchain//:x86_64-qnx-sdp_8.0.0
+build:x86_64-qnx-804 --extra_toolchains=@score_qnx_804_x86_64_ifs_toolchain//:ifs-x86_64-qnx-sdp_8.0.0
+
+# -------------------------------------------------------------------------------
+# Toolchain configuration for aarch64-qnx with SDP 8.0.4 (target)
+# -------------------------------------------------------------------------------
+build:aarch64-qnx-804 --config=x86_64-linux
+build:aarch64-qnx-804 --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
+build:aarch64-qnx-804 --extra_toolchains=@score_qcc_804_arm_toolchain//:aarch64-qnx-sdp_8.0.0
+build:aarch64-qnx-804 --extra_toolchains=@score_qnx_804_aarch64_ifs_toolchain//:ifs-aarch64-qnx-sdp_8.0.0
+
+# -------------------------------------------------------------------------------
 # Toolchain configuration for aarch64-linux (target)
 # -------------------------------------------------------------------------------
 build:aarch64-linux --config=x86_64-linux

@@ -311,7 +311,6 @@ def _create_and_link_sdp(toolchain_info):
     Fails:
         If the resolved matrix key is not found in VERSION_MATRIX.
     """
-    pkg_name = "{}{}".format(toolchain_info["name"], _PACKAGE_SUFFIX)
 
     # Resolve package identifier from original version fields, not the
     # constraint-remapped tc_identifier. tc_identifier may differ from
@@ -325,12 +324,19 @@ def _create_and_link_sdp(toolchain_info):
     else:
         pkg_identifier = toolchain_info["tc_identifier"]
 
-    matrix_key = "{cpu}-{os}{identifier}{runtime_es}".format(
-        cpu = toolchain_info["tc_cpu"],
-        os = toolchain_info["tc_os"],
+    if toolchain_info["tc_os"] == _OS_QNX:
+        matrix_prefix = toolchain_info["tc_os"]
+    else:
+        matrix_prefix = "{}-{}".format(toolchain_info["tc_cpu"], toolchain_info["tc_os"])
+    matrix_key = "{prefix}{identifier}{runtime_es}".format(
+        prefix = matrix_prefix,
         identifier = "-{}".format(pkg_identifier) if pkg_identifier != "" else "",
         runtime_es = "-{}".format(toolchain_info["tc_runtime_ecosystem"]) if toolchain_info["tc_runtime_ecosystem"] != "" else "",
     )
+    if toolchain_info["tc_os"] == _OS_QNX:
+        pkg_name = "{}{}".format(matrix_key.replace("-", "_").replace(".", "_"), _PACKAGE_SUFFIX)
+    else:
+        pkg_name = "{}{}".format(toolchain_info["name"], _PACKAGE_SUFFIX)
 
     # Validate and retrieve matrix entry
     if matrix_key not in VERSION_MATRIX:
@@ -362,6 +368,15 @@ def _create_and_link_sdp(toolchain_info):
         "patches": matrix.get("patches"),
         "files": matrix.get("files"),
     }
+
+def _append_unique_package(packages, package_info):
+    """Adds an archive once, rejecting conflicting definitions with the same repository name."""
+    for existing in packages:
+        if existing["name"] == package_info["name"]:
+            if existing != package_info:
+                fail("Conflicting package definitions use the repository name '{}'.".format(package_info["name"]))
+            return
+    packages.append(package_info)
 
 def _resolve_identifier(toolchain_info):
     """Resolves the toolchain identifier from version fields.
@@ -461,11 +476,26 @@ def _get_info(mctx):
             continue
 
         if tc["use_default_package"]:
-            packages.append(_create_and_link_sdp(tc))
+            _append_unique_package(packages, _create_and_link_sdp(tc))
 
         _resolve_qnx_gcc_version(tc)
 
     return toolchains, packages
+
+def _resolve_tool_suffix(toolchain_info):
+    """Returns the CPU suffix of tool targets in the shared default QNX package.
+
+    Custom packages (use_default_package = False) keep unsuffixed targets.
+
+    Args:
+        toolchain_info: dict holding toolchain configuration.
+
+    Returns:
+        str: e.g. '_x86_64' for default QNX packages, otherwise ''.
+    """
+    if toolchain_info["use_default_package"] and toolchain_info["tc_os"] == _OS_QNX:
+        return "_{}".format(toolchain_info["tc_cpu"])
+    return ""
 
 def _impl(mctx):
     """Implementation of the gcc module extension.
@@ -512,6 +542,7 @@ def _impl(mctx):
             tc_identifier = toolchain_info["tc_identifier"],
             tc_os = toolchain_info["tc_os"],
             tc_pkg_repo = toolchain_info["sdp_to_link"],
+            tc_tool_suffix = _resolve_tool_suffix(toolchain_info),
             tc_system_toolchain = toolchain_info["use_system_toolchain"],
             tc_runtime_ecosystem = toolchain_info["tc_runtime_ecosystem"],
             gcc_version = toolchain_info["gcc_version"],

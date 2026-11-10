@@ -63,13 +63,13 @@ filegroup(
 
 cc_toolchain_config(
     name = "cc_toolchain_config",
-    ar_binary = "@{tc_pkg_repo}//:ar",
+    ar_binary = "@{tc_pkg_repo}//:ar{tc_tool_suffix}",
     cc_binary = "@{tc_pkg_repo}//:cc",
     cxx_binary = "@{tc_pkg_repo}//:cxx",
-    gcov_binary = "@{tc_pkg_repo}//:gcov",
-    strip_binary = "@{tc_pkg_repo}//:strip",
+    gcov_binary = "@{tc_pkg_repo}//:gcov{tc_tool_suffix}",
+    strip_binary = "@{tc_pkg_repo}//:strip{tc_tool_suffix}",
     sysroot = "@{tc_pkg_repo}//:sysroot_dir",
-    cxx_builtin_include_directories = ["@{tc_pkg_repo}//:cxx_builtin_include_directories"],
+    cxx_builtin_include_directories = ["@{tc_pkg_repo}//:cxx_builtin_include_directories{tc_tool_suffix}"],
     target_cpu = "{tc_cpu}",
     target_os = "{tc_os}",
     known_features = _KNOWN_FEATURES,
@@ -84,6 +84,7 @@ cc_toolchain_config(
         tc_os = rctx.attr.tc_os,
         tc_extra_known_features = label_list_to_string(rctx.attr.extra_known_features),
         tc_extra_enabled_features = label_list_to_string(rctx.attr.extra_enabled_features),
+        tc_tool_suffix = rctx.attr.tc_tool_suffix,
     )
 
 def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
@@ -378,6 +379,7 @@ gcc_toolchain = repository_rule(
         "tc_pkg_repo": attr.string(doc = "The label name of toolchain tarbal."),
         "tc_runtime_ecosystem": attr.string(doc = "Runtime ecosystem."),
         "tc_system_toolchain": attr.bool(doc = "Boolean flag to state if this is a system toolchain"),
+        "tc_tool_suffix": attr.string(doc = "Suffix appended to the package tool/label names (ar, gcov, strip, cxx_builtin_include_directories), e.g. `_x86_64`; empty for unsuffixed packages."),
         "_cc_gcov_wrapper_script": attr.label(
             default = "@score_bazel_cpp_toolchains//templates:cc_gcov_wrapper.template",
         ),
