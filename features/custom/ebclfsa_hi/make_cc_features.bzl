@@ -18,7 +18,7 @@ _EBCLFSA_HI_FEATURES = [
     ("@score_bazel_cpp_toolchains//features/native/unfiltered_compile_flags", True),
     ("@score_bazel_cpp_toolchains//features/native/markers:gnu11", False),
     ("@score_bazel_cpp_toolchains//features/native/markers:c_std_c99", False),
-    ("@score_bazel_cpp_toolchains//features/custom/ebclfsa_hi:compile_flags", True),
+    ("@score_bazel_cpp_toolchains//features/custom/ebclfsa_hi/compile_flags", True),
     ("@score_bazel_cpp_toolchains//features/native/random_seed", True),
     ("@score_bazel_cpp_toolchains//features/native/include_paths", True),
     ("@score_bazel_cpp_toolchains//features/native/preprocessor_defines", True),

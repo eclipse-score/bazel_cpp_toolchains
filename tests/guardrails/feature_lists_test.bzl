@@ -13,7 +13,7 @@ def _feature_lists_test_impl(ctx):
     linux_known, linux_enabled = linux_features()
     hi_known, hi_enabled = hi_features()
     native = "@score_bazel_cpp_toolchains//features/native/"
-    compile_flags = "@score_bazel_cpp_toolchains//features/custom/ebclfsa_hi:compile_flags"
+    compile_flags = "@score_bazel_cpp_toolchains//features/custom/ebclfsa_hi/compile_flags"
     omitted = [
         native + "default_link_flags",
         native + "static_libgcc",
