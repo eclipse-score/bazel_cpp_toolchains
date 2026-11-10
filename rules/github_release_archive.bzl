@@ -92,6 +92,9 @@ def _github_release_archive_impl(rctx):
     patch(rctx)
     symlink_files(rctx)
 
+    if hasattr(rctx, "repo_metadata"):
+        return rctx.repo_metadata(reproducible = True)
+
 github_release_archive = repository_rule(
     implementation = _github_release_archive_impl,
     doc = """Downloads and extracts an archive published as a GitHub release asset.
