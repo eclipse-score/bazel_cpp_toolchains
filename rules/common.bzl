@@ -22,6 +22,7 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl", "flag_group")
 # uses the older identifier.
 SDP_VERSION_MAPPING = {
     "8.0.4": "8.0.0",
+    "8.0.5": "8.0.0",
 }
 
 # GCC version bundled with each QNX SDP major release, keyed by SDP major version.

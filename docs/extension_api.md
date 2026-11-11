@@ -68,7 +68,14 @@ Common package selection attributes:
 - `sdk_version`: SDK version info variable, an alternative identifier used in
   matrix resolution.
 - `sdp_to_link`: name of the toolchain package to be linked with this
-  toolchain, default set to toolchain name + `_pkg`.
+  toolchain. For default QNX packages, the extension uses a name based on the
+  version-matrix entry so toolchains for different CPUs share one package
+  repository (for example, QNX SDP 8.0.5 uses
+  `qnx_sdp_8_0_5_pkg`). Each `sdp_version` maps to its own default package, so
+  several SDP versions can coexist in one module. This default package is
+  private and available only to S-CORE committers; other users must provide
+  their own compatible package via
+  `gcc.sdp(...)`. Other default packages use toolchain name + `_pkg`.
 - `use_system_toolchain`: TBD.
 
 Flag and runtime attributes:
@@ -161,7 +168,7 @@ No `--credential_helper` is needed for these URLs.
 ```starlark
 gcc.sdp(
     name = "my_qnx_sdp_pkg",
-    build_file = "@score_bazel_cpp_toolchains//packages/qnx/x86_64/sdp/8.0.0:sdp.BUILD",
+    build_file = "//toolchains:qnx_sdp.BUILD",
     sha256 = "<sha256 of the asset>",
     type = "tar.gz",
     url = "https://api.github.com/repos/<owner>/<repo>/releases/assets/<id>",
