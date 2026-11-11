@@ -1404,7 +1404,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "xq3umoU/mEMaK/EuUbroheEpRAeebK7O4J/Q/gY4924=",
+        "bzlTransitiveDigest": "1uoPeLCLNfwipcI4cVe0B+KMMoZfwjZ3QFQzLpztFnE=",
         "usagesDigest": "lB5WawpZszOBnr6vXqYY07MSkBwwQM3yltAFst8DmV4=",
         "recordedInputs": [
           "REPO_MAPPING:,score_bazel_cpp_toolchains score_bazel_cpp_toolchains+",
@@ -2106,9 +2106,6 @@
                 "-lm",
                 "-ldl",
                 "-lrt",
-                "-static-libstdc++",
-                "-static-libgcc",
-                "-static",
                 "--no-canonical-prefixes"
               ],
               "license_info_variable": "",
@@ -2186,9 +2183,6 @@
                 "-lm",
                 "-ldl",
                 "-lrt",
-                "-static-libstdc++",
-                "-static-libgcc",
-                "-static",
                 "--no-canonical-prefixes"
               ],
               "license_info_variable": "",
