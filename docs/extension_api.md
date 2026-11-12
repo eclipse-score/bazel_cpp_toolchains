@@ -1,17 +1,15 @@
-<!--
-# *******************************************************************************
-# Copyright (c) 2026 Contributors to the Eclipse Foundation
-#
-# See the NOTICE file(s) distributed with this work for additional
-# information regarding copyright ownership.
-#
-# This program and the accompanying materials are made available under the
-# terms of the Apache License Version 2.0 which is available at
-# https://www.apache.org/licenses/LICENSE-2.0
-#
-# SPDX-License-Identifier: Apache-2.0
-# *******************************************************************************
--->
+<!-- ----------------------------------------------------------------------------
+  Copyright (c) 2026 Contributors to the Eclipse Foundation
+
+  See the NOTICE file(s) distributed with this work for additional
+  information regarding copyright ownership.
+
+  This program and the accompanying materials are made available under the
+  terms of the Apache License Version 2.0 which is available at
+  https://www.apache.org/licenses/LICENSE-2.0
+
+  SPDX-License-Identifier: Apache-2.0
+----------------------------------------------------------------------------- -->
 
 # Extension API
 
@@ -70,7 +68,14 @@ Common package selection attributes:
 - `sdk_version`: SDK version info variable, an alternative identifier used in
   matrix resolution.
 - `sdp_to_link`: name of the toolchain package to be linked with this
-  toolchain, default set to toolchain name + `_pkg`.
+  toolchain. For default QNX packages, the extension uses a name based on the
+  version-matrix entry so toolchains for different CPUs share one package
+  repository (for example, QNX SDP 8.0.5 uses
+  `qnx_sdp_8_0_5_pkg`). Each `sdp_version` maps to its own default package, so
+  several SDP versions can coexist in one module. This default package is
+  private and available only to S-CORE committers; other users must provide
+  their own compatible package via
+  `gcc.sdp(...)`. Other default packages use toolchain name + `_pkg`.
 - `use_system_toolchain`: TBD.
 
 Flag and runtime attributes:
@@ -128,6 +133,47 @@ full semantics. Its attributes are:
   specified patch tool instead of the Bazel-native patch implementation.
 
 Archive attributes can be supplied either directly through `gcc.sdp(...)` or through `packages/version_matrix.bzl`; the extension forwards matrix values for `patches`, `patch_args`, `patch_cmds`, `patch_strip`, `patch_tool`, and `files` to `http_archive` when present. Entries that omit these optional fields use the native `http_archive` defaults.
+
+### Private GitHub Release Assets
+
+The extension instantiates archives through the `http_archive` wrapper in
+`rules/http_archive.bzl`, which has the same interface as the native rule.
+If `url` is a GitHub REST API release asset URL
+(`https://api.github.com/repos/<owner>/<repo>/releases/assets/<id>`), the
+wrapper uses the `github_release_archive` repository rule from
+`rules/github_release_archive.bzl`; all other URLs go to the native
+`http_archive`.
+The attributes stay the same, but `sha256` and `type` are mandatory.
+Bazel 8 cannot download such assets itself: its downloader always sends a
+browser-like `Accept` header, so GitHub answers with JSON metadata instead of
+the archive.
+
+`tools/fetch_github_release_asset.py` downloads the asset and hands it to
+Bazel as a local file, so the checksum check and the repository cache still
+apply.
+Once the archive is in the repository cache, no token or network access is
+needed.
+The short-lived signed download URL never reaches Bazel, so it does not
+appear in the console output or the Build Event Protocol.
+The script requires `python3` on the host and reads the token in this order:
+
+- `SCORE_GITHUB_TOKEN`, `GITHUB_TOKEN` or `GH_TOKEN`
+- the netrc entry for `api.github.com` or `github.com` (`$NETRC` or `~/.netrc`)
+
+The token needs read access to the repository contents.
+It is not part of the repository definition, so rotating it does not trigger
+a refetch.
+No `--credential_helper` is needed for these URLs.
+
+```starlark
+gcc.sdp(
+    name = "my_qnx_sdp_pkg",
+    build_file = "//toolchains:qnx_sdp.BUILD",
+    sha256 = "<sha256 of the asset>",
+    type = "tar.gz",
+    url = "https://api.github.com/repos/<owner>/<repo>/releases/assets/<id>",
+)
+```
 
 ## Feature Injection
 

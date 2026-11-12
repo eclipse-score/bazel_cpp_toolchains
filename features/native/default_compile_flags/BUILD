@@ -33,6 +33,7 @@ cc_args(
                 "-z noexecstack",
             ],
             "@platforms//os:qnx": [
+                "-D_QNX_SOURCE",
                 "-fno-canonical-system-headers",
             ],
             "//conditions:default": [],
@@ -51,33 +52,55 @@ cc_args(
     visibility = ["//visibility:public"],
 )
 
+# requires_any_of is an OR, so each std flag needs a single constraint that fully describes its case.
 cc_feature_constraint(
-    name = "not_gnu11",
-    none_of = ["//features/native/markers:gnu11"],
+    name = "is_c11",
+    none_of = [
+        "//features/native/markers:gnu11",
+        "//features/native/markers:c_std_c99",
+    ],
 )
 
 cc_feature_constraint(
     name = "is_gnu11",
     all_of = ["//features/native/markers:gnu11"],
+    none_of = ["//features/native/markers:c_std_c99"],
+)
+
+cc_feature_constraint(
+    name = "is_c99",
+    all_of = ["//features/native/markers:c_std_c99"],
+)
+
+cc_args(
+    name = "c_std_c99_args",
+    actions = ["@rules_cc//cc/toolchains/actions:c_compile_actions"],
+    args = ["-std=iso9899:1999"],
+    requires_any_of = [
+        ":is_c99",
+    ],
+    visibility = ["//visibility:public"],
 )
 
 cc_args(
     name = "c_std_c11_args",
-    actions = ["@rules_cc//cc/toolchains/actions:c_compile_actions"],
+    actions = ["@rules_cc//cc/toolchains/actions:c_compile"],
     args = ["-std=c11"],
-    requires_any_of = [":not_gnu11"],
+    requires_any_of = [":is_c11"],
+    visibility = ["//visibility:public"],
 )
 
 cc_args(
     name = "c_std_gnu11_args",
-    actions = ["@rules_cc//cc/toolchains/actions:c_compile_actions"],
+    actions = ["@rules_cc//cc/toolchains/actions:c_compile"],
     args = ["-std=gnu11"],
     requires_any_of = [":is_gnu11"],
+    visibility = ["//visibility:public"],
 )
 
 cc_args(
     name = "default_cxx_compile_flags_args",
-    actions = ["@rules_cc//cc/toolchains/actions:cpp_compile_actions"],
+    actions = ["@rules_cc//cc/toolchains/actions:cpp_compile"],
     args = ["-std=c++17"] +
            select({
                "@platforms//os:qnx": [
@@ -85,6 +108,7 @@ cc_args(
                ],
                "//conditions:default": [],
            }),
+    visibility = ["//visibility:public"],
 )
 
 cc_feature_constraint(
@@ -100,6 +124,7 @@ cc_args(
         "-g3",
     ],
     requires_any_of = [":is_dbg"],
+    visibility = ["//visibility:public"],
 )
 
 cc_feature_constraint(
@@ -123,6 +148,7 @@ cc_args(
         ":is_opt",
         ":is_fastbuild",
     ],
+    visibility = ["//visibility:public"],
 )
 
 cc_args(
@@ -152,6 +178,7 @@ cc_feature(
         ":target_cpu_flags_args",
         ":c_std_c11_args",
         ":c_std_gnu11_args",
+        ":c_std_c99_args",
         ":default_cxx_compile_flags_args",
         ":dbg_compile_flags_args",
         ":opt_compile_flags_args",

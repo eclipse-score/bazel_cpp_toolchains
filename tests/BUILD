@@ -60,6 +60,7 @@ test_suite(
 test_suite(
     name = "guardrail_tests",
     tests = [
+        "//guardrails:feature_lists_test",
         "//guardrails:no_legacy_features_guard_test",
     ],
 )
@@ -72,8 +73,19 @@ test_suite(
 # ============================================================================
 
 test_suite(
+    name = "ebclfsa_hi_tests",
+    tests = [
+        "//ebclfsa_hi:configuration_test",
+        "//ebclfsa_hi:exceptions_rejected_test",
+        "//ebclfsa_hi:rtti_rejected_test",
+        "//ebclfsa_hi:runtime_test",
+    ],
+)
+
+test_suite(
     name = "all_tests",
     tests = [
+        ":ebclfsa_hi_tests",
         ":feature_verification_tests",
         ":guardrail_tests",
         ":language_and_standards_tests",

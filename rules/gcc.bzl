@@ -63,13 +63,13 @@ filegroup(
 
 cc_toolchain_config(
     name = "cc_toolchain_config",
-    ar_binary = "@{tc_pkg_repo}//:ar",
+    ar_binary = "@{tc_pkg_repo}//:ar{tc_tool_suffix}",
     cc_binary = "@{tc_pkg_repo}//:cc",
     cxx_binary = "@{tc_pkg_repo}//:cxx",
-    gcov_binary = "@{tc_pkg_repo}//:gcov",
-    strip_binary = "@{tc_pkg_repo}//:strip",
+    gcov_binary = "@{tc_pkg_repo}//:gcov{tc_tool_suffix}",
+    strip_binary = "@{tc_pkg_repo}//:strip{tc_tool_suffix}",
     sysroot = "@{tc_pkg_repo}//:sysroot_dir",
-    cxx_builtin_include_directories = ["@{tc_pkg_repo}//:cxx_builtin_include_directories"],
+    cxx_builtin_include_directories = ["@{tc_pkg_repo}//:cxx_builtin_include_directories{tc_tool_suffix}"],
     target_cpu = "{tc_cpu}",
     target_os = "{tc_os}",
     known_features = _KNOWN_FEATURES,
@@ -84,20 +84,39 @@ cc_toolchain_config(
         tc_os = rctx.attr.tc_os,
         tc_extra_known_features = label_list_to_string(rctx.attr.extra_known_features),
         tc_extra_enabled_features = label_list_to_string(rctx.attr.extra_enabled_features),
+        tc_tool_suffix = rctx.attr.tc_tool_suffix,
     )
 
-def get_custom_cc_features_linux(rctx):
-    return ""
-
 def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
-    # host_dir/target_dir must be plain resolved paths, not labels: cc_args'
-    # `env` rejects format() variables that aren't builtin cc_toolchain
-    # variables ("The variable host_dir does not exist"). _get_gcov_path has
-    # the same limitation for the gcov binary path.
+    """Returns the QNX-specific feature loads and generated feature declarations.
+
+    Args:
+        rctx: RepositoryContext object with toolchain attributes.
+        canonical_pkg_name: Canonical repository name of the toolchain package.
+
+    Returns:
+        A tuple of the Starlark load statements and feature declarations.
+    """
+    # sdp_env's host_dir/target_dir must be plain resolved paths, not labels:
+    # cc_args' `env` rejects format() variables that aren't builtin cc_toolchain
+    # variables ("The variable host_dir does not exist").
 
     # TODO: Once Bazel enables label resolution in cc_args' env, we can use labels instead of resolved paths.
 
-    custom_load = """load("@score_bazel_cpp_toolchains//features/custom/qnx/sdp_env:feature.bzl", "make_sdp_env_feature")"""
+    target_dir = "/proc/self/cwd/external/{canonical_pkg}/target/qnx".format(canonical_pkg = canonical_pkg_name)
+
+    # io_pkt_ddk's cc_args (unlike sdp_env's env) supports label resolution via
+    # `format`, so it references the package's own target_dir filegroup directly
+    # instead of a hardcoded path. Uses the plain declared repo name (like
+    # sysroot/cxx_builtin_include_directories above), not canonical_pkg_name --
+    # that form is only valid for on-disk "/proc/self/cwd/external/..." paths.
+    target_dir_label = "@{tc_pkg_repo}//:target_dir".format(tc_pkg_repo = rctx.attr.tc_pkg_repo)
+
+    custom_load = "\n".join([
+        """load("@score_bazel_cpp_toolchains//features/custom/qnx/sdp_env:feature.bzl", "make_sdp_env_feature")""",
+        """load("@score_bazel_cpp_toolchains//features/custom/qnx/gcc_version_flags:feature.bzl", "make_gcc_version_flags_feature")""",
+        """load("@score_bazel_cpp_toolchains//features/custom/qnx/io_pkt_ddk:feature.bzl", "make_io_pkt_ddk_feature")""",
+    ])
     custom_features = """
 make_sdp_env_feature(
     host_dir = "{host_dir}",
@@ -106,12 +125,25 @@ make_sdp_env_feature(
     license_info_variable = "{license_info_variable}",
     license_info_value = "{license_info_value}",
 )
+
+make_gcc_version_flags_feature(
+    cpu = "{gcc_version_cpu}",
+    version = "{gcc_version}",
+)
+make_io_pkt_ddk_feature(
+    target_dir = "{target_dir_label}",
+    cpu = "{cpu}",
+)
 """.format(
         host_dir = "/proc/self/cwd/external/{canonical_pkg}/host/linux/x86_64".format(canonical_pkg = canonical_pkg_name),
-        target_dir = "/proc/self/cwd/external/{canonical_pkg}/target/qnx".format(canonical_pkg = canonical_pkg_name),
+        target_dir = target_dir,
+        target_dir_label = target_dir_label,
+        cpu = rctx.attr.tc_cpu,
         license_path = rctx.attr.license_path,
         license_info_variable = rctx.attr.license_info_variable,
         license_info_value = rctx.attr.license_info_value,
+        gcc_version_cpu = _normalize_cpu(rctx.attr.tc_cpu),
+        gcc_version = rctx.attr.gcc_version,
     )
     return custom_load, custom_features
 
@@ -249,6 +281,7 @@ def _impl(rctx):
             "%{tc_cpu}": rctx.attr.tc_cpu,
             "%{tc_identifier}": tc_identifier,
             "%{tc_os}": rctx.attr.tc_os,
+            "%{tc_feature_os}": "ebclfsa_hi" if rctx.attr.tc_os == _OS_LINUX and rctx.attr.tc_runtime_ecosystem == "ebclfsa-hi" else rctx.attr.tc_os,
             "%{tc_pkg_repo}": rctx.attr.tc_pkg_repo,
             "%{tc_runtime_es}": rctx.attr.tc_runtime_ecosystem,
             "%{tc_version}": rctx.attr.gcc_version,
@@ -346,6 +379,7 @@ gcc_toolchain = repository_rule(
         "tc_pkg_repo": attr.string(doc = "The label name of toolchain tarbal."),
         "tc_runtime_ecosystem": attr.string(doc = "Runtime ecosystem."),
         "tc_system_toolchain": attr.bool(doc = "Boolean flag to state if this is a system toolchain"),
+        "tc_tool_suffix": attr.string(doc = "Suffix appended to the package tool/label names (ar, gcov, strip, cxx_builtin_include_directories), e.g. `_x86_64`; empty for unsuffixed packages."),
         "_cc_gcov_wrapper_script": attr.label(
             default = "@score_bazel_cpp_toolchains//templates:cc_gcov_wrapper.template",
         ),

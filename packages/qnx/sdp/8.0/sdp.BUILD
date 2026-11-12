@@ -20,7 +20,7 @@ filegroup(
 )
 
 filegroup(
-    name = "cxx_builtin_include_directories",
+    name = "cxx_builtin_include_directories_aarch64",
     srcs = [
         "host/linux/x86_64/usr/lib/gcc/aarch64-unknown-nto-qnx8.0.0/12.2.0/include",
         "target/qnx/usr/include",
@@ -29,8 +29,22 @@ filegroup(
 )
 
 filegroup(
-    name = "ar",
+    name = "cxx_builtin_include_directories_x86_64",
+    srcs = [
+        "host/linux/x86_64/usr/lib/gcc/x86_64-pc-nto-qnx8.0.0/12.2.0/include",
+        "target/qnx/usr/include",
+        "target/qnx/usr/include/c++/v1",
+    ],
+)
+
+filegroup(
+    name = "ar_aarch64",
     srcs = ["host/linux/x86_64/usr/bin/aarch64-unknown-nto-qnx8.0.0-ar"],
+)
+
+filegroup(
+    name = "ar_x86_64",
+    srcs = ["host/linux/x86_64/usr/bin/x86_64-pc-nto-qnx8.0.0-ar"],
 )
 
 filegroup(
@@ -44,7 +58,12 @@ filegroup(
 )
 
 filegroup(
-    name = "strip",
+    name = "strip_aarch64",
+    srcs = ["host/linux/x86_64/usr/bin/x86_64-pc-nto-qnx8.0.0-strip"],
+)
+
+filegroup(
+    name = "strip_x86_64",
     srcs = ["host/linux/x86_64/usr/bin/aarch64-unknown-nto-qnx8.0.0-strip"],
 )
 
@@ -74,8 +93,13 @@ filegroup(
 )
 
 filegroup(
-    name = "gcov",
+    name = "gcov_aarch64",
     srcs = ["host/linux/x86_64/usr/bin/aarch64-unknown-nto-qnx8.0.0-gcov"],
+)
+
+filegroup(
+    name = "gcov_x86_64",
+    srcs = ["host/linux/x86_64/usr/bin/x86_64-pc-nto-qnx8.0.0-gcov"],
 )
 
 filegroup(

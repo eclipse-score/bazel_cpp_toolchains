@@ -78,6 +78,22 @@ test:aarch64-qnx --run_under=@score_qnx_unit_tests//src:run_under_qnx
 test:aarch64-qnx --test_lang_filters=cc
 
 # -------------------------------------------------------------------------------
+# Toolchain configuration for x86_64-qnx with SDP 8.0.4 (target)
+# -------------------------------------------------------------------------------
+build:x86_64-qnx-804 --config=x86_64-linux
+build:x86_64-qnx-804 --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:x86_64-qnx-804 --extra_toolchains=@score_qcc_804_toolchain//:x86_64-qnx-sdp_8.0.0
+build:x86_64-qnx-804 --extra_toolchains=@score_qnx_804_x86_64_ifs_toolchain//:ifs-x86_64-qnx-sdp_8.0.0
+
+# -------------------------------------------------------------------------------
+# Toolchain configuration for aarch64-qnx with SDP 8.0.4 (target)
+# -------------------------------------------------------------------------------
+build:aarch64-qnx-804 --config=x86_64-linux
+build:aarch64-qnx-804 --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
+build:aarch64-qnx-804 --extra_toolchains=@score_qcc_804_arm_toolchain//:aarch64-qnx-sdp_8.0.0
+build:aarch64-qnx-804 --extra_toolchains=@score_qnx_804_aarch64_ifs_toolchain//:ifs-aarch64-qnx-sdp_8.0.0
+
+# -------------------------------------------------------------------------------
 # Toolchain configuration for aarch64-linux (target)
 # -------------------------------------------------------------------------------
 build:aarch64-linux --config=x86_64-linux
@@ -99,12 +115,22 @@ build:x86_64-linux-autosd10 --platforms=@score_bazel_platforms//:x86_64-linux-au
 build:x86_64-linux-autosd10 --extra_toolchains=@score_autosd_10_toolchain//:x86_64-linux-autosd10
 
 # -------------------------------------------------------------------------------
+# Toolchain configuration for aarch64-linux-autosd10-crossland (target: aarch64, host: x86_64 cross)
+# -------------------------------------------------------------------------------
+build:aarch64-linux-autosd10-crossland --config=x86_64-linux
+build:aarch64-linux-autosd10-crossland --platforms=@score_bazel_platforms//:aarch64-linux-autosd10-crossland
+build:aarch64-linux-autosd10-crossland --extra_toolchains=@score_autosd_10_cross_toolchain//:aarch64-linux-autosd10-crossland
+
+# -------------------------------------------------------------------------------
 # Config dedicated to target platform CPU:aarch64 and OS:ebclfsa
 # -------------------------------------------------------------------------------
-build:aarch64-linux-ebclfsa --config=shared
-build:aarch64-linux-ebclfsa --platforms=@score_bazel_platforms//:aarch64-linux-sdk_0.1.0-ebclfsa
-build:aarch64-linux-ebclfsa --extra_toolchains=@score_ebclfsa_toolchain//:aarch64-linux-sdk_0.1.0-ebclfsa
-
 build:aarch64-linux-ebclfsa-2.0.0-beta2 --config=shared
 build:aarch64-linux-ebclfsa-2.0.0-beta2 --platforms=@score_bazel_platforms//:aarch64-linux-sdk_2.0.0-beta2-ebclfsa
 build:aarch64-linux-ebclfsa-2.0.0-beta2 --extra_toolchains=@score_ebclfsa_2.0.0-beta2_toolchain//:aarch64-linux-sdk_2.0.0-beta2-ebclfsa
+build:aarch64-linux-ebclfsa-2.0.0-beta3 --config=shared
+build:aarch64-linux-ebclfsa-2.0.0-beta3 --platforms=@score_bazel_platforms//:aarch64-linux-sdk_2.0.0-beta3-ebclfsa
+build:aarch64-linux-ebclfsa-2.0.0-beta3 --extra_toolchains=@score_ebclfsa_2.0.0-beta3_toolchain//:aarch64-linux-sdk_2.0.0-beta3-ebclfsa
+
+build:aarch64-linux-ebclfsa-hi --config=shared
+build:aarch64-linux-ebclfsa-hi --platforms=@score_bazel_platforms//:aarch64-linux-sdk_2.0.0-beta3-ebclfsa-hi
+build:aarch64-linux-ebclfsa-hi --extra_toolchains=@score_ebclfsa_hi_toolchain//:aarch64-linux-sdk_2.0.0-beta3-ebclfsa-hi

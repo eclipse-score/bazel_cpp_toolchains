@@ -14,19 +14,21 @@
 """ Module extension for setting up GCC toolchains in Bazel.
 """
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@score_bazel_cpp_toolchains//packages:version_matrix.bzl", "VERSION_MATRIX")
-load("@score_bazel_cpp_toolchains//rules:common.bzl", "SDP_VERSION_MAPPING")
+load("@score_bazel_cpp_toolchains//rules:common.bzl", "QNX_SDP_TO_GCC_VERSION", "SDP_VERSION_MAPPING")
 load("@score_bazel_cpp_toolchains//rules:gcc.bzl", "gcc_toolchain")
+load("@score_bazel_cpp_toolchains//rules:http_archive.bzl", "http_archive")
 
 # Constants
 _PACKAGE_SUFFIX = "_pkg"
 _IDENTIFIER_GCC = "gcc"
 _IDENTIFIER_SDK = "sdk"
 _IDENTIFIER_SDP = "sdp"
+_OS_QNX = "qnx"
 _SUPPORTED_CPUS = ["x86_64", "aarch64"]
 _SUPPORTED_OSS = ["linux", "qnx"]
 _SDP_VERSION_MAPPING = SDP_VERSION_MAPPING
+_QNX_SDP_TO_GCC_VERSION = QNX_SDP_TO_GCC_VERSION
 
 # GCC interface API for archive tag class
 _attrs_sdp = {
@@ -84,6 +86,11 @@ _attrs_sdp = {
         mandatory = False,
         default = "",
         doc = "Strip prefix from toolchain archive.",
+    ),
+    "type": attr.string(
+        mandatory = False,
+        default = "",
+        doc = "Archive type (e.g. `tar.gz`); required when the url has no archive file extension.",
     ),
     "url": attr.string(
         mandatory = False,
@@ -227,6 +234,7 @@ def _get_packages(tags):
             "patch_tool": tag.patch_tool,
             "sha256": tag.sha256,
             "strip_prefix": tag.strip_prefix,
+            "type": tag.type,
             "url": tag.url,
             "patches": tag.patches,
             "files": tag.files,
@@ -303,7 +311,6 @@ def _create_and_link_sdp(toolchain_info):
     Fails:
         If the resolved matrix key is not found in VERSION_MATRIX.
     """
-    pkg_name = "{}{}".format(toolchain_info["name"], _PACKAGE_SUFFIX)
 
     # Resolve package identifier from original version fields, not the
     # constraint-remapped tc_identifier. tc_identifier may differ from
@@ -317,12 +324,19 @@ def _create_and_link_sdp(toolchain_info):
     else:
         pkg_identifier = toolchain_info["tc_identifier"]
 
-    matrix_key = "{cpu}-{os}{identifier}{runtime_es}".format(
-        cpu = toolchain_info["tc_cpu"],
-        os = toolchain_info["tc_os"],
+    if toolchain_info["tc_os"] == _OS_QNX:
+        matrix_prefix = toolchain_info["tc_os"]
+    else:
+        matrix_prefix = "{}-{}".format(toolchain_info["tc_cpu"], toolchain_info["tc_os"])
+    matrix_key = "{prefix}{identifier}{runtime_es}".format(
+        prefix = matrix_prefix,
         identifier = "-{}".format(pkg_identifier) if pkg_identifier != "" else "",
         runtime_es = "-{}".format(toolchain_info["tc_runtime_ecosystem"]) if toolchain_info["tc_runtime_ecosystem"] != "" else "",
     )
+    if toolchain_info["tc_os"] == _OS_QNX:
+        pkg_name = "{}{}".format(matrix_key.replace("-", "_").replace(".", "_"), _PACKAGE_SUFFIX)
+    else:
+        pkg_name = "{}{}".format(toolchain_info["name"], _PACKAGE_SUFFIX)
 
     # Validate and retrieve matrix entry
     if matrix_key not in VERSION_MATRIX:
@@ -349,10 +363,20 @@ def _create_and_link_sdp(toolchain_info):
         "patch_tool": matrix.get("patch_tool", ""),
         "sha256": matrix["sha256"],
         "strip_prefix": matrix["strip_prefix"],
+        "type": matrix.get("type", ""),
         "url": matrix["url"],
         "patches": matrix.get("patches"),
         "files": matrix.get("files"),
     }
+
+def _append_unique_package(packages, package_info):
+    """Adds an archive once, rejecting conflicting definitions with the same repository name."""
+    for existing in packages:
+        if existing["name"] == package_info["name"]:
+            if existing != package_info:
+                fail("Conflicting package definitions use the repository name '{}'.".format(package_info["name"]))
+            return
+    packages.append(package_info)
 
 def _resolve_identifier(toolchain_info):
     """Resolves the toolchain identifier from version fields.
@@ -380,6 +404,39 @@ def _resolve_identifier(toolchain_info):
         version = _SDP_VERSION_MAPPING.get(version, version)
 
     return "{}_{}".format(identifier, version)
+
+def _resolve_qnx_gcc_version(toolchain_info):
+    """Defaults or validates gcc_version against the GCC version bundled with sdp_version.
+
+    Args:
+        toolchain_info: dict holding toolchain configuration (modified in-place).
+
+    Fails:
+        If an explicit `version` doesn't match the GCC version bundled with the SDP's
+        major release, per QNX_SDP_TO_GCC_VERSION.
+    """
+    if toolchain_info["tc_os"] != _OS_QNX or toolchain_info["sdp_version"] == "":
+        return
+
+    sdp_major = toolchain_info["sdp_version"].split(".")[0]
+    expected_gcc_version = _QNX_SDP_TO_GCC_VERSION.get(sdp_major)
+    if expected_gcc_version == None:
+        return
+
+    if toolchain_info["gcc_version"] == "":
+        toolchain_info["gcc_version"] = expected_gcc_version
+    elif toolchain_info["gcc_version"] != expected_gcc_version:
+        fail((
+            "Toolchain '{name}': version = '{actual}' does not match GCC {expected}, " +
+            "which is what QNX SDP {sdp_major}.x (sdp_version = '{sdp_version}') ships. " +
+            "Either drop the explicit version or set it to '{expected}'."
+        ).format(
+            name = toolchain_info["name"],
+            actual = toolchain_info["gcc_version"],
+            expected = expected_gcc_version,
+            sdp_major = sdp_major,
+            sdp_version = toolchain_info["sdp_version"],
+        ))
 
 def _get_info(mctx):
     """Extracts and validates toolchain and package information from module configuration.
@@ -415,12 +472,30 @@ def _get_info(mctx):
 
         # need to be sure not to link package in case of system toolchain.
         if tc["use_system_toolchain"]:
+            _resolve_qnx_gcc_version(tc)
             continue
 
         if tc["use_default_package"]:
-            packages.append(_create_and_link_sdp(tc))
+            _append_unique_package(packages, _create_and_link_sdp(tc))
+
+        _resolve_qnx_gcc_version(tc)
 
     return toolchains, packages
+
+def _resolve_tool_suffix(toolchain_info):
+    """Returns the CPU suffix of tool targets in the shared default QNX package.
+
+    Custom packages (use_default_package = False) keep unsuffixed targets.
+
+    Args:
+        toolchain_info: dict holding toolchain configuration.
+
+    Returns:
+        str: e.g. '_x86_64' for default QNX packages, otherwise ''.
+    """
+    if toolchain_info["use_default_package"] and toolchain_info["tc_os"] == _OS_QNX:
+        return "_{}".format(toolchain_info["tc_cpu"])
+    return ""
 
 def _impl(mctx):
     """Implementation of the gcc module extension.
@@ -443,6 +518,7 @@ def _impl(mctx):
             patch_tool = archive_info["patch_tool"],
             sha256 = archive_info["sha256"],
             strip_prefix = archive_info["strip_prefix"],
+            type = archive_info["type"],
             patches = archive_info["patches"],
             files = archive_info["files"],
         )
@@ -466,6 +542,7 @@ def _impl(mctx):
             tc_identifier = toolchain_info["tc_identifier"],
             tc_os = toolchain_info["tc_os"],
             tc_pkg_repo = toolchain_info["sdp_to_link"],
+            tc_tool_suffix = _resolve_tool_suffix(toolchain_info),
             tc_system_toolchain = toolchain_info["use_system_toolchain"],
             tc_runtime_ecosystem = toolchain_info["tc_runtime_ecosystem"],
             gcc_version = toolchain_info["gcc_version"],

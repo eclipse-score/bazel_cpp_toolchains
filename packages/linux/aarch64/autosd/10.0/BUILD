@@ -13,4 +13,5 @@
 
 exports_files([
     "autosd.BUILD",
+    "autosd_cross.BUILD",
 ])

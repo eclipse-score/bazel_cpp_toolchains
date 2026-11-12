@@ -22,6 +22,14 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl", "flag_group")
 # uses the older identifier.
 SDP_VERSION_MAPPING = {
     "8.0.4": "8.0.0",
+    "8.0.5": "8.0.0",
+}
+
+# GCC version bundled with each QNX SDP major release, keyed by SDP major version.
+# Used to default/validate a toolchain's `version` attribute from its `sdp_version`.
+QNX_SDP_TO_GCC_VERSION = {
+    "7": "8.3.0",
+    "8": "12.2.0",
 }
 
 def get_flag_strings(flags):
@@ -49,23 +57,6 @@ def get_flag_groups(flags):
     if len(flags):
         return "[flag_group(flags = [" + ", ".join(['"%s"' % f for f in flags]) + "])]"
     return "[]"
-
-def get_flag_group(flags):
-    """Helper function to create a flag_group.
-
-    Args:
-        flags (list[str]): A list of compiler or linker flags.
-
-    Returns:
-        flag_group: A Bazel flag_group object containing the provided flags.
-    """
-    if len(flags):
-        return [
-            flag_group(
-                flags = flags,
-            ),
-        ]
-    return []
 
 def label_list_to_string(input_list):
     """ Small helper function to transform label list into string list

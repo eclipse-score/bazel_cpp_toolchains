@@ -1,5 +1,5 @@
 # *******************************************************************************
-# Copyright (c) 2025 Contributors to the Eclipse Foundation
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
-"""Build file for EBcLfSA 0.1.0 toolchain package"""
+"""Build file for EBcLfSA 2.0.0-beta3 toolchain package"""
 
 package(default_visibility = ["//visibility:public"])
 
@@ -20,6 +20,9 @@ filegroup(
     srcs = glob(
         ["*/**/*"],
         exclude = [
+            "dev/**",
+            "proc/**",
+            "sys/**",
             "usr/share/ca-certificates/**",
             "usr/lib/ssl/certs/**",
             "lib/ssl/certs/**",
@@ -43,17 +46,17 @@ filegroup(
 
 filegroup(
     name = "cc",
-    srcs = ["usr/bin/aarch64-linux-gnu-gcc-13.bin"],
+    srcs = ["usr/bin/aarch64-linux-gnu-gcc-14"],
 )
 
 filegroup(
     name = "gcov",
-    srcs = ["usr/bin/aarch64-linux-gnu-gcov-13"],
+    srcs = ["usr/bin/aarch64-linux-gnu-gcov-14"],
 )
 
 filegroup(
     name = "cxx",
-    srcs = ["usr/bin/aarch64-linux-gnu-g++-13.bin"],
+    srcs = ["usr/bin/aarch64-linux-gnu-g++-14"],
 )
 
 filegroup(

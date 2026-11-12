@@ -1,17 +1,15 @@
-<!--
-# *******************************************************************************
-# Copyright (c) 2026 Contributors to the Eclipse Foundation
-#
-# See the NOTICE file(s) distributed with this work for additional
-# information regarding copyright ownership.
-#
-# This program and the accompanying materials are made available under the
-# terms of the Apache License Version 2.0 which is available at
-# https://www.apache.org/licenses/LICENSE-2.0
-#
-# SPDX-License-Identifier: Apache-2.0
-# *******************************************************************************
--->
+<!-- ----------------------------------------------------------------------------
+  Copyright (c) 2026 Contributors to the Eclipse Foundation
+
+  See the NOTICE file(s) distributed with this work for additional
+  information regarding copyright ownership.
+
+  This program and the accompanying materials are made available under the
+  terms of the Apache License Version 2.0 which is available at
+  https://www.apache.org/licenses/LICENSE-2.0
+
+  SPDX-License-Identifier: Apache-2.0
+----------------------------------------------------------------------------- -->
 
 # Generation Flow
 
@@ -83,7 +81,7 @@ Shared templates (used by both Linux and QNX):
   centralized in the `_normalize_cpu()` helper. Linux toolchain binaries use
   the CPU name unchanged (e.g., `aarch64-unknown-linux-gnu-gcov`).
 - SDP version mapping is handled through `SDP_VERSION_MAPPING` in
-  `rules/common.bzl`. Currently, SDP version `8.0.4` is mapped to `8.0.0`
+  `rules/common.bzl`. Currently, SDP versions `8.0.4` and `8.0.5` are mapped to `8.0.0`
   because platform constraint support uses the older identifier. This mapping
   is configurable for future extensibility.
 - Linux toolchains generate an extra `gcov_wrapper` script to work around the

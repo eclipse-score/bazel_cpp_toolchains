@@ -13,7 +13,13 @@
 
 """Regression guardrail for the explicit-feature (`no_legacy_features`) model."""
 
+load(":feature_lists_test.bzl", "feature_lists_test")
 load(":legacy_feature_guard.bzl", "no_legacy_features_guard_test")
+
+feature_lists_test(
+    name = "feature_lists_test",
+    visibility = ["//visibility:public"],
+)
 
 # Validates the C++ toolchain resolved for the current --config. Run it under
 # each platform config (x86_64-linux, aarch64-linux, x86_64-qnx, ...) to cover
