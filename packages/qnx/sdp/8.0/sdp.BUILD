@@ -58,12 +58,12 @@ filegroup(
 )
 
 filegroup(
-    name = "strip_aarch64",
+    name = "strip_x86_64",
     srcs = ["host/linux/x86_64/usr/bin/x86_64-pc-nto-qnx8.0.0-strip"],
 )
 
 filegroup(
-    name = "strip_x86_64",
+    name = "strip_aarch64",
     srcs = ["host/linux/x86_64/usr/bin/aarch64-unknown-nto-qnx8.0.0-strip"],
 )
 
