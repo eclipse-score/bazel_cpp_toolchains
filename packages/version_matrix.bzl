@@ -129,7 +129,7 @@ VERSION_MATRIX = {
         "sha256": "eaf000e6d8fe8b96685a0c0d5041e9fe62fe36c9fc3f0854033a7be9fbec8c89",
         "strip_prefix": "",
         "type": "tar.gz",
-        "url": "https://api.github.com/repos/eclipse-score/qnx_sdp_pkg/releases/assets/706198299",
+        "url": "https://api.github.com/repos/eclipse-score/qnx_sdp_pkg/releases/assets/758565616",
         "gcc_version": "12.2.0",
     },
     "x86_64-linux-gcc_12.2.0": {

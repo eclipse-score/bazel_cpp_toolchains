@@ -21,6 +21,10 @@ filegroup(
 )
 
 filegroup(
+    name = "empty",
+)
+
+filegroup(
     name = "bin",
     srcs = ["bin"],
 )
@@ -57,4 +61,50 @@ filegroup(
 
 filegroup(
     name = "cxx_builtin_include_directories",
+)
+
+# *******************************************************************************
+# TODO: Aliases that are pointing to all files as temp. solution.
+# *******************************************************************************
+alias(
+    name = "compiler_files",
+    actual = ":all_files",
+)
+
+alias(
+    name = "linker_files",
+    actual = ":all_files",
+)
+
+alias(
+    name = "ar_files",
+    actual = ":all_files",
+)
+
+alias(
+    name = "as_files",
+    actual = ":all_files",
+)
+
+alias(
+    name = "coverage_files",
+    actual = ":all_files",
+)
+
+alias(
+    name = "strip_files",
+    actual = ":all_files",
+)
+
+# *******************************************************************************
+# TODO: Aliases that are pointing to empty files as temp. solution.
+# *******************************************************************************
+alias(
+    name = "dwp_files",
+    actual = ":empty",
+)
+
+alias(
+    name = "objcopy_files",
+    actual = ":empty",
 )
