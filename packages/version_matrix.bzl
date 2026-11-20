@@ -132,6 +132,14 @@ VERSION_MATRIX = {
         "url": "https://api.github.com/repos/eclipse-score/qnx_sdp_pkg/releases/assets/706198299",
         "gcc_version": "12.2.0",
     },
+    "qnx-sdp_8.0.6": {
+        "build_file": None,
+        "sha256": "b062211caeef17e5f985c829106c22291cb3fd2f621ee90ef01a58b0cda8d238",
+        "strip_prefix": "qnx_sdp_806",
+        "type": "tar.gz",
+        "url": "https://api.github.com/repos/eclipse-score/qnx_sdp_pkg/releases/assets/772100027",
+        "gcc_version": "12.2.0",
+    },
     "x86_64-linux-gcc_12.2.0": {
         "build_file": "@score_bazel_cpp_toolchains//packages/linux/x86_64/gcc/12.2.0:gcc.BUILD",
         "sha256": "e9b9a7a63a5f8271b76d6e2057906b95c7a244e4931a8e10edeaa241e9f7c11e",
