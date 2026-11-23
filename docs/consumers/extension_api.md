@@ -13,6 +13,10 @@
 
 # Extension API
 
+This reference describes the module extension tags available to consumers.
+For a complete configuration example, see
+[Build with a Linux toolchain](getting_started.md).
+
 ## Consumer Entry Point
 
 Consumers interact with this repository through the `gcc` module extension in
@@ -46,91 +50,92 @@ Declares a toolchain repository to generate.
 
 Declares a package repository explicitly. This is used when the package is not
 taken from the default version matrix or when local QNX SDP generation is
-required. The tag is nothing more than a thin proxy to the native `http_archive`
-repository rule: its attributes are passed straight through to `http_archive`
-with no additional processing.
+required. The extension forwards its supported archive attributes to the
+repository's `http_archive` wrapper, which handles GitHub release assets
+separately.
 
 ## `gcc.toolchain(...)` Attributes
 
-Required attributes:
+The following attributes are required:
 
-- `name` (mandatory): toolchain repo name, default set to `score_gcc_toolchain`.
-- `target_cpu` (mandatory): target platform CPU, currently `x86_64` or `aarch64`.
-- `target_os` (mandatory): target platform OS, currently `linux` or `qnx`.
+- `name` (string): generated toolchain repository name; there is no default.
+- `target_cpu` (string): `x86_64` or `aarch64`.
+- `target_os` (string): `linux` or `qnx`.
 
 Common package selection attributes:
 
-- `use_default_package`: whether to use the default package from the version
-  matrix, default set to `False`.
-- `version`: GCC version string for Linux toolchains (e.g. `12.2.0` or `15.3.0` —
-  see `packages/version_matrix.bzl` for all versions currently packaged).
-- `sdp_version`: version of the SDP package.
-- `sdk_version`: SDK version info variable, an alternative identifier used in
+- `use_default_package` (boolean, default `False`): whether to use a package
+  from the version matrix.
+- `version` (string, default `""`): GCC version, for example `12.2.0` or
+  `15.3.0`. See the [version matrix](../../packages/version_matrix.bzl).
+- `sdp_version` (string, default `""`): version of the SDP package.
+- `sdk_version` (string, default `""`): SDK version, an alternative identifier used in
   matrix resolution.
-- `sdp_to_link`: name of the toolchain package to be linked with this
+- `sdp_to_link` (string, default `""`): name of the toolchain package to link with this
   toolchain. For default QNX packages, the extension uses a name based on the
   version-matrix entry so toolchains for different CPUs share one package
   repository (for example, QNX SDP 8.0.5 uses
   `qnx_sdp_8_0_5_pkg`). Each `sdp_version` maps to its own default package, so
-  several SDP versions can coexist in one module. This default package is
-  private and available only to S-CORE committers; other users must provide
-  their own compatible package via
-  `gcc.sdp(...)`. Other default packages use toolchain name + `_pkg`.
-- `use_system_toolchain`: TBD.
+  several SDP versions can coexist in one module. The default SDP 8.0.5
+  package is private. Other default packages use toolchain name + `_pkg`.
+  See [QNX integration](qnx_integration.md) for access and custom packages.
+- `use_system_toolchain` (boolean, default `False`): skips default package
+  linking. Its full system-toolchain behavior is not documented; check the
+  implementation before relying on it.
 
-Flag and runtime attributes:
+Flag and runtime attributes (lists default to `[]` and strings to `""`):
 
-- `extra_compile_flags`: list of additional flags to be passed to compiler.
-- `extra_c_compile_flags`: list of additional flags to be passed to C compiler.
-- `extra_cxx_compile_flags`: list of additional flags to be passed to C++
+- `extra_compile_flags` (string list): additional flags passed to the compiler.
+- `extra_c_compile_flags` (string list): additional flags passed to the C compiler.
+- `extra_cxx_compile_flags` (string list): additional flags passed to the C++
   compiler.
-- `extra_link_flags`: list of additional flags to be passed to linker.
-- `extra_known_features`: extra `cc_feature` features to add to this toolchain
+- `extra_link_flags` (string list): additional flags passed to the linker.
+- `extra_known_features` (label list): extra `cc_feature` features to add to this toolchain
   in an initially disabled state. See [Feature Injection](#feature-injection).
-- `extra_enabled_features`: extra `cc_feature` features to add to this
+- `extra_enabled_features` (label list): extra `cc_feature` features to add to this
   toolchain in an initially enabled state. See [Feature Injection](#feature-injection).
-- `ld_library_paths`: list of paths relative to the sysroot which should build
+- `ld_library_paths` (string list): paths relative to the sysroot which should build
   up the runtime linker path of the tools of this toolchain.
-- `runtime_ecosystem`: attribute for identifying the system-level runtime
+- `runtime_ecosystem` (string): identifies the system-level runtime
   environment a binary or target is built to run in.
-- `use_base_constraints_only`: experimental. Attribute for flag toolchain
-  creation to use only base platform constraints. Limits toolchain
-  registration to 1 per base platform definition.
+- `use_base_constraints_only` (boolean, default `False`): experimental.
+  Uses only base platform constraints, limiting toolchain registration to one
+  per base platform definition.
 
 QNX-specific attributes:
 
-- `license_path`: path to the shared license file, default set to
+- `license_path` (string): path to the shared license file, default
   `/opt/score_qnx/license/licenses`.
-- `license_info_variable`: QNX license info variable.
-- `license_info_url`: URL of the QNX license server.
+- `license_info_variable` (string, default `""`): QNX license info variable.
+- `license_info_url` (string, default `""`): URL of the QNX license server.
 
 ## `gcc.sdp(...)` Attributes
 
-The `gcc.sdp` tag defines the package side of the toolchain setup. It is a
-proxy to `http_archive`: every attribute below maps 1:1 to the identically
-named `http_archive` attribute, so refer to the Bazel `http_archive` docs for
-full semantics. Its attributes are:
+The `gcc.sdp` tag defines a package archive. Archive attributes correspond to
+the identically named `http_archive` attributes. Specify a package name for
+an explicit declaration; the tag's declared default is an empty string.
 
-- `name`: package name of toolchain, default set to toolchain name + `_pkg`.
-- `build_file`: the path to the BUILD file of selected archive.
-- `url`: url to the toolchain archive.
-- `sha256`: checksum of the archive.
-- `strip_prefix`: strip prefix from toolchain archive.
-- `files`: a map of relative paths (key) to a file label (value) that is
-  overlaid on the repo as a symlink.
-- `patches`: list of patches to apply to the archive.
-- `patch_args`: the arguments given to the patch tool. Defaults to `-p0` (see
-  the `patch_strip` attribute), however `-p1` will usually be needed for
-  patches generated by git. When arguments other than `-p` are specified,
-  Bazel falls back to the `patch` command line tool instead of the
-  Bazel-native patch implementation. Only affects patch files in the
-  `patches` attribute.
-- `patch_cmds`: bash commands executed in the extracted archive root after
-  extraction.
-- `patch_strip`: when set to `N`, this is equivalent to inserting `-pN` to the
-  beginning of `patch_args`.
-- `patch_tool`: the patch(1) utility to use. If specified, Bazel uses the
-  specified patch tool instead of the Bazel-native patch implementation.
+- `name` (string, default `""`): package repository name.
+- `build_file` (label, default `None`): BUILD file for the archive.
+- `url` (string, default `""`): URL of the toolchain archive.
+- `sha256` (string, default `""`): checksum of the archive.
+- `type` (string, default `""`): archive type, such as `tar.gz`; required for
+  URLs without an archive extension.
+- `strip_prefix` (string, default `""`): archive extraction prefix.
+- `files` (string-to-label dictionary, default `{}`): paths to file labels
+  to overlay on the repository as symlinks.
+- `patches` (label list, default `[]`): patches to apply to the archive.
+- `patch_args` (string list, default `[]`): arguments given to the patch tool.
+  The effective default strip level is `-p0` (see
+  `patch_strip`); `-p1` is usually needed for patches generated by Git.
+  Arguments other than `-p` cause Bazel to use a patch command-line tool.
+  Only affects files in `patches`.
+- `patch_cmds` (string list, default `[]`): Bash commands run in the extracted
+  archive root after extraction.
+- `patch_strip` (integer, default `0`): equivalent to inserting `-pN` at the
+  beginning of `patch_args` for value `N`.
+- `patch_tool` (string, default `""`): patch utility to use instead of the
+  Bazel-native implementation.
 
 Archive attributes can be supplied either directly through `gcc.sdp(...)` or through `packages/version_matrix.bzl`; the extension forwards matrix values for `patches`, `patch_args`, `patch_cmds`, `patch_strip`, `patch_tool`, and `files` to `http_archive` when present. Entries that omit these optional fields use the native `http_archive` defaults.
 
@@ -190,6 +195,9 @@ Sanitizers are the primary use case: they are defined by the
 `score_cpp_policies` module and brought into the toolchain through these
 attributes. See [Toolchain features](features.md#sanitizers-linux-opt-in).
 
+Feature injection is a migration bridge with limited integration: it does not
+perform additional correctness checks or handle feature `data` files. See
+the attribute documentation in [`gcc.bzl`](../../extensions/gcc.bzl).
 
 ## Activation In A Workspace
 

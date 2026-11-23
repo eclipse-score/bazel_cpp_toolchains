@@ -80,7 +80,7 @@ toolchain, are summarized below.
 | `-D` preprocessor defines from `defines` / `local_defines` | **Supported, explicit** | `preprocessor_defines` feature |
 | `-iquote` / `-I` / `-isystem` include paths | **Supported, explicit** | `include_paths` feature |
 | Force-included headers (`-include`) | **Supported, explicit (Linux)** | `includes` feature |
-| Position-independent code (`-fPIC`) | **Linux: supported, explicit** | `pic` feature (Linux). QNX declares the `supports_pic` capability marker but does not add `-fPIC` in the default compile flags. |
+| Position-independent code (`-fPIC`) | **Supported, explicit** | `pic` feature emits `-fPIC` when the `pic` build variable is available. |
 | `.d` dependency file generation | **Supported, explicit** | `dependency_file` feature |
 | Pass-through of user `copts` | **Supported, explicit** | `user_compile_flags` feature |
 | Pass-through of user `linkopts` | **Supported, explicit** | `user_link_flags` feature (both) |
@@ -93,9 +93,9 @@ toolchain, are summarized below.
 | Warnings (e.g. `-Wall`) added by default | **Not part of this toolchain — injected** | `minimal_warnings` / `strict_warnings` / `all_wall_warnings` are defined by `score_cpp_policies`, not this toolchain, and only become available once brought in via `extra_known_features` / `extra_enabled_features`. |
 | `-Werror` | **Not part of this toolchain — injected** | `warnings_as_errors`, defined by `score_cpp_policies` and injected the same way as the other warning features. |
 | Sanitizers (asan/lsan/tsan/ubsan) | **Not part of this toolchain — injected (Linux)** | Defined by `score_cpp_policies` (`score_asan` / `score_lsan` / `score_tsan` / `score_ubsan`) and brought in via `extra_known_features` / `extra_enabled_features` |
-| Fully static link (`-static`) | **Not implicit — opt-in** | `fully_static_link` (disabled by default) |
-| `-pthread` | **Not implicit — opt-in (Linux)** | `use_pthread` (disabled by default) |
-| Fission / split DWARF, linkstamps, strip, static-libgcc | **Supported, guarded** | Guarded features; no-ops until the relevant build mode is active |
+| Fully static link (`-static`) | **Not implicit — opt-in (Linux)** | `fully_static_link` (disabled by default) |
+| `-pthread` | **Supported, explicit (Linux)** | `use_pthread` (enabled by default) |
+| Fission / split DWARF, linkstamps, strip, static-libgcc | **Supported, guarded (Linux)** | Guarded features; no-ops until the relevant build mode is active |
 | Any other Bazel legacy default not listed above | **Not available** | Must be added explicitly (see below) |
 
 Three categories deserve special attention because they are the most frequent
@@ -106,8 +106,8 @@ migration surprises:
    `all_wall_warnings`, `warnings_as_errors`/`-Werror`) are defined by
    `score_cpp_policies` and only become available once injected via
    `extra_known_features` / `extra_enabled_features`.
-2. **`-pthread` and fully-static linking are opt-in.** These emit nothing until
-   you enable the corresponding feature.
+2. **Fully static linking is opt-in on Linux.** It emits nothing until you
+   enable `fully_static_link`. Linux enables `use_pthread` by default.
 3. **Sanitizers are not part of this toolchain.** They are defined by the
    `score_cpp_policies` module and must first be injected via
    `extra_known_features` / `extra_enabled_features` before they can be enabled.
@@ -153,13 +153,12 @@ build:myconfig --host_features=use_pthread
 
 ### 3. Turn on an opt-in feature that already exists
 
-Many legacy-equivalent behaviors already ship as opt-in features (warnings,
-`fully_static_link`, `use_pthread`, `per_object_debug_info`, ...).
-You do not need to modify the toolchain to use them — enable them with
-mechanism 1 or 2 above. See the *Opt-in* entries in
-[Toolchain features](features.md). (Sanitizers are the exception: they are
-defined by `score_cpp_policies` and must first be injected via
-`extra_known_features` / `extra_enabled_features`.)
+Some legacy-equivalent behaviors ship as opt-in features, including
+`fully_static_link`. You can enable them with mechanism 1 or 2. See the
+*Opt-in* entries in [Toolchain features](features.md). Other features, such as
+`per_object_debug_info`, are enabled by default but emit flags only in the
+appropriate build mode. Warnings and sanitizers must first be injected from
+`score_cpp_policies`.
 
 ### 4. Inject raw flags through the toolchain attributes
 
@@ -246,9 +245,12 @@ cc_library(
 
 **Symptom:** Links fail with `pthread_*` undefined references.
 
-**Cause:** `-pthread` is not added implicitly.
+**Cause:** The toolchain doesn't rely on a Bazel legacy feature for this flag.
+The generic Linux profile enables `use_pthread` by default; a target or build
+configuration might have disabled it, or a different profile might apply.
 
-**Fix (Linux):** Enable `use_pthread` for the target, package, or build:
+**Fix (Linux):** Check the selected toolchain and whether `use_pthread` was
+disabled. If needed, enable it for the target, package, or build:
 
 ```starlark
 cc_binary(
@@ -267,7 +269,7 @@ build --features=use_pthread
 
 **Symptom:** Binary is dynamically linked; you expected `-static`.
 
-**Cause:** `fully_static_link` is opt-in (it also requires static system
+**Cause:** On Linux, `fully_static_link` is opt-in (it also requires static system
 archives, which some toolchains such as AutoSD do not ship).
 
 **Fix:** Enable it only for the targets that need it:

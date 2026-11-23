@@ -13,20 +13,25 @@
 
 # Toolchain Features
 
-These are the `cc_toolchain` features defined by the shared toolchain config in
-[`templates/cc_toolchain_config.bzl.template`](../../templates/cc_toolchain_config.bzl.template).
+This reference helps consumers find features in the generic Linux and QNX
+toolchain profiles. The feature definitions are in
+[`features/`](../../features/), and the ordered profile lists are under
+`features/custom/`. The EBcLfSA high-integrity profile has a separate feature
+list and omits some generic Linux features; consult its
+[feature list](../../features/custom/ebclfsa_hi/make_cc_features.bzl) for
+that profile.
 
 Both toolchains enable **`no_legacy_features`**, which turns off the features
-Bazel would otherwise add implicitly. As a result every flag the toolchain emits
-comes from a feature defined explicitly below.
+Bazel would otherwise add implicitly. Toolchain flags come from explicitly
+declared features and other toolchain wiring.
 
 > **Migrating from an implicit/legacy setup?** See the
 > [Migration guide](migration_guide.md) for the behavioral impact of
 > `no_legacy_features` and how to restore supported behavior explicitly.
 
-Each entry is tagged with the platform(s) it applies to: **(both)**, **(Linux)**,
-or **(QNX)**. Unless noted as *opt-in (disabled by default)*, a feature is
-enabled by default.
+Each entry is tagged with the generic platform(s) it applies to: **(both)**,
+**(Linux)**, or **(QNX)**. Unless noted as *opt-in (disabled by default)* or a
+build-mode marker, a feature is enabled by default.
 
 > **Note:** The order of features in the `features` list is significant — flags
 > from a later feature appear after those from an earlier feature on the command
@@ -40,15 +45,15 @@ enabled by default.
 - **`supports_header_path_normalization`** (Linux) — Suppresses absolute-path
   warnings for system headers.
 - **`dbg`** / **`opt`** (both) — Well-known build-mode markers used to select flags.
+- **`gnu11`** / **`c_std_c99`** (both, opt-in) — Select GNU C11 or C99
+  compilation instead of the default C11 mode.
 
 ## Compilation
 - **`unfiltered_compile_flags`** (both) — Redacts `__DATE__`/`__TIME__`/`__TIMESTAMP__`
   for reproducible builds.
 - **`default_compile_flags`** (both) — Core compile flags plus `dbg`/`opt`
   build-mode variants (exact flags differ per target).
-- **`pic`** (Linux) — Emits `-fPIC` when the `pic` build variable is available.
-  QNX declares the `supports_pic` capability marker but does not add `-fPIC` in
-  the default compile flags.
+- **`pic`** (both) — Emits `-fPIC` when the `pic` build variable is available.
 - **`random_seed`** (both) — Emits `-frandom-seed=<output_file>` for
   deterministic output.
 - **`include_paths`** (both) — Emits `-iquote` / `-I` / `-isystem` from the
@@ -63,8 +68,8 @@ enabled by default.
 - **`compiler_library_search_paths`** (Linux) — Sets `LD_LIBRARY_PATH` so the
   compiler binary finds its shared libraries.
 - **`dependency_file`** (both) — Generates `.d` dependency files. On QNX,
-  **`dependency_file_named_implicitly`** toggles between explicit and implicit
-  naming.
+  the opt-in **`dependency_file_named_implicitly`** marker toggles between
+  explicit and implicit naming.
 - **`per_object_debug_info`** (Linux) — Emits `-gsplit-dwarf -g` under
   `--fission` (guarded; no-op otherwise).
 
@@ -126,16 +131,18 @@ See the `score_cpp_policies` documentation for the authoritative list and usage.
 
 ## Extra flag hooks (template-substituted)
 - **`extra_compile_flags`** (both) — Extra flags for all compile actions.
-- **`extra_c_compile_flags`** / **`extra_cxx_compile_flags`** (Linux) — Extra C /
+- **`extra_c_compile_flags`** / **`extra_cxx_compile_flags`** (both) — Extra C /
   C++ compile flags.
 - **`extra_link_flags`** (both) — Extra link flags.
 
 ## Coverage
-- **`coverage`** (both) — Base coverage feature.
-- **`gcc_coverage_map_format`** (both) — `-fprofile-arcs -ftest-coverage` at
+- **`coverage`** (both, opt-in) — Base coverage feature.
+- **`gcc_coverage_map_format`** (both, opt-in) — `-fprofile-arcs -ftest-coverage` at
   compile and `-lgcov` / `--coverage` at link.
 
 ## QNX environment
 - **`sdp_env`** (QNX) — Injects QNX SDP environment variables (`QNX_HOST`,
   `QNX_TARGET`, license path, ...) into compile/link actions.
-- **`qnx_license_env_info`** (QNX) — Adds an optional license environment entry.
+- **`gcc_version_flags`** (QNX) — Selects the QNX compiler version and CPU.
+- **`io_pkt_ddk`** (QNX, opt-in) — Adds C compilation flags and headers for
+  QNX io-pkt drivers and modules.
