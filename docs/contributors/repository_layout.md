@@ -11,25 +11,31 @@
   SPDX-License-Identifier: Apache-2.0
 ----------------------------------------------------------------------------- -->
 
-# Repository Layout
+# Repository layout
 
-## Top-Level Structure
+This reference helps contributors find the directory that holds each part of
+the toolchain implementation. It doesn't describe how the pieces work
+together; see [Generation flow](generation_flow.md).
+
+## Top-level structure
 
 The repository is organized by subsystem rather than by platform product:
 
 ```text
 .
 |- docs/        Markdown documentation sources
+|- examples/    Placeholder for example applications
 |- tests/       Test workspace and validation suites
 |- extensions/  Bzlmod extension entry points
 |- packages/    Toolchain package descriptors and version matrix
 |- features/    Declarative cc_feature/cc_args toolchain-feature definitions
 |- rules/       Repository rules and shared helpers
 |- templates/   Generated file templates for toolchain repositories
-`- tools/       Standalone utility scripts
+|- tools/       Standalone utility scripts
+`- .github/     CI workflows and CODEOWNERS
 ```
 
-## Directory Responsibilities
+## Directory responsibilities
 
 `extensions/`
 
@@ -56,7 +62,7 @@ with `@rules_cc//cc/toolchains`. `features/native/` has one reusable target
 per toolchain feature (mirroring the legacy Bazel C++ features); the
 OS-specific `features/custom/linux/`, `features/custom/qnx/`, and
 `features/custom/ebclfsa_hi/` packages hold
-platform-only features (e.g. QNX `sdp_env`, `gcc_version_flags`) plus the
+platform-only features (for example, QNX `sdp_env`, `gcc_version_flags`) plus the
 ordered `known_features`/`enabled_features` lists that
 `templates/BUILD.template` passes to `cc_toolchain_config`.
 
@@ -74,9 +80,18 @@ lists in `features/custom/`, not from separate template directories.
 
 A standalone Bazel workspace used as the integration and validation surface. It
 declares representative toolchain configurations and validates them with
-feature-verification and language-standard test suites.
-> NOTE: These tests validate toolchain generation. They should not be used as
-> reference points for platform development.
+feature-verification, language-and-standards, guardrail, and EBcLfSA
+high-integrity test suites. For the suites, see the
+[test suite reference](test_suite.md).
+
+These tests validate toolchain generation. Don't use them as reference points
+for platform development.
+
+`examples/`
+
+Reserved for example applications. It contains no examples; for a
+consumer setup example, see
+[Build with a Linux toolchain](../consumers/getting_started.md).
 
 `tools/`
 

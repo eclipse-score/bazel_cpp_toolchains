@@ -17,7 +17,7 @@ This reference describes the module extension tags available to consumers.
 For a complete configuration example, see
 [Build with a Linux toolchain](getting_started.md).
 
-## Consumer Entry Point
+## Consumer entry point
 
 Consumers interact with this repository through the `gcc` module extension in
 `@score_bazel_cpp_toolchains//extensions:gcc.bzl`.
@@ -40,7 +40,7 @@ gcc.toolchain(
 use_repo(gcc, "score_gcc_toolchain")
 ```
 
-## Public Tags
+## Public tags
 
 `gcc.toolchain(...)`
 
@@ -54,7 +54,7 @@ required. The extension forwards its supported archive attributes to the
 repository's `http_archive` wrapper, which handles GitHub release assets
 separately.
 
-## `gcc.toolchain(...)` Attributes
+## `gcc.toolchain(...)` attributes
 
 The following attributes are required:
 
@@ -67,18 +67,24 @@ Common package selection attributes:
 - `use_default_package` (boolean, default `False`): whether to use a package
   from the version matrix.
 - `version` (string, default `""`): GCC version, for example `12.2.0` or
-  `15.3.0`. See the [version matrix](../../packages/version_matrix.bzl).
+  `15.3.0`. See the [version matrix](../../packages/version_matrix.bzl). For
+  QNX toolchains with an `sdp_version`, the extension sets an empty `version`
+  to the GCC version that the SDP major release ships, and fails if you set a
+  different value.
 - `sdp_version` (string, default `""`): version of the SDP package.
 - `sdk_version` (string, default `""`): SDK version, an alternative identifier used in
   matrix resolution.
 - `sdp_to_link` (string, default `""`): name of the toolchain package to link with this
-  toolchain. For default QNX packages, the extension uses a name based on the
+  toolchain. Set it together with `use_default_package = False` to link a package
+  that you declare with `gcc.sdp`. Setting it together with
+  `use_default_package = True` is an error. For default QNX packages, the extension uses a name based on the
   version-matrix entry so toolchains for different CPUs share one package
   repository (for example, QNX SDP 8.0.5 uses
   `qnx_sdp_8_0_5_pkg`). Each `sdp_version` maps to its own default package, so
-  several SDP versions can coexist in one module. The default SDP 8.0.5
-  package is private. Other default packages use toolchain name + `_pkg`.
-  See [QNX integration](qnx_integration.md) for access and custom packages.
+  several SDP versions can coexist in one module. The default SDP 8.0.5 and
+  8.0.6 packages are private. Other default packages use toolchain name + `_pkg`.
+  See [QNX integration](qnx_integration.md) for access, locally built SDPs, and
+  custom packages.
 - `use_system_toolchain` (boolean, default `False`): skips default package
   linking. Its full system-toolchain behavior is not documented; check the
   implementation before relying on it.
@@ -91,13 +97,18 @@ Flag and runtime attributes (lists default to `[]` and strings to `""`):
   compiler.
 - `extra_link_flags` (string list): additional flags passed to the linker.
 - `extra_known_features` (label list): extra `cc_feature` features to add to this toolchain
-  in an initially disabled state. See [Feature Injection](#feature-injection).
+  in an initially disabled state. See [Feature injection](#feature-injection).
 - `extra_enabled_features` (label list): extra `cc_feature` features to add to this
-  toolchain in an initially enabled state. See [Feature Injection](#feature-injection).
+  toolchain in an initially enabled state. See [Feature injection](#feature-injection).
 - `ld_library_paths` (string list): paths relative to the sysroot which should build
   up the runtime linker path of the tools of this toolchain.
-- `runtime_ecosystem` (string): identifies the system-level runtime
-  environment a binary or target is built to run in.
+- `runtime_ecosystem` (string, default `""`): identifies the system-level
+  runtime environment that a target is built to run in. The extension adds
+  the value to the generated platform constraints and toolchain name. The
+  value `ebclfsa-hi` on a Linux toolchain selects the EBcLfSA high-integrity
+  feature list; see [Toolchain features](features.md). For other supported
+  values, see the runtime constraints in
+  [`score_bazel_platforms`](https://github.com/eclipse-score/bazel_platforms).
 - `use_base_constraints_only` (boolean, default `False`): experimental.
   Uses only base platform constraints, limiting toolchain registration to one
   per base platform definition.
@@ -109,7 +120,7 @@ QNX-specific attributes:
 - `license_info_variable` (string, default `""`): QNX license info variable.
 - `license_info_url` (string, default `""`): URL of the QNX license server.
 
-## `gcc.sdp(...)` Attributes
+## `gcc.sdp(...)` attributes
 
 The `gcc.sdp` tag defines a package archive. Archive attributes correspond to
 the identically named `http_archive` attributes. Specify a package name for
@@ -137,14 +148,18 @@ an explicit declaration; the tag's declared default is an empty string.
 - `patch_tool` (string, default `""`): patch utility to use instead of the
   Bazel-native implementation.
 
-Archive attributes can be supplied either directly through `gcc.sdp(...)` or through `packages/version_matrix.bzl`; the extension forwards matrix values for `patches`, `patch_args`, `patch_cmds`, `patch_strip`, `patch_tool`, and `files` to `http_archive` when present. Entries that omit these optional fields use the native `http_archive` defaults.
+Archive attributes can be supplied either directly through `gcc.sdp(...)` or
+through `packages/version_matrix.bzl`. The extension forwards matrix values for
+`patches`, `patch_args`, `patch_cmds`, `patch_strip`, `patch_tool`, and `files`
+to `http_archive` when present. Entries that omit these optional fields use the
+native `http_archive` defaults.
 
-### Private GitHub Release Assets
+### Private GitHub release assets
 
 The extension instantiates archives through the `http_archive` wrapper in
 `rules/http_archive.bzl`, which has the same interface as the native rule.
 If `url` is a GitHub REST API release asset URL
-(`https://api.github.com/repos/<owner>/<repo>/releases/assets/<id>`), the
+(`https://api.github.com/repos/OWNER/REPO/releases/assets/ASSET_ID`), the
 wrapper uses the `github_release_archive` repository rule from
 `rules/github_release_archive.bzl`; all other URLs go to the native
 `http_archive`.
@@ -170,17 +185,23 @@ It is not part of the repository definition, so rotating it does not trigger
 a refetch.
 No `--credential_helper` is needed for these URLs.
 
+To declare such a package, use a call like the following:
+
 ```starlark
 gcc.sdp(
     name = "my_qnx_sdp_pkg",
     build_file = "//toolchains:qnx_sdp.BUILD",
-    sha256 = "<sha256 of the asset>",
+    sha256 = "ASSET_SHA256",
     type = "tar.gz",
-    url = "https://api.github.com/repos/<owner>/<repo>/releases/assets/<id>",
+    url = "https://api.github.com/repos/OWNER/REPO/releases/assets/ASSET_ID",
 )
 ```
 
-## Feature Injection
+Replace `ASSET_SHA256` with the checksum of the asset, and replace `OWNER`,
+`REPO`, and `ASSET_ID` with the repository owner, the repository name, and the
+numeric ID of the release asset.
+
+## Feature injection
 
 `extra_known_features` and `extra_enabled_features` let a workspace add
 rule-based `cc_feature` targets (defined outside this repository) to the
@@ -199,7 +220,7 @@ Feature injection is a migration bridge with limited integration: it does not
 perform additional correctness checks or handle feature `data` files. See
 the attribute documentation in [`gcc.bzl`](../../extensions/gcc.bzl).
 
-## Activation In A Workspace
+## Activation in a workspace
 
 Declaring a toolchain repository is not enough on its own. Consumers still need
 to activate the generated toolchain during Bazel analysis, typically with a
@@ -209,23 +230,26 @@ configuration such as:
 --extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0
 ```
 
-A newer GCC 15.3.0 toolchain is packaged as well; activate it the same way by
-referencing its generated label (e.g.
-`--extra_toolchains=@score_gcc_toolchain_15//:x86_64-linux-gcc_15.3.0`).
+A GCC 15.3.0 toolchain is packaged as well. Activate it the same way by
+referencing its generated label, for example:
+
+```text
+--extra_toolchains=@score_gcc_toolchain_15//:x86_64-linux-gcc_15.3.0
+```
 
 The test workspace under `tests/` provides complete `.bazelrc`
-configurations for this activation step, including a `x86_64-linux-gcc15` /
+configurations for this activation step, including an `x86_64-linux-gcc15` /
 `aarch64-linux-gcc15` config pair for the GCC 15.3.0 toolchain.
 
-## Migrating Downstream Workspaces
+## Migration to the explicit-feature model
 
 The generated toolchains run under Bazel's explicit-feature model
-(`no_legacy_features`), so behaviors Bazel used to add implicitly are not
-automatic. For the behavioral impact and how consumers restore supported
-behavior explicitly, see the
-[Migration guide](migration_guide.md).
+(`no_legacy_features`), so behaviors that Bazel adds implicitly in its legacy
+model are not automatic. For the behavioral impact and how consumers restore
+supported behavior explicitly, see the
+[migration guide](migration_guide.md).
 
-## Behavior Notes
+## Behavior notes
 
 - The extension is intended for the root module.
 - When `use_default_package` is enabled, the version matrix can inject extra

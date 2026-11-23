@@ -16,7 +16,7 @@
 This reference helps contributors maintain feature and package wiring. For
 the end-to-end workflow, see [Add a toolchain variant](add_toolchain.md).
 
-## When To Use The Version Matrix
+## When to use the version matrix
 
 Use the version matrix when a package should be part of the supported default
 surface for consumers. This gives downstream users a shorter configuration and
@@ -25,12 +25,13 @@ centralizes special sysroot flags in one place.
 Use explicit `gcc.sdp(...)` declarations when package metadata is local,
 experimental, or intentionally not part of the default support matrix.
 
-## Toolchain Feature Wiring
+## Toolchain feature wiring
 
-Both the Linux and QNX toolchain configs enable **`no_legacy_features`**, so
-Bazel injects nothing implicitly — every compile/link/archive flag must come
-from a feature (or wiring) declared in the template. See
-[docs/features.md](../consumers/features.md) for the full feature list. Not everything is a
+The Linux, QNX, and EBcLfSA high-integrity toolchain configs enable
+**`no_legacy_features`**, so Bazel injects nothing implicitly. Every
+compile, link, and archive flag must come from a feature (or wiring) declared
+in the template. For the full feature list, see
+[Toolchain features](../consumers/features.md). Not everything is a
 feature, though; some behavior is provided by other toolchain wiring:
 
 - **Compiler / archiver / strip tools** are bound through `action_config`
@@ -61,32 +62,28 @@ means a broken build rather than a silent fallback.
 
 > **Static archives:** `fully_static_link` (`-static`) requires static system
 > libraries (`libc.a`, `libstdc++.a`, ...). Toolchains that ship only shared
-> libraries (e.g. AutoSD) cannot link fully static binaries, so that feature is
-> opt-in and its test is marked incompatible with such platforms.
+> libraries (for example, AutoSD) cannot link fully static binaries, so that
+> feature is opt-in and its test is marked incompatible with such platforms.
 
-## Toolchain Feature Catalog (`features/`)
+## Feature catalog (`features/`)
 
-`features/` is the live source of the toolchain's `cc_feature` / `cc_args`
-definitions, built with `@rules_cc//cc/toolchains`. It replaced the legacy
-`feature()` Starlark calls that used to live directly in the per-OS
-`cc_toolchain_config.bzl.template` files; `templates/cc_toolchain_config.bzl.template`
-now only implements the `cc_toolchain_config` rule and turns
-`known_features`/`enabled_features` labels into the toolchain's feature list —
-it defines no features of its own.
+`features/` holds the toolchain's `cc_feature` / `cc_args` definitions, built
+with `@rules_cc//cc/toolchains`. The
+`templates/cc_toolchain_config.bzl.template` file only implements the
+`cc_toolchain_config` rule and turns `known_features` / `enabled_features`
+labels into the toolchain's feature list. It defines no features of its own.
 
 - `features/native/`: one reusable `cc_feature`/`cc_args` target per toolchain
   feature (`default_compile_flags`, `include_paths`, `pic`,
   `sysroot_link_flags`, ...), including the capability markers (`dbg`, `opt`,
-  `supports_pic`, ...). These mirror the removed legacy Bazel C++ features
-  one-for-one.
+  `supports_pic`, ...). These mirror Bazel's legacy C++ features one-for-one.
 - `features/custom/linux/`, `features/custom/qnx/`, and
   `features/custom/ebclfsa_hi/`: OS-specific features
   not covered by the native set (QNX `sdp_env`, `gcc_version_flags`), plus
   `make_cc_features.bzl`, which defines the ordered `_LINUX_FEATURES` /
   `_QNX_FEATURES` / `_EBCLFSA_HI_FEATURES` lists of
-  `(label, initially_enabled)` pairs. Order here
-  mirrors the previous templates' `features = [...]` order exactly, since
-  feature order determines command-line flag order. `get_feature_lists()`
+  `(label, initially_enabled)` pairs. Feature order determines command-line
+  flag order, so change the order only on purpose. `get_feature_lists()`
   returns `(known_features, enabled_features)`, and `templates/BUILD.template`
   passes those straight into `cc_toolchain_config`'s `known_features` /
   `enabled_features` attributes — this is what the generated toolchain
@@ -109,22 +106,24 @@ it defines no features of its own.
   per-instance dynamic content (caller-controlled via `gcc.toolchain(...)`
   attributes).
 - `all_wall_warnings`, `minimal_warnings`, `strict_warnings`, and
-  `warnings_as_errors` are not defined anywhere in this repository — they were
-  removed and are superseded by `score_cpp_policies`, injected via
-  `extra_known_features` / `extra_enabled_features` (same mechanism as the
+  `warnings_as_errors` are not defined anywhere in this repository. The
+  `score_cpp_policies` module defines them, and you inject them through
+  `extra_known_features` / `extra_enabled_features` (the same mechanism as the
   sanitizers).
 
-## Common Gotchas
+## Common problems
 
-- runtime-specific toolchains may need extra include and link flags that do not
-  exist for standard GCC archives,
-- QNX `aarch64` naming differs from some underlying SDK paths,
+Watch for these problems when you change toolchain wiring:
+
+- Runtime-specific toolchains might need extra include and link flags that
+  don't exist for standard GCC archives.
+- QNX `aarch64` naming differs from some underlying SDK paths.
 - QNX licensing and authentication requirements live outside Bazel target
-  analysis and must be configured in the execution environment,
-- documentation examples must stay aligned with actual `tests/.bazelrc`
-  configuration names.
+  analysis and must be configured in the execution environment.
+- Documentation examples must stay aligned with the configuration names in
+  `tests/.bazelrc`.
 
-## Recommended Validation After Changes
+## Validate changes
 
 For repository changes that affect toolchain resolution, package metadata, or
 template generation, select checks using

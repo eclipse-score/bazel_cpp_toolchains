@@ -26,12 +26,15 @@ add a toolchain package to this repository; see
 - Obtain access to a compatible QNX Software Development Platform (SDP)
   package and a valid QNX license. Package access and license access are
   separate requirements.
-- For the default SDP 8.0.5 package, obtain read access to its private GitHub
-  release asset. Other consumers must provide a compatible package.
-  See [QNX package authentication](qnx_authentication.md).
-- Use a revision that contains the SDP 8.0.5 matrix entry. The `0.5.4` release
-  used in the Linux example predates that entry. To use this checkout, add a
-  local path override in `MODULE.bazel`:
+- For a default package, obtain read access to its private GitHub release
+  asset. SDP 8.0.5 and 8.0.6 are available this way; see
+  [Authenticate QNX package downloads](qnx_authentication.md). If you can't
+  access a default package, build your own SDP and use it instead; see
+  [Use your own SDP](#use-your-own-sdp).
+- Use a revision of this module whose
+  [version matrix](../../packages/version_matrix.bzl) contains an entry for
+  your SDP version. To use this checkout, add a local path override in
+  `MODULE.bazel`:
 
   ```starlark
   local_path_override(
@@ -96,52 +99,135 @@ and generated toolchain label. See
 [`tests/MODULE.bazel`](../../tests/MODULE.bazel) and
 [`tests/.bazelrc`](../../tests/.bazelrc) for examples.
 
-## Use a custom package
+## Use your own SDP
 
-If you cannot access a default package or need another archive, create or
-obtain a compatible package and BUILD descriptor. Replace the default-package
-declaration with a package declaration and a toolchain linked to it:
+If you can't access a default package, or you need a different SDP build,
+build the SDP yourself and make it available to this module. The
+[`score_qnx_sdp`](https://github.com/eclipse-score/qnx_sdp) module installs a
+QNX SDP through the QNX Software Center. For how to set up your QNX account
+and license and how to define and build a `qnx_sdp` target, see its
+[license and credentials](https://github.com/eclipse-score/qnx_sdp/blob/main/docs/license-and-credentials.md)
+and [user guide](https://github.com/eclipse-score/qnx_sdp/blob/main/docs/user-guide.md).
+This section covers only how to use the result with this module.
 
-```starlark
-gcc.sdp(
-    name = "qnx_package",
-    build_file = "//toolchains:BUILD_FILE",
-    sha256 = "ARCHIVE_SHA256",
-    type = "tar.gz",
-    url = "ARCHIVE_URL",
-)
+Building a `qnx_sdp` target produces an SDP directory, for example
+`bazel-bin/qnx_sdp/` for a target named `qnx_sdp`. Choose one of the following
+methods to use it:
 
-gcc.toolchain(
-    name = "qnx_toolchain",
-    target_cpu = "x86_64",
-    target_os = "qnx",
-    sdp_version = "8.0.5",
-    sdp_to_link = "qnx_package",
-    use_default_package = False,
-)
-```
+| Method | Use it when | `MODULE.bazel` changes |
+| --- | --- | --- |
+| [Override the package repository](#override-the-package-repository) | The SDP is on your machine. | A one-time `use_repo` entry that you can commit. |
+| [Host the SDP archive](#host-the-sdp-archive) | You share one SDP build through an HTTP server or Artifactory. | Package and toolchain declarations that you shouldn't commit. |
 
-Replace `BUILD_FILE` with your descriptor's filename, `ARCHIVE_SHA256` with
-the archive checksum, and `ARCHIVE_URL` with its URL. Set `type` and
-`sdp_version` to match your archive. The `use_repo` and `.bazelrc` steps in
-[Declare the toolchain](#declare-the-toolchain) still apply; adjust the
-generated label if the selected version maps to a different constraint. See
-the [extension reference](extension_api.md#gccsdp-attributes).
+### Override the package repository
 
-For a custom QNX package, the generated configuration expects unsuffixed
-`ar`, `gcov`, `strip`, `cxx_builtin_include_directories`, `cc`, `cxx`,
-`all_files`, `sysroot_dir`, and `target_dir` targets. Shared default QNX
-packages use CPU-suffixed targets for `ar`, `gcov`, `strip`, and
-`cxx_builtin_include_directories`. The package must contain the expected host
-tools and target headers and libraries.
+This method keeps the default-package declaration from
+[Declare the toolchain](#declare-the-toolchain) and replaces the downloaded
+package with your local SDP directory. Bazel doesn't download the package, so
+you don't need access to the private release asset.
+
+1. Add the package repository to the `use_repo` call of your `gcc` extension:
+
+   ```starlark
+   use_repo(gcc, "score_gcc_toolchain", "qnx_toolchain", "SDP_PACKAGE")
+   ```
+
+   Replace `SDP_PACKAGE` with the package repository name. For a default
+   package, the name is `qnx_sdp_`, followed by the `sdp_version` with each
+   dot replaced by an underscore, followed by `_pkg`. For example, SDP 8.0.5
+   uses `qnx_sdp_8_0_5_pkg`.
+
+2. Copy the SDP directory that you built to a stable location, because Bazel
+   can remove build outputs.
+
+3. Add the override to your user `~/.bazelrc` file instead of the `.bazelrc`
+   file in your repository, so that your local path isn't checked in:
+
+   ```text
+   common --override_repository=SDP_PACKAGE=/ABSOLUTE/PATH/TO/SDP
+   ```
+
+   Replace `SDP_PACKAGE` with the name from step 1 and `/ABSOLUTE/PATH/TO/SDP`
+   with the absolute path of the copied directory. Keep the `BUILD.bazel` file
+   that the `qnx_sdp` rule copies into the SDP root; the generated toolchain
+   reads the targets that it defines. For details about the flag, see the Bazel
+   [`--override_repository` reference](https://bazel.build/reference/command-line-reference#param-override-repository).
+
+4. From the module root, build the target from the Linux getting-started guide:
+
+   ```bash
+   bazel build --config=x86_64-qnx //:hello
+   ```
+
+   Confirm that Bazel reports a successful build.
+
+### Host the SDP archive
+
+This method downloads your SDP from your own server and links it to the QNX
+toolchain declaration. It changes `MODULE.bazel` to point to your storage, so
+don't commit these changes to a repository that others build.
+
+1. Package the SDP directory as an archive, so that the archive root is the SDP
+   root. For an example that uses `rules_pkg`, see
+   [Use or package the output](https://github.com/eclipse-score/qnx_sdp/blob/main/docs/user-guide.md#use-or-package-the-output)
+   in the `score_qnx_sdp` user guide.
+2. Upload the archive to an HTTP server or Artifactory instance that your build
+   machines can reach.
+3. Replace the default-package declaration with a package declaration and a
+   toolchain linked to it through `sdp_to_link`:
+
+   ```starlark
+   gcc.sdp(
+       name = "qnx_package",
+       sha256 = "ARCHIVE_SHA256",
+       type = "tar.gz",
+       url = "ARCHIVE_URL",
+   )
+
+   gcc.toolchain(
+       name = "qnx_toolchain",
+       target_cpu = "x86_64",
+       target_os = "qnx",
+       sdp_version = "8.0.5",
+       sdp_to_link = "qnx_package",
+       use_default_package = False,
+   )
+   ```
+
+   Replace `ARCHIVE_SHA256` with the archive checksum and `ARCHIVE_URL` with
+   the URL of the uploaded archive. Set `type` and `sdp_version` to match your
+   archive. Keep `use_default_package = False`: if you set `sdp_to_link`
+   together with `use_default_package = True`, the extension fails with an
+   error, because the default package comes from the version matrix. For the
+   attributes, see the
+   [extension reference](extension_api.md#gccsdp-attributes).
+
+4. Complete the `use_repo` and `.bazelrc` steps in
+   [Declare the toolchain](#declare-the-toolchain). Adjust the generated label
+   if the selected version maps to a different constraint.
+
+The archive that you build from a `qnx_sdp` target already contains the
+`BUILD.bazel` file that the generated toolchain needs, so you don't need to
+set `build_file`. If you provide your own BUILD file with the `build_file`
+attribute, make sure that it is compatible. The generated configuration
+expects the targets `cc`, `cxx`, `all_files`, `sysroot_dir`, and `target_dir`,
+and the CPU-suffixed targets `ar_CPU`, `gcov_CPU`, `strip_CPU`, and
+`cxx_builtin_include_directories_CPU`, where `CPU` is `x86_64` or `aarch64`.
+The package must also contain the expected host tools and target headers and
+libraries.
 
 ## Select an SDP version
 
 The package version and the platform constraint are resolved separately. The
 [version matrix](../../packages/version_matrix.bzl) selects the archive by
-its actual SDP version. The
-[version mapping](../../rules/common.bzl) maps SDP 8.0.4, 8.0.5, and 8.0.6
-to the `sdp_8.0.0` constraint and generated label.
+its actual SDP version. The [version mapping](../../rules/common.bzl) maps
+every patch version of the SDP 8.0 series, for example 8.0.5, 8.0.6, and
+8.0.12, to the `sdp_8.0.0` constraint and generated label.
+
+For QNX toolchains, `version` is optional. If you omit it, the extension sets
+it to the GCC version that the SDP major release ships (12.2.0 for SDP 8.x).
+If you set it to a different value, the extension fails with an error that
+names the expected version.
 
 Default QNX packages are shared across CPU-specific toolchain repositories.
 For example, SDP 8.0.5 uses `qnx_sdp_8_0_5_pkg`. Different SDP versions use
@@ -175,9 +261,12 @@ runner and test environment.
 
 ## Troubleshoot
 
+To diagnose a problem, find the symptom in the following table and run the
+matching check:
+
 | Symptom | Check |
 | --- | --- |
-| Package download fails | Check the selected package URL, access, and credentials; see [QNX package authentication](qnx_authentication.md). |
+| Package download fails | Check the selected package URL, access, and credentials; see [Authenticate QNX package downloads](qnx_authentication.md). If you can't get access, see [Use your own SDP](#use-your-own-sdp). |
 | License error | Check the license path, license validity, and action environment. |
 | Write error under `/var/tmp` | Check sandbox writable paths and permissions. |
 | Toolchain cannot be selected | Check the target CPU, platform constraints, imported repository, and generated label. |

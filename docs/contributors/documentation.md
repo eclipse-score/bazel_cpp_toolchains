@@ -25,14 +25,13 @@ accurate when toolchains or their validation change.
    and relevant test configurations. Run examples when their prerequisites are
    available; record checks you couldn't run and why in the change description.
 3. Check relative links and anchors after moving or renaming content. Update
-   links in the repository and keep existing forwarding pages usable for
-   external readers.
+   links in the repository, including references in `BUILD` files, `.bzl`
+   files, and test failure messages.
 4. Request review from the owners identified by
    [CODEOWNERS](../../.github/CODEOWNERS). Ask the appropriate platform
    maintainers to review platform-specific instructions.
 
-The [documentation map](../README.md) lists the authoritative pages. The
-forwarding pages at the original `docs/` paths preserve existing links; update
-them if their destination changes. There is no documentation-site build
+The [documentation map](../README.md) lists the authoritative pages. Add a new
+page to the map when you create it. There is no documentation-site build
 configured in this repository, so review Markdown rendering and links as part
 of the change.

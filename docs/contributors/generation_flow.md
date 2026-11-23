@@ -11,9 +11,15 @@
   SPDX-License-Identifier: Apache-2.0
 ----------------------------------------------------------------------------- -->
 
-# Generation Flow
+# Toolchain generation flow
 
-## End-To-End Flow
+This reference helps contributors understand how a `MODULE.bazel` declaration
+becomes a generated toolchain repository, so that you can find where to change
+package metadata, features, or templates. It doesn't describe how consumers
+configure toolchains; see
+[Build with a Linux toolchain](../consumers/getting_started.md).
+
+## Generation steps
 
 The repository turns a small `MODULE.bazel` declaration into a generated
 toolchain repository through these steps:
@@ -34,7 +40,7 @@ toolchain repository through these steps:
 5. The consuming workspace enables the generated toolchain with
    `--extra_toolchains` and compatible platform constraints.
 
-## Subsystem Roles
+## Subsystem roles
 
 `packages/version_matrix.bzl`
 
@@ -52,7 +58,7 @@ the SDP version mappings used to map package releases to platform constraints.
 
 Generates the toolchain repository. It performs placeholder substitution and
 emits the final `BUILD`, `cc_toolchain_config.bzl`, and `gcov` wrapper files,
-substituting OS-specific values (e.g. `compiler`, `abi_version`,
+substituting OS-specific values (for example, `compiler`, `abi_version`,
 `toolchain_identifier`) into the shared templates below.
 
 `features/`
@@ -64,15 +70,16 @@ toolchain feature; `features/custom/linux/`, `features/custom/qnx/`, and
 `known_features`/`enabled_features`
 lists that `templates/BUILD.template` passes to `cc_toolchain_config`.
 
-## Template Families
+## Template files
 
-Shared templates (used by both Linux and QNX):
+A single set of templates serves Linux, QNX, and the EBcLfSA high-integrity
+(HI) profile:
 
 - `templates/cc_toolchain_config.bzl.template`
 - `templates/BUILD.template`
 - `templates/cc_gcov_wrapper.template`
 
-## Important Implementation Details
+## Implementation details
 
 - Some package definitions rely on the `%{toolchain_pkg}%` placeholder, which
   is rewritten to the canonical Bzlmod repository name during repository-rule
@@ -81,16 +88,17 @@ Shared templates (used by both Linux and QNX):
 - QNX `aarch64` is mapped internally to `aarch64le` where required by the
   underlying SDK layout. This normalization is a QNX-specific convention,
   centralized in the `_normalize_cpu()` helper. Linux toolchain binaries use
-  the CPU name unchanged (e.g., `aarch64-unknown-linux-gnu-gcov`).
+  the CPU name unchanged (for example, `aarch64-unknown-linux-gnu-gcov`).
 - SDP version mapping is handled through `SDP_VERSION_MAPPING` in
-  `rules/common.bzl`. SDP versions `8.0.4`, `8.0.5`, and `8.0.6` are mapped to `8.0.0`
-  because platform constraint support uses the older identifier. This mapping
-  is configurable for future extensibility.
-- Linux toolchains generate an extra `gcov_wrapper` script to work around the
-  current `rules_cc` coverage integration behavior. The gcov path uses the
+  `rules/common.bzl`. Every patch version of a mapped series, for example
+  `8.0.5`, `8.0.6`, and `8.0.12`, maps to the series' canonical version
+  (`8.0.0` for the 8.0 series) because platform constraint support uses the
+  older identifier. To map another series, add a `MAJOR.MINOR` key.
+- Linux toolchains generate an extra `gcov_wrapper` script to work around how
+  `rules_cc` integrates coverage. The gcov path uses the
   `{cpu}-unknown-linux-gnu-gcov` naming convention.
 
-## Version Matrix Responsibilities
+## Version matrix responsibilities
 
 The version matrix is more than a list of URLs. It is also the place where the
 repository centralizes:

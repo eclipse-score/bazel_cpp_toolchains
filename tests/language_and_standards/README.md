@@ -11,15 +11,20 @@
   SPDX-License-Identifier: Apache-2.0
 ----------------------------------------------------------------------------- -->
 
-# Language and Standards Tests
+# Language and standards tests
 
-This directory contains tests for verifying that the toolchain correctly supports different programming languages and C++ standard versions.
+This directory contains tests that verify that the toolchain supports C and
+the C++ standard versions it declares. Use this page to run the tests. For
+individual tests, see the
+[test suite reference](../../docs/contributors/test_suite.md).
 
-For details, see the [test suite reference](../../docs/contributors/test_suite.md).
+Run the commands in this page from the `tests/` workspace root, not from this
+directory.
 
-Run the following commands from the `tests/` workspace root, not this directory.
+## Run the tests
 
-## Quick Reference
+To run all language tests, one test, or one test with verbose output, use the
+following commands:
 
 ```bash
 # Run all language tests
@@ -32,7 +37,7 @@ bazel test --config=x86_64-linux //language_and_standards:cpp20_test
 bazel test --config=x86_64-linux --test_output=all //language_and_standards:cpp20_test
 ```
 
-## See Also
+## See also
 
 - [Test suite reference](../../docs/contributors/test_suite.md)
 - [Toolchain overview](../../docs/consumers/overview.md)

@@ -34,15 +34,17 @@ if those variables aren't set. Obtain access to the selected package from QNX.
 
 ## Private GitHub release assets
 
-The default SDP 8.0.5 package is a private GitHub release asset. Its downloader
-requires Python 3 and a token with read access to the repository contents. It
-checks `SCORE_GITHUB_TOKEN`, `GITHUB_TOKEN`, and `GH_TOKEN`, then netrc entries
-for `api.github.com` or `github.com` (`$NETRC` or `~/.netrc`). A QNX credential
-helper isn't used for these URLs.
+The default SDP 8.0.5 and 8.0.6 packages are private GitHub release assets.
+Their downloader requires Python 3 and a token with read access to the
+repository contents. It checks `SCORE_GITHUB_TOKEN`, `GITHUB_TOKEN`, and
+`GH_TOKEN`, then netrc entries for `api.github.com` or `github.com` (`$NETRC`
+or `~/.netrc`). A QNX credential helper isn't used for these URLs.
 
 In CI, supply the token through a secret on the runner. Do not commit
 credentials. See [Private GitHub release assets](extension_api.md#private-github-release-assets)
-for download and caching behavior.
+for download and caching behavior. If you can't get access to the private
+packages, build your own SDP instead; see
+[Use your own SDP](qnx_integration.md#use-your-own-sdp).
 
 ## Verify access
 

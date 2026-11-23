@@ -23,7 +23,7 @@ revision; the public API and available packages can differ in older releases.
 - [Build with a Linux toolchain](consumers/getting_started.md): declare,
   select, and verify a toolchain in your module.
 - [Integrate a QNX toolchain](consumers/qnx_integration.md): configure QNX
-  packages, authentication, and licensing.
+  packages, authentication, licensing, and locally built SDPs.
 - [Authenticate QNX package downloads](consumers/qnx_authentication.md):
   configure credentials for the selected package host.
 - [Extension API](consumers/extension_api.md): look up tags and attributes.
@@ -47,5 +47,3 @@ revision; the public API and available packages can differ in older releases.
 - [Test suite reference](contributors/test_suite.md): look up individual tests.
 - [Maintain documentation](contributors/documentation.md): update and review
   documentation with code changes.
-
-The original paths under `docs/` remain as forwarding pages for existing links.

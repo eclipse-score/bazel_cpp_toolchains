@@ -11,7 +11,7 @@
   SPDX-License-Identifier: Apache-2.0
 ----------------------------------------------------------------------------- -->
 
-# Toolchain Features
+# Toolchain features
 
 This reference helps consumers find features in the generic Linux and QNX
 toolchain profiles. The feature definitions are in
@@ -21,19 +21,17 @@ list and omits some generic Linux features; consult its
 [feature list](../../features/custom/ebclfsa_hi/make_cc_features.bzl) for
 that profile.
 
-Both toolchains enable **`no_legacy_features`**, which turns off the features
-Bazel would otherwise add implicitly. Toolchain flags come from explicitly
-declared features and other toolchain wiring.
-
-> **Migrating from an implicit/legacy setup?** See the
-> [Migration guide](migration_guide.md) for the behavioral impact of
-> `no_legacy_features` and how to restore supported behavior explicitly.
+The generic Linux and QNX toolchains, and the high-integrity profile, enable
+**`no_legacy_features`**, which turns off the features Bazel would otherwise
+add implicitly. Toolchain flags come from explicitly declared features and
+other toolchain wiring. If your builds depended on implicit legacy behavior,
+see the [migration guide](migration_guide.md).
 
 Each entry is tagged with the generic platform(s) it applies to: **(both)**,
 **(Linux)**, or **(QNX)**. Unless noted as *opt-in (disabled by default)* or a
 build-mode marker, a feature is enabled by default.
 
-> **Note:** The order of features in the `features` list is significant — flags
+> **Note:** The order of features in the `features` list is significant. Flags
 > from a later feature appear after those from an earlier feature on the command
 > line.
 
@@ -76,8 +74,8 @@ build-mode marker, a feature is enabled by default.
 ## Linking / archiving
 - **`archiver_flags`** (both) — `ar` flags (`rcsD`) and the object-file list for
   static archives.
-- **`user_link_flags`** (both) — Passes
-  through user-supplied link flags (`linkopts`).
+- **`user_link_flags`** (both) — Passes through user-supplied link flags
+  (`linkopts`).
 - **`linker_param_file`** (both) — Uses `@param_file` for linker/archiver args.
 - **`default_link_flags`** (both) — Default/hardening link flags (exact flags
   differ per target and build mode).
@@ -99,18 +97,19 @@ the relevant build mode is active. All are enabled by default except where noted
 - **`linkstamps`** — Passes `%{linkstamp_paths}` to the linker (`--stamp`).
 - **`force_pic_flags`** — `-pie` for executables under `--force_pic`.
 - **`strip_debug_symbols`** — `-Wl,-S` when the link output is stripped
-  (e.g. `fastbuild`/`opt`, not `dbg`).
+  (for example, `fastbuild` or `opt`, not `dbg`).
 - **`static_libgcc`** — `-static-libgcc` when `static_link_cpp_runtimes` is on.
 - **`fully_static_link`** — `-static` for fully static executables. **Opt-in
   (disabled by default)**, since it forces static linking for every target and
-  requires static system archives (unavailable on some toolchains, e.g. AutoSD).
+  requires static system archives (unavailable on some toolchains, such as AutoSD).
 
 ## Warnings
-**Note:** Warning-level features (`minimal_warnings`, `strict_warnings`, `all_wall_warnings`, `warnings_as_errors`)
-have been migrated to [`score_cpp_policies`](https://github.com/eclipse-score/score_cpp_policies).
-
-These features are no longer defined by this toolchain but can be provided through *feature injection* via
-the `extra_known_features` / `extra_enabled_features` attributes on `gcc.toolchain(...)`.
+The warning-level features (`minimal_warnings`, `strict_warnings`,
+`all_wall_warnings`, `warnings_as_errors`) are defined in
+[`score_cpp_policies`](https://github.com/eclipse-score/score_cpp_policies),
+not in this toolchain. Provide them through *feature injection* with the
+`extra_known_features` / `extra_enabled_features` attributes on
+`gcc.toolchain(...)`.
 
 ## Sanitizers (Linux, opt-in)
 Sanitizers are **not** defined by this toolchain. They are provided as

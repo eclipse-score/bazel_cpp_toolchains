@@ -11,15 +11,20 @@
   SPDX-License-Identifier: Apache-2.0
 ----------------------------------------------------------------------------- -->
 
-# Feature Verification Tests
+# Feature verification tests
 
-This directory contains tests for verifying that specific C++ toolchain features are correctly implemented and functioning.
+This directory contains tests that verify that specific C++ toolchain
+features are correctly implemented. Use this page to run the tests. For
+individual tests, see the
+[test suite reference](../../docs/contributors/test_suite.md).
 
-For details, see the [test suite reference](../../docs/contributors/test_suite.md).
+Run the commands in this page from the `tests/` workspace root, not from this
+directory.
 
-Run the following commands from the `tests/` workspace root, not this directory.
+## Run the tests
 
-## Quick Reference
+To run all feature tests, one test, or a cross-compilation build, use the
+following commands:
 
 ```bash
 # Run all feature tests
@@ -32,7 +37,7 @@ bazel test --config x86_64-linux //feature_verification:defines_test
 bazel build --config aarch64-qnx //feature_verification:defines_test
 ```
 
-## See Also
+## See also
 
 - [Test suite reference](../../docs/contributors/test_suite.md)
 - [Toolchain overview](../../docs/consumers/overview.md)

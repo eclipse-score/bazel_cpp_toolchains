@@ -11,64 +11,77 @@
   SPDX-License-Identifier: Apache-2.0
 ----------------------------------------------------------------------------- -->
 
-# Explicit-Feature Guardrail
+# Guardrail tests
 
-This directory contains an automated guardrail that protects the
-**explicit-feature model** established by the toolchain migration. Both the
-Linux and QNX toolchains enable the `no_legacy_features` marker so that Bazel
-injects **none** of its implicit legacy C/C++ features — every flag comes from a
-feature this repository defines explicitly (see
-[docs/features.md](../../docs/consumers/features.md) and
-[docs/migration_guide.md](../../docs/consumers/migration_guide.md)).
+This directory contains the `//:guardrail_tests` suite. Use this page to run
+the suite, interpret a failure, and maintain the checks if you change
+toolchain features or sysroot handling.
 
-The guardrails fail their tests if the explicit-feature contract or assembly
-sysroot flags regress.
+The suite protects the **explicit-feature model** of the toolchains. The Linux,
+QNX, and EBcLfSA high-integrity (HI) toolchains enable the `no_legacy_features`
+marker, so Bazel injects none of its implicit legacy C/C++ features. Every flag
+comes from a feature that this repository defines explicitly. For background,
+see the [feature reference](../../docs/consumers/features.md) and the
+[migration guide](../../docs/consumers/migration_guide.md).
 
-## What it validates
+This page doesn't cover the functional tests in `tests/feature_verification/`.
+The guardrails check the explicit-feature contract only and don't replace
+those tests.
 
-`no_legacy_features_guard_test` (defined in
-[`legacy_feature_guard.bzl`](legacy_feature_guard.bzl)) resolves the C++
-toolchain configured for the current `--config` and checks that:
+## Tests in the suite
 
-1. the `no_legacy_features` marker is still **enabled**, and
-2. none of Bazel's implicit legacy features have become active again. It probes
-   a set of legacy feature names that this repository intentionally never
-   defines (`legacy_compile_flags`, `legacy_link_flags`, `sysroot`); if any is
-   enabled, Bazel has re-injected its legacy feature set.
+The suite contains the following tests. Each test passes or fails through its
+exit status and needs no target hardware.
 
-`sysroot_assembly_flags_guard_test` (defined in
-[`sysroot_assembly_flags_guard.bzl`](sysroot_assembly_flags_guard.bzl)) resolves
-the toolchain and inspects generated command-line arguments for both `assemble`
-and `preprocess-assemble`. It requires `--sysroot=<path>` and rejects
-`-Wl,--sysroot`, which is a linker-only flag. It inspects the command line
-instead of compiling a `.S` file because host headers can mask a missing
-sysroot. The check is Linux-only and needs no target hardware.
+- `feature_lists_test` (defined in
+  [`feature_lists_test.bzl`](feature_lists_test.bzl)) checks that the Linux and
+  EBcLfSA HI feature lists stay independent. The HI list omits the Linux-only
+  features, uses the HI compile flags, and keeps the Linux flag order and
+  defaults. This check doesn't depend on `--config`.
+- `no_legacy_features_guard_test` (defined in
+  [`legacy_feature_guard.bzl`](legacy_feature_guard.bzl)) resolves the C++
+  toolchain for the current `--config` and checks that:
 
-The verdict is deterministic (derived from the resolved toolchain
-configuration) and is surfaced as the **test's exit status**, so it needs no
-target hardware and runs for whichever toolchain the active `--config` selects.
+  1. The `no_legacy_features` marker is still enabled.
+  2. None of Bazel's implicit legacy features are active. The test probes the
+     legacy feature names that this repository never defines:
+     `legacy_compile_flags`, `legacy_link_flags`, and `sysroot`. If any of
+     them is enabled, Bazel has re-injected its legacy feature set.
 
-## How to run it
+- `sysroot_assembly_flags_guard_test` (defined in
+  [`sysroot_assembly_flags_guard.bzl`](sysroot_assembly_flags_guard.bzl))
+  resolves the toolchain and inspects the generated command lines for the
+  `assemble` and `preprocess-assemble` actions. It requires a `--sysroot=`
+  flag with a value and rejects `-Wl,--sysroot`, which is a linker-only flag.
+  The test inspects the command lines instead of compiling
+  [`sysroot_assembly.S`](sysroot_assembly.S) because host headers can mask a
+  missing sysroot. The test runs only on Linux targets
+  (`target_compatible_with = ["@platforms//os:linux"]`).
+
+## Run the guardrails
+
+To run the suite for a toolchain, run the following commands from the `tests/`
+directory:
 
 ```bash
-cd tests
-
-# Any toolchain in the matrix — run it as a test. The test binary is a plain
-# host-runnable script, so cross-target configs work without target hardware.
 bazel test --config=x86_64-linux //:guardrail_tests
 bazel test --config=aarch64-linux //:guardrail_tests
 ```
 
-The QNX test configurations set a QNX runner and filter to C++ tests; these
-settings exclude the host-side guardrails. See
+The test binaries are host-runnable scripts, so cross-target configurations
+work without target hardware.
+
+The QNX test configurations set a QNX runner and filter to C++ tests, so they
+exclude the host-side guardrails. For the checks that run for each
+configuration, see
 [Test and validate toolchains](../../docs/contributors/tests_and_validation.md)
-and the workflows under `.github/workflows/` for the checks run for each
-configuration.
+and the workflows in [`.github/workflows/`](../../.github/workflows/).
 
-## Interpreting a failure
+## Interpret a failure
 
-A regression is reported as a normal **test failure**; the test log names the
-exact problem, for example:
+A regression appears as a normal test failure. The test log names the problem.
+For example, `no_legacy_features_guard_test` prints the following output when
+the marker is disabled:
 
 ```
 EXPLICIT-FEATURE GUARDRAIL FAILED
@@ -76,31 +89,53 @@ Problems detected:
   - the `no_legacy_features` marker is NOT enabled in the resolved toolchain
     configuration; Bazel will inject its implicit legacy C++ features.
 ```
-or
+
+It prints the following output when a legacy feature leaks:
 
 ```
 Problems detected:
   - Bazel legacy feature(s) are enabled again: sysroot.
 ```
 
-To fix it:
+`sysroot_assembly_flags_guard_test` reports the action and the full command
+line, for example:
 
-- Re-add / re-enable the `no_legacy_features` feature (`enabled = True`) in
-  `features/custom/linux/make_cc_features.bzl` and
-  `features/custom/qnx/make_cc_features.bzl`, and keep it in the ordered
-  `_LINUX_FEATURES` / `_QNX_FEATURES` list.
-- Provide any behavior you need through an **explicit** feature rather than
-  relying on a Bazel legacy default. See
-  [docs/migration_guide.md](../../docs/consumers/migration_guide.md) for the supported
-  extension mechanisms.
+```
+ASSEMBLY SYSROOT FLAGS GUARDRAIL FAILED
+Problems detected:
+  - assemble is missing --sysroot=<path>; command line: ...
+```
 
-## Maintenance
+To fix a failure of `no_legacy_features_guard_test`:
 
-- The list of probed legacy feature names lives in the
-  `_DEFAULT_FORBIDDEN_LEGACY_FEATURES` constant in
-  [`legacy_feature_guard.bzl`](legacy_feature_guard.bzl). Only add names that
-  Bazel injects as legacy features **and** that this repository does not define
-  itself, otherwise the probe would collide with a legitimate explicit feature.
-- The guardrail is intentionally narrow: it checks the explicit-feature contract
-  only and does not replace the functional feature-verification tests under
-  `tests/feature_verification/`.
+1. Set the `no_legacy_features` feature to `True` in the ordered feature list
+   of each affected toolchain:
+
+   - [`features/custom/linux/make_cc_features.bzl`](../../features/custom/linux/make_cc_features.bzl)
+     (`_LINUX_FEATURES`)
+   - [`features/custom/qnx/make_cc_features.bzl`](../../features/custom/qnx/make_cc_features.bzl)
+     (`_QNX_FEATURES`)
+   - [`features/custom/ebclfsa_hi/make_cc_features.bzl`](../../features/custom/ebclfsa_hi/make_cc_features.bzl)
+     (`_EBCLFSA_HI_FEATURES`)
+
+2. Provide any behavior you need through an explicit feature instead of
+   relying on a Bazel legacy default. For the supported extension mechanisms,
+   see the [migration guide](../../docs/consumers/migration_guide.md).
+
+To fix a failure of `sysroot_assembly_flags_guard_test`, check the
+`sysroot_link_flags` feature in
+[`features/native/sysroot_link_flags/features.bzl`](../../features/native/sysroot_link_flags/features.bzl):
+
+- The `sysroot_assembly_flags_args` argument set applies `--sysroot=` to the
+  assembly actions.
+- The `sysroot_link_flags_args` argument set applies `-Wl,--sysroot=` and must
+  stay scoped to link actions.
+
+## Maintain the guardrails
+
+- Add a name to `_DEFAULT_FORBIDDEN_LEGACY_FEATURES` in
+  [`legacy_feature_guard.bzl`](legacy_feature_guard.bzl) only if Bazel injects
+  it as a legacy feature and this repository doesn't define it. Otherwise, the
+  probe collides with a legitimate explicit feature.
+- Register a new guardrail in [`BUILD`](BUILD) and add it to the
+  `guardrail_tests` suite in [`tests/BUILD`](../BUILD).

@@ -57,11 +57,11 @@ configuration; consumers should start with the
 6. Update consumer documentation for the supported configuration and
    contributor guidance for any new maintenance or validation requirements.
 
-For shared default QNX packages, the matrix key is CPU-independent and the
-package descriptor provides CPU-suffixed tool targets. Custom QNX packages use
-unsuffixed targets. If the SDK layout, compiler, or constraint changes, check
-the descriptor and version mappings instead of assuming an older release's
-configuration applies.
+For QNX, the matrix key is CPU-independent and the package descriptor provides
+CPU-suffixed tool targets. Custom QNX packages use the same suffixed targets,
+because the generated toolchain applies the suffix to every QNX package. If the
+SDK layout, compiler, or constraint changes, check the descriptor and version
+mappings instead of assuming an older release's configuration applies.
 
 ## Verify the variant
 
