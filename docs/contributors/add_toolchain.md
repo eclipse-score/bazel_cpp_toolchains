@@ -79,4 +79,5 @@ and their missing prerequisites in the change description.
 - [ ] Relevant tests pass, or unavailable checks and prerequisites are recorded.
 - [ ] Consumer and contributor documentation reflects the change.
 
-See the [documentation map](../README.md) for related guidance.
+See [Maintain documentation](documentation.md) for the documentation review
+and link-check expectations.

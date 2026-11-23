@@ -131,4 +131,4 @@ template generation, select checks using
 [Test and validate toolchains](tests_and_validation.md).
 
 For documentation-only changes, review the rendered Markdown and check links.
-See the [documentation map](../README.md).
+See [Maintain documentation](documentation.md).
