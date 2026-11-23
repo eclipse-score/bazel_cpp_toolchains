@@ -16,7 +16,7 @@
 This guide helps Bazel module maintainers configure an x86_64 Linux toolchain
 and build a C++ target. For QNX, see
 [Integrate a QNX toolchain](qnx_integration.md). For implementation details,
-see [Maintenance](../contributors/maintenance.md).
+see [Add a toolchain variant](../contributors/add_toolchain.md).
 
 ## Before you begin
 

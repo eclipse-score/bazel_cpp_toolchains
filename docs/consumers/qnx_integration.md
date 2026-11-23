@@ -16,7 +16,7 @@
 This guide helps Bazel module maintainers configure a QNX toolchain and build
 for an x86_64 QNX target from an x86_64 Linux host. It doesn't describe how to
 add a toolchain package to this repository; see
-[Maintenance](../contributors/maintenance.md) for that workflow.
+[Add a toolchain variant](../contributors/add_toolchain.md) for that workflow.
 
 ## Before you begin
 

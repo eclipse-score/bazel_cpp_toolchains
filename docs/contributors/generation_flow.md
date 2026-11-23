@@ -28,7 +28,8 @@ toolchain repository through these steps:
    per-instance features created at generation time (extra compile/link
    flags, sysroot link flags, compiler library search paths) plus the
    ordered `known_features`/`enabled_features` lists from
-   `features/custom/linux/` or `features/custom/qnx/`, which reference the
+   `features/custom/linux/`, `features/custom/qnx/`, or
+   `features/custom/ebclfsa_hi/`, which reference the
    reusable `cc_feature` targets under `features/native/`.
 5. The consuming workspace enables the generated toolchain with
    `--extra_toolchains` and compatible platform constraints.
@@ -58,8 +59,9 @@ substituting OS-specific values (e.g. `compiler`, `abi_version`,
 
 Defines the toolchain's `cc_feature` / `cc_args` targets with
 `@rules_cc//cc/toolchains`. `features/native/` holds one reusable target per
-toolchain feature; `features/custom/linux/` and `features/custom/qnx/` hold
-OS-specific features plus the ordered `known_features`/`enabled_features`
+toolchain feature; `features/custom/linux/`, `features/custom/qnx/`, and
+`features/custom/ebclfsa_hi/` hold platform-specific features plus the ordered
+`known_features`/`enabled_features`
 lists that `templates/BUILD.template` passes to `cc_toolchain_config`.
 
 ## Template Families
@@ -81,7 +83,7 @@ Shared templates (used by both Linux and QNX):
   centralized in the `_normalize_cpu()` helper. Linux toolchain binaries use
   the CPU name unchanged (e.g., `aarch64-unknown-linux-gnu-gcov`).
 - SDP version mapping is handled through `SDP_VERSION_MAPPING` in
-  `rules/common.bzl`. Currently, SDP versions `8.0.4` and `8.0.5` are mapped to `8.0.0`
+  `rules/common.bzl`. SDP versions `8.0.4`, `8.0.5`, and `8.0.6` are mapped to `8.0.0`
   because platform constraint support uses the older identifier. This mapping
   is configurable for future extensibility.
 - Linux toolchains generate an extra `gcov_wrapper` script to work around the
