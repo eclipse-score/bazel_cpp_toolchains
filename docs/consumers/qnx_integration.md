@@ -11,706 +11,179 @@
   SPDX-License-Identifier: Apache-2.0
 ----------------------------------------------------------------------------- -->
 
-# QNX Integration
+# Integrate a QNX toolchain
 
-## Overview
+This guide helps Bazel module maintainers configure a QNX toolchain and build
+for an x86_64 QNX target from an x86_64 Linux host. It doesn't describe how to
+add a toolchain package to this repository; see
+[Maintenance](../contributors/maintenance.md) for that workflow.
 
-This guide covers QNX integration with `score_bazel_cpp_toolchains` and is organized for two audiences:
+## Before you begin
 
-- **Maintainers of Bazel modules**: If you want to add QNX support to your module, see [Adding QNX Support to Your Module](#adding-qnx-support-to-your-module). This section includes comprehensive integration steps and technical reference.
-- **Users and contributors**: If you're working on a module that already has QNX configured, see [Quick Start: Using QNX](#quick-start-using-qnx).
-- **Module maintainers documenting for contributors**: See [Documenting QNX Support](#documenting-qnx-support) for a template of what your users need to know.
+- Complete [Build with a Linux toolchain](getting_started.md) or configure an
+  equivalent Linux host toolchain and the S-CORE Bazel registry. The examples
+  use the `x86_64-linux` configuration from that guide.
+- Obtain access to a compatible QNX Software Development Platform (SDP)
+  package and a valid QNX license. Package access and license access are
+  separate requirements.
+- For the default SDP 8.0.5 package, obtain read access to its private GitHub
+  release asset. Other consumers must provide a compatible package.
+  See [QNX package authentication](qnx_authentication.md).
+- Use a revision that contains the SDP 8.0.5 matrix entry. The `0.5.4` release
+  used in the Linux example predates that entry. To use this checkout, add a
+  local path override in `MODULE.bazel`:
 
----
+  ```starlark
+  local_path_override(
+      module_name = "score_bazel_cpp_toolchains",
+      path = "TOOLCHAINS_CHECKOUT",
+  )
+  ```
 
-## Adding QNX Support to Your Module
+  Replace `TOOLCHAINS_CHECKOUT` with the path to this repository. For a
+  published release with the entry, use that release instead.
+- Make the license accessible to build actions. The default path is
+  `/opt/score_qnx/license/licenses`; configure another path if needed.
 
-This section is for maintainers who want to integrate QNX toolchain support into their Bazel modules.
+## Declare the toolchain
 
-### Prerequisites
+1. In `MODULE.bazel`, add the QNX declaration to the `gcc` extension used by
+   the Linux toolchain:
 
-Before integrating QNX support, ensure:
+   ```starlark
+   gcc.toolchain(
+       name = "qnx_toolchain",
+       target_cpu = "x86_64",
+       target_os = "qnx",
+       sdp_version = "8.0.5",
+       use_default_package = True,
+   )
+   ```
 
-1. **QNX SDP access**: Access to URL for downloading and extracting the QNX Software Development Platform (SDP) from https://www.qnx.com/developers/downloads.html
-2. **Valid QNX license**: A QNX license file accessible at a known location (see [Licensing](#licensing) section)
-3. **Bazel installed**: Version 8.0 or later
-4. **Linux host**: Currently tested on Linux build hosts (macOS and Windows are not supported.)
+2. Add `"qnx_toolchain"` to the existing `use_repo` call:
 
-### Integration Steps
+   ```starlark
+   use_repo(gcc, "score_gcc_toolchain", "qnx_toolchain")
+   ```
 
-#### Step 1: Declare the Toolchain Dependency
+3. If the license is not at the default path, set `license_path` on the QNX
+   declaration to the path accessible to build actions. For other license
+   settings, see [Configure licensing](#configure-licensing).
 
-In your module's `MODULE.bazel`:
+4. Add a QNX configuration to `.bazelrc`:
 
-```starlark
-bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.5.4")
+   ```text
+   build:x86_64-qnx --config=x86_64-linux
+   build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+   build:x86_64-qnx --extra_toolchains=@qnx_toolchain//:x86_64-qnx-sdp_8.0.0
+   build:x86_64-qnx --sandbox_writable_path=/var/tmp
+   ```
 
-gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc")
+   The generated toolchain uses `/var/tmp/.qnx` for QNX configuration.
 
-gcc.toolchain(
-    name = "qnx_toolchain",
-    target_cpu = "x86_64",                      # or "aarch64"
-    target_os = "qnx",
-    sdp_version = "8.0.5",
-    use_default_package = True,                 # available to S-CORE committers only
-    license_path = "/path/to/your/qnx/license", # default location `/opt/score_qnx/license/licenses`
-)
+5. From the module root, build the target from the Linux getting-started guide:
 
-use_repo(gcc, "qnx_toolchain")
-```
+   ```bash
+   bazel build --config=x86_64-qnx //:hello
+   ```
 
-The `sdp_version` selects the exact SDP package to download. The currently
-supported values are:
+   Confirm that Bazel reports a successful build. This checks compilation and
+   linking, not execution on QNX.
 
-| `sdp_version` | Package selected | Platform and toolchain label used today |
-|---------------|------------------|------------------------------------------|
-| `8.0.4` | QNX SDP 8.0.4 | `sdp_8.0.0` |
-| `8.0.5` | QNX SDP 8.0.5 | `sdp_8.0.0` |
+To target `aarch64`, declare another toolchain with `target_cpu = "aarch64"`,
+import its repository with `use_repo`, and select its corresponding platform
+and generated toolchain label. See
+[`tests/MODULE.bazel`](../../tests/MODULE.bazel) and
+[`tests/.bazelrc`](../../tests/.bazelrc) for examples.
 
-QNX SDP 8.0.4 and 8.0.5 use the `sdp_8.0.0` platform constraint because
-`bazel_platforms` does not define `sdp_8.0.4` or `sdp_8.0.5` constraints.
-Therefore, such a toolchain still has `sdp_8.0.0` in its generated Bazel label.
-The archive selected by `sdp_version` is nevertheless the actual archive for
-that version.
+## Use a custom package
 
-The download and platform constraint are resolved separately. The archive is
-looked up in `packages/version_matrix.bzl` under the real version key. QNX SDP
-packages shared across CPUs use a CPU-independent key, such as
-`qnx-sdp_8.0.5`; Linux package keys continue to include the CPU. The constraint
-and generated toolchain label use the version after `SDP_VERSION_MAPPING` in
-`rules/common.bzl` is applied, which currently maps `8.0.5` to `8.0.0`.
-Both QNX toolchains referencing the same matrix entry also share one generated
-package repository, so the archive is declared and extracted only once.
-
-For example, with `target_os = "qnx"` and `sdp_version = "8.0.5"`, enabling
-`use_default_package` looks up the `qnx-sdp_8.0.5` matrix entry and generates
-the package repository `qnx_sdp_8_0_5_pkg`. The repository name comes from the
-matrix key, not the toolchain's `name` or `target_cpu`. Thus x86_64 and aarch64
-toolchain declarations for this SDP both link the same `@qnx_sdp_8_0_5_pkg`;
-their generated toolchain repositories remain separate and retain their
-declared names.
-
-The default SDP 8.0.5 archive is hosted in a private GitHub release and is
-available only to S-CORE committers. If you are not an S-CORE committer, you
-cannot fetch this default package even if you have a valid QNX license. Create
-and host your own SDP package archive, including a BUILD file compatible with
-this toolchain, and declare it with `gcc.sdp(...)`. Set
-`use_default_package = False` and point `sdp_to_link` at the package name:
+If you cannot access a default package or need another archive, create or
+obtain a compatible package and BUILD descriptor. Replace the default-package
+declaration with a package declaration and a toolchain linked to it:
 
 ```starlark
 gcc.sdp(
-    name = "my_qnx_sdp_pkg",
-    build_file = "//toolchains:qnx_sdp.BUILD",
-    sha256 = "<sha256 of your archive>",
+    name = "qnx_package",
+    build_file = "//toolchains:BUILD_FILE",
+    sha256 = "ARCHIVE_SHA256",
     type = "tar.gz",
-    url = "https://your-artifact-host/qnx_sdp.tar.gz",
+    url = "ARCHIVE_URL",
 )
 
 gcc.toolchain(
     name = "qnx_toolchain",
-    target_cpu = "x86_64", # or "aarch64"
+    target_cpu = "x86_64",
     target_os = "qnx",
-    sdp_version = "8.0.5", # use the version packaged in your archive
-    sdp_to_link = "my_qnx_sdp_pkg",
+    sdp_version = "8.0.5",
+    sdp_to_link = "qnx_package",
     use_default_package = False,
 )
 ```
 
-A custom package BUILD file must expose the unsuffixed targets `ar`, `gcov`,
-`strip` and `cxx_builtin_include_directories`, plus `cc`, `cxx`, `all_files`,
-`sysroot_dir` and `target_dir`. Only the shared default package
-(`use_default_package = True`) uses the CPU-suffixed variants (for example
-`ar_x86_64` and `ar_aarch64`).
-
-When adding a future patch release, add one version-matrix entry for a shared
-QNX package, keyed by `qnx-sdp_<version>`, with its URL, SHA-256 digest, and
-strip prefix. If the SDP still uses the `qnx8.0.0` target triple and GCC
-12.2.0, reuse the existing `packages/qnx/sdp/8.0/sdp.BUILD` descriptor and add
-the version mapping to `SDP_VERSION_MAPPING`. If the SDK layout or compiler
-version changes, add a new package BUILD descriptor instead. If the release
-needs a distinct platform constraint, add that constraint and its platforms to
-`bazel_platforms` as well.
-
-For builds targeting both CPUs, declare a toolchain for each CPU. Both can
-link the shared default QNX package:
-
-```starlark
-gcc.toolchain(
-    name = "qnx_x86_64_toolchain",
-    target_cpu = "x86_64",
-    target_os = "qnx",
-    sdp_version = "8.0.5",
-    use_default_package = True,
-)
-
-gcc.toolchain(
-    name = "qnx_aarch64_toolchain",
-    target_cpu = "aarch64",
-    target_os = "qnx",
-    sdp_version = "8.0.5",
-    use_default_package = True,
-)
-```
-
-The package repository is `@qnx_sdp_8_0_5_pkg` for both. Select the matching
-CPU-specific generated toolchain repository in each Bazel configuration.
-
-##### Using several SDP versions in one module
-
-Several SDP versions can be declared side by side. With
-`use_default_package = True`, each `sdp_version` is mapped to its own default
-package repository (`qnx_sdp_<version>_pkg`), so no `gcc.sdp(...)` or
-`sdp_to_link` is needed:
-
-```starlark
-gcc.toolchain(
-    name = "qnx_804_toolchain",
-    target_cpu = "x86_64",
-    target_os = "qnx",
-    sdp_version = "8.0.4",   # links @qnx_sdp_8_0_4_pkg
-    use_default_package = True,
-)
-
-gcc.toolchain(
-    name = "qnx_805_toolchain",
-    target_cpu = "x86_64",
-    target_os = "qnx",
-    sdp_version = "8.0.5",   # links @qnx_sdp_8_0_5_pkg
-    use_default_package = True,
-)
-
-use_repo(gcc, "qnx_804_toolchain", "qnx_805_toolchain")
-```
-
-Rules to follow:
-
-- Every `gcc.toolchain` needs a unique `name`; reusing a name for a different
-  SDP version causes a repository name conflict.
-- Both versions share the `sdp_8.0.0` platform constraint, so the platform
-  cannot distinguish them. Select the version per Bazel configuration through
-  `--extra_toolchains`, and do not register both toolchains for the same
-  configuration:
-
-```text
-build:x86_64-qnx-804 --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
-build:x86_64-qnx-804 --extra_toolchains=@qnx_804_toolchain//:x86_64-qnx-sdp_8.0.0
-
-build:x86_64-qnx-805 --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
-build:x86_64-qnx-805 --extra_toolchains=@qnx_805_toolchain//:x86_64-qnx-sdp_8.0.0
-```
-
-#### Step 2: Add Bazel Configuration
-
-Create or update `.bazelrc` in your repository root:
-
-```text
-# QNX target configurations
-build:x86_64-qnx --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
-build:x86_64-qnx --extra_toolchains=@qnx_toolchain//:x86_64-qnx-sdp_8.0.0
-build:x86_64-qnx --sandbox_writable_path=/var/tmp
-
-build:aarch64-qnx --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
-build:aarch64-qnx --extra_toolchains=@qnx_toolchain//:aarch64-qnx-sdp_8.0.0
-build:aarch64-qnx --sandbox_writable_path=/var/tmp
-```
-
-> NOTE: Configuration variables are just an example, it's not mandatory to use exact configuration variables.
-
-Notice that the generated target uses an underscore in `sdp_8.0.0`; a label
-such as `x86_64-qnx-sdp-8.0.0` does not exist.
-
-#### Step 3: Test the Integration
-
-Create a simple test in your repository root:
-
-```bash
-# Test x86_64-qnx build
-bazel build --config=x86_64-qnx //your/target:name
-
-# Test aarch64-qnx build
-bazel build --config=aarch64-qnx //your/target:name
-```
-
-#### Step 4: Add to CI/CD
-
-Update your CI/CD pipeline to test QNX configurations:
-
-```yaml
-# Example for GitHub Actions
-- name: Build for QNX
-  run: |
-    bazel build --config=x86_64-qnx //...
-    bazel test --config=x86_64-qnx //...
-```
-
-> NOTE: For running tests, host platform must be QNX or use `--run_under=`. Check Bazel documentation for details.
-
-### Common Integration Patterns
-
-**Multi-target Modules**: If your module targets multiple architectures:
-
-```starlark
-gcc.toolchain(
-    name = "qnx_x86_64",
-    target_cpu = "x86_64",
-    target_os = "qnx",
-    sdp_version = "8.0.5",
-    use_default_package = True,
-)
-
-gcc.toolchain(
-    name = "qnx_aarch64",
-    target_cpu = "aarch64",
-    target_os = "qnx",
-    sdp_version = "8.0.5",
-    use_default_package = True,
-)
-```
-
----
-
-## Reference: Technical Details for QNX Integration
-
-### Obtaining QNX SDP and Licenses
-
-#### QNX Software Development Platform (SDP)
-
-The QNX SDP packages are obtained from the official QNX Software repositories:
-
-- **QNX Momentics IDE and SDPs**: https://www.qnx.com/developers/downloads.html
-- **QNX Documentation Portal**: https://www.qnx.com/developers/docs/
-- **Account Registration**: https://account.qnx.com/
-
-QNX SDP packages are typically distributed as `.tar.gz` or `.tar.bz2` archives and
-contain the host tools (compiler, linker, archiver) and target libraries/headers.
-
-#### Licensing
-
-QNX toolchains require a valid QNX license to execute.
-
-### SDP Installation Layout
-
-The `score_bazel_cpp_toolchains` module expects QNX SDP packages to follow the standard
-QNX directory structure after extraction. A typical installation looks like:
-
-```
-/path/to/qnx_sdp_VERSION/
-├── host/                          # Host tools and libraries
-│   └── linux/
-│       └── x86_64/
-│           ├── usr/
-│           │   ├── bin/
-│           │   │   ├── qcc           # QNX C compiler driver
-│           │   │   ├── q++           # QNX C++ compiler driver
-│           │   │   ├── qcc-clang     # Clang-based compiler (SDP 8.x)
-│           │   │   ├── {TRIPLE}-ar   # Archiver
-│           │   │   ├── {TRIPLE}-strip
-│           │   │   └── {TRIPLE}-gcov
-│           │   └── lib/
-│           └── ...
-├── target/                        # Target platform libraries and headers
-│   └── qnx/
-│       ├── usr/
-│       │   ├── include/           # C and C++ headers
-│       │   ├── include/c++/v1/    # C++ standard library headers
-│       │   ├── lib/
-│       │   └── ...
-│       └── ...
-└── ...
-```
-
-Where `{TRIPLE}` is the target triple, e.g. `aarch64-unknown-nto-qnx8.0.0`.
-
-The toolchain locates these directories via the `QNX_HOST` and `QNX_TARGET` environment
-variables, which are set automatically by the toolchain's `sdp_env` feature.
-
-### Environment Variables
-
-The QNX toolchain automatically manages `QNX_HOST` and `QNX_TARGET` through the
-`sdp_env` feature and does not require explicit user configuration.
-
-### Bazel Sandbox and Writable Paths
-
-QNX toolchains require write access to `/var/tmp` for temporary configuration files
-during compilation and linking. This is automatically configured via the toolchain's
-`sdp_env` feature, which sets `QNX_CONFIGURATION_EXCLUSIVE=/var/tmp/.qnx`.
-
-If your Bazel configuration restricts sandbox write paths, ensure that `/var/tmp`
-is marked as writable:
-
-```text
-build --sandbox_writable_path=/var/tmp
-```
-
-### Verification: Testing the QNX Toolchain
-
-To verify that the QNX toolchain is properly configured and usable, run a minimal
-test build:
-
-#### 1. Create a Test C File
-
-Create a simple test file `hello_qnx.c`:
-
-```c
-#include <stdio.h>
-
-int main() {
-    printf("Hello from QNX!\n");
-    return 0;
-}
-```
-
-#### 2. Create a BUILD File
-
-Create a `BUILD` file with a simple target:
-
-```starlark
-cc_binary(
-    name = "hello_qnx",
-    srcs = ["hello_qnx.c"],
-)
-```
-
-#### 3. Run the Verification Build
-
-You can verify the toolchain by building with explicit platform and toolchain selection:
-
-For **x86_64-qnx with QNX SDP 8.0.5**:
-```bash
-bazel build \
-  --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix \
-  --extra_toolchains=@qnx_toolchain//:x86_64-qnx-sdp_8.0.0 \
-  //:hello_qnx
-```
-
-For **aarch64-qnx**:
-```bash
-bazel build \
-  --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix \
-  --extra_toolchains=@qnx_toolchain//:aarch64-qnx-sdp_8.0.0 \
-  //:hello_qnx
-```
-
-**Tip:** If you've defined `build:<name>` configs in your `.bazelrc` (as shown in
-[Step 2: Add Bazel Configuration](#step-2-add-bazel-configuration)), you can simplify to:
-```bash
-bazel build --config=x86_64-qnx //:hello_qnx
-bazel build --config=aarch64-qnx //:hello_qnx
-```
-
-#### 4. Verify Build Output
-
-If the build succeeds, the output binary will be available at:
-
-```
-bazel-bin/hello_qnx
-```
-
-You can verify it's a QNX binary using file inspection:
-
-```bash
-file bazel-bin/hello_qnx
-# Should output: ELF 64-bit LSB executable, {x86-64|aarch64}, version 1 (SYSV), dynamically linked, ...
-# (architecture depends on your target: x86-64 for x86_64-qnx, aarch64 for aarch64-qnx)
-```
-
-Or use `qfile` if QNX tools are available:
-
-```bash
-qfile bazel-bin/hello_qnx
-```
-
-#### 5. Troubleshooting
-
-- **License not found**: Ensure `QNX_SHARED_LICENSE_FILE` is set and points to a valid license file
-- **QNX_HOST/QNX_TARGET not set**: The toolchain's `sdp_env` feature sets these automatically;
-  if you see errors, verify the SDP package path is correct
-- **Permission denied on /var/tmp**: Ensure `--sandbox_writable_path=/var/tmp` is in your `.bazelrc`
-- **Compilation fails with QCC errors**: Verify the QCC compiler binary exists in the expected location
-  and the SDP package structure is intact
-
----
-
-## Quick Start: Using QNX
-
-If your module already has QNX support configured, follow these minimal steps to build for QNX.
-
-### Prerequisites
-
-1. **Access to QNX SDP package**: Your module downloads the SDP package automatically; you just need network access to the QNX repository
-2. **Valid QNX license**: Ensure the license file is accessible at `/opt/score_qnx/license/licenses` (or a custom path configured for your module)
-3. **Bazel installed**: Version 8.0 or later
-4. **GitHub token (default SDP 8.0.5 only)**: The default SDP is a private GitHub release asset, so the build host needs a GitHub token with read access to the repository. Provide it through `~/.netrc` or an environment variable, see [GitHub Authentication for the Default SDP](#github-authentication-for-the-default-sdp).
-
-> NOTE: Access to QNX repository is only needed in case you're using reference integration QNX SDP. In case of enterprise package please contact your QNX representative.
-
-### Building for QNX
-
-Once your module has QNX configured (see your module's documentation for setup), build with:
-
-```bash
-# For x86_64 target
-bazel build --config=x86_64-qnx //...
-
-# For aarch64 target
-bazel build --config=aarch64-qnx //...
-```
-
-### Running Tests
-
-Tests can only run on a QNX platform or with `--run_under=`. For builds only:
-
-```bash
-# Build only (no test execution on non-QNX hosts)
-bazel build --config=x86_64-qnx //...
-```
-
-### Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Build fails with license errors | Check that QNX license is at `/opt/score_qnx/license/licenses` or ask your module maintainer for license configuration |
-| Bazel fails to download SDP | Verify you have network access to https://www.qnx.com and check if credentials are configured (see your module's documentation) |
-| SDP download fails with `GitHub API returned HTTP 401/403/404` | The GitHub token is missing or has no read access to the SDP repository, see [GitHub Authentication for the Default SDP](#github-authentication-for-the-default-sdp) |
-| Permission denied on `/var/tmp` | This is typically auto-configured; if you see errors, check your module's `.bazelrc` setup |
-
-For detailed information about the toolchain, see [Reference: Technical Details](#reference-technical-details-for-qnx-integration).
-
----
-
-## Credential Helper
-
-Authenticated QNX downloads are handled by the standalone script
-`tools/qnx_credential_helper.py`.
-
-Its purpose is to translate locally available QNX credentials into the cookie
-header format expected by `qnx.com` download endpoints. Bazel executes it via
-`--credential_helper`;
-
-Supported registration patterns include:
-
-```text
-common --credential_helper=*.qnx.com=/absolute/path/to/qnx_credential_helper.py
-common --credential_helper=*.qnx.com=qnx_credential_helper.py
-common --credential_helper=*.qnx.com=%workspace%/path/to/qnx_credential_helper.py
-```
-
-The helper reads credentials in this order:
-
-- `SCORE_QNX_USER` and `SCORE_QNX_PASSWORD`
-- `~/.netrc` entry for `qnx.com`
-
-An SDP repackaged as a private GitHub release asset needs no credential
-helper, but it needs a GitHub token, see the next section.
-
----
-
-## GitHub Authentication for the Default SDP
-
-The default SDP 8.0.5 archive (`use_default_package = True`) is a private
-GitHub release asset fetched through the GitHub REST API
-(`https://api.github.com/repos/.../releases/assets/<id>`).
-The download script `tools/fetch_github_release_asset.py` needs a token with
-read access to the repository contents, otherwise the fetch fails with
-HTTP 401, 403 or 404.
-The token is read in this order:
-
-1. `SCORE_GITHUB_TOKEN`, `GITHUB_TOKEN` or `GH_TOKEN` environment variable
-2. the netrc entry for `api.github.com` or `github.com` (`$NETRC` or `~/.netrc`)
-
-Example `~/.netrc` entry; the token goes into the `password` field and the
-`login` value is not used:
-
-```text
-machine api.github.com
-  login <github-user>
-  password <github-token>
-```
-
-Restrict the file permissions with `chmod 600 ~/.netrc`.
-The token is not part of the repository definition, so rotating it does not
-trigger a refetch, and once the archive is in the repository cache no token
-or network access is needed.
-In CI, provide the token through a secret and a `.netrc` file or environment
-variable on the runner.
-See also [Private GitHub Release Assets](extension_api.md#private-github-release-assets).
-
----
-
-## Licensing
-
-QNX toolchains require a valid license to execute at build time. This section covers
-all license-related configuration options.
-
-### Obtaining a QNX License
-
-- If you don't have a QNX license, obtain one from **QNX Licensing Portal**: https://www.qnx.com/
-- If you want to use QNX free community license **QNX Everywhere**: https://www.qnx.com/developers/docs/qnxeverywhere/index.html
-
-### License File Location
-
-QNX licenses are typically installed as a file accessible on the build machine. The
-default shared license path expected by the module is:
-
-```
-/opt/score_qnx/license/licenses
-```
-
-This path has been agreed upon with all module owners and platform developers.
-
-### Configuring the License Path
-
-You can configure the license path in multiple ways, in order of precedence:
-
-#### 1. Environment Variable (Runtime)
-
-The generated toolchain sets `QNX_SHARED_LICENSE_FILE` for compile/link actions, based on the `license_path` toolchain attribute.
-If you need to use the vendor-provided `QNXLM_LICENSE_FILE` mechanism instead, set it in your shell `export QNXLM_LICENSE_FILE=/path/to/your/license/file` or ensure it is provided to Bazel actions (e.g. via `--action_env=QNXLM_LICENSE_FILE=...`; when `--incompatible_strict_action_env` is enabled, exporting it in your shell alone is not sufficient).
-
-This is useful when the license is not installed in the default location.
-
-#### 2. Bazel Configuration (Workspace-wide)
-
-In your `.bazelrc`:
-
-```text
-build --action_env=QNXLM_LICENSE_FILE=/path/to/your/license/file
-```
-
-#### 3. Toolchain Attributes (Per-toolchain)
-
-In your `MODULE.bazel`, pass license configuration to the toolchain:
-
-```starlark
-gcc.toolchain(
-    name = "qnx_toolchain",
-    target_cpu = "x86_64",
-    target_os = "qnx",
-    sdp_version = "8.0.5",
-    use_default_package = True,
-    license_path = "/path/to/your/license/file",
-)
-```
-
-### Custom License Configuration
-
-For scenarios where the default license path or environment setup is insufficient,
-you can configure the license URL:
-
-```starlark
-gcc.toolchain(
-    name = "qnx_toolchain",
-    target_cpu = "x86_64",
-    target_os = "qnx",
-    sdp_version = "8.0.5",
-    use_default_package = True,
-    license_path = "/path/to/your/license/file",
-    license_info_url = "https://your-license-server.com/qnx-license",
-)
-```
-
-The relevant `gcc.toolchain(...)` attributes for license configuration are:
-
-- **`license_path`**: Path to the QNX license file directory
-  (default: `/opt/score_qnx/license/licenses`)
-- **`license_info_variable`**: Custom environment variable name for license configuration
-- **`license_info_url`**: URL for license server or remote license resource
-
----
-
-## Documenting QNX Support
-
-This section is for module maintainers who want to document QNX support for their contributors.
-
-### Why This Matters
-
-When your module has QNX support integrated, contributors cloning your repository need clear instructions on how to:
-- Set up their local environment
-- Run builds and tests for QNX targets
-- Troubleshoot common issues
-
-This guide provides a template you can adapt and include in your module's documentation.
-
-### Recommended Documentation Template
-
-Create a file in your repository (e.g., `docs/QNX_SETUP.md` or add to `CONTRIBUTING.md`) with the following content, customized for your module:
-
----
-
-#### **QNX Setup for Contributors**
-
-This module supports building for QNX targets. Follow these steps to set up your environment.
-
-##### Prerequisites
-
-1. **Access to QNX SDP**
-   - Verify that you have access to QNX SDP.
-   - Extract the content for verification.
-
-2. **Obtain QNX License**
-   - Request from: https://www.qnx.com/company/contact-us/ (or contact your Project Lead)
-   - Store the license file at: `/opt/score_qnx/license/licenses` (or configure custom path)
-
-3. **Install Bazel**
-   - Version 8.0 or later
-   - Visit: https://bazel.build/install
-
-##### Building for QNX
-
-Build for your target architecture:
-
-```bash
-# x86_64-qnx
-bazel build --config=x86_64-qnx //...
-
-# aarch64-qnx
-bazel build --config=aarch64-qnx //...
-```
-
-##### Running Tests for QNX (on QNX platform)
-
-```bash
-# x86_64-qnx
-bazel test --config=x86_64-qnx //...
-
-# aarch64-qnx
-bazel test --config=aarch64-qnx //...
-```
-
-##### Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| `License not found` | Verify `QNX_SHARED_LICENSE_FILE` points to valid license file, or check default path `/opt/score_qnx/license/licenses` |
-| `QNX_HOST/QNX_TARGET not set` | Ensure SDP is properly extracted; the toolchain sets these automatically if the path is correct |
-| `Permission denied on /var/tmp` | Ensure `--sandbox_writable_path=/var/tmp` is in `.bazelrc` or `.bazelrc.local` |
-| `qcc: command not found` | Verify QNX_HOST points to the correct host tools directory within your SDP |
-
----
-
-### Customization Checklist
-
-When adapting the template above for your module, consider:
-
-- [ ] **Replace SDP version**: Set `sdp_version` to the exact SDP package version; SDP 8.0.5 uses the `sdp_8.0.0` platform/toolchain label
-- [ ] **Update paths**: Adapt default paths and examples to your environment conventions
-- [ ] **Update configuration variables**: Adapt configuration variables to your moodule configurations
-- [ ] **Add module-specific targets**: Include examples of building your actual targets, not just generic `//...`
-- [ ] **CI/CD documentation**: Document how QNX is tested in your CI pipeline (GitHub Actions, GitLab CI, etc.)
-- [ ] **Known limitations**: Note any features not yet supported on QNX
-- [ ] **Additional resources**: Link to your module's main README, contribution guidelines, etc.
-- [ ] **License details**: If your module requires special license setup, document it here
-- [ ] **Contact information**: Provide a way for contributors to ask questions (GitHub issues, Slack channel, etc.)
-
-### Integration into Your Repository
-
-**Option 1: Separate documentation file**
-Create `docs/QNX_SETUP.md` with detailed QNX setup instructions.
-
-**Option 2: Embedded in CONTRIBUTING.md**
-Add a "QNX Setup" section to your existing contribution guidelines.
-
-**Option 3: Embedded in README.md**
-Add a brief section with a link to more detailed QNX documentation elsewhere.
-
-**Recommendation**: Start with Option 1 (separate file) for clarity, then reference it from `CONTRIBUTING.md` or `README.md`.
+Replace `BUILD_FILE` with your descriptor's filename, `ARCHIVE_SHA256` with
+the archive checksum, and `ARCHIVE_URL` with its URL. Set `type` and
+`sdp_version` to match your archive. The `use_repo` and `.bazelrc` steps in
+[Declare the toolchain](#declare-the-toolchain) still apply; adjust the
+generated label if the selected version maps to a different constraint. See
+the [extension reference](extension_api.md#gccsdp-attributes).
+
+For a custom QNX package, the generated configuration expects unsuffixed
+`ar`, `gcov`, `strip`, `cxx_builtin_include_directories`, `cc`, `cxx`,
+`all_files`, `sysroot_dir`, and `target_dir` targets. Shared default QNX
+packages use CPU-suffixed targets for `ar`, `gcov`, `strip`, and
+`cxx_builtin_include_directories`. The package must contain the expected host
+tools and target headers and libraries.
+
+## Select an SDP version
+
+The package version and the platform constraint are resolved separately. The
+[version matrix](../../packages/version_matrix.bzl) selects the archive by
+its actual SDP version. The
+[version mapping](../../rules/common.bzl) maps SDP 8.0.4, 8.0.5, and 8.0.6
+to the `sdp_8.0.0` constraint and generated label.
+
+Default QNX packages are shared across CPU-specific toolchain repositories.
+For example, SDP 8.0.5 uses `qnx_sdp_8_0_5_pkg`. Different SDP versions use
+different package repositories. If two versions have the same target
+constraints, choose the intended toolchain through `--extra_toolchains` for
+each configuration instead of registering both for that configuration.
+
+## Configure licensing
+
+The QNX `sdp_env` feature sets `QNX_HOST`, `QNX_TARGET`,
+`QNX_CONFIGURATION_EXCLUSIVE`, and `QNX_SHARED_LICENSE_FILE` for compile and
+link actions. The last value comes from the `license_path` attribute.
+`license_info_variable` and `license_info_url` can specify an additional
+license environment entry; see the [extension reference](extension_api.md).
+
+If your licensing setup requires `QNXLM_LICENSE_FILE`, make it available to
+the Bazel action environment according to your QNX license configuration.
+With strict action environments, an exported shell variable alone isn't
+sufficient; use an appropriate `--action_env` setting. Consult QNX licensing
+documentation for vendor-specific behavior.
+
+## Run QNX tests
+
+The generated toolchain executes on an x86_64 Linux host; QNX binaries don't
+run natively there. Build on that host and run the resulting binaries in a
+compatible QNX environment, or use a configured QNX runner with Bazel's
+`--run_under`. This repository's test workspace configures such a runner for
+its QNX configurations. See [Tests and validation](../contributors/tests_and_validation.md)
+for prerequisites and commands. Downstream modules must configure their own
+runner and test environment.
+
+## Troubleshoot
+
+| Symptom | Check |
+| --- | --- |
+| Package download fails | Check the selected package URL, access, and credentials; see [QNX package authentication](qnx_authentication.md). |
+| License error | Check the license path, license validity, and action environment. |
+| Write error under `/var/tmp` | Check sandbox writable paths and permissions. |
+| Toolchain cannot be selected | Check the target CPU, platform constraints, imported repository, and generated label. |
+| QNX test cannot execute | Check the target environment or the configured QNX runner. |
+
+## What's next
+
+See [Extension API](extension_api.md) for attribute details and
+[Toolchain features](features.md) for available features.
