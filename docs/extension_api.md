@@ -13,219 +13,40 @@
 
 # Extension API
 
+This page has moved. See the [maintained page](consumers/extension_api.md).
+
 ## Consumer Entry Point
 
-Consumers interact with this repository through the `gcc` module extension in
-`@score_bazel_cpp_toolchains//extensions:gcc.bzl`.
-
-Typical usage looks like this:
-
-```starlark
-bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.5.4")
-
-gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc")
-
-gcc.toolchain(
-    name = "score_gcc_toolchain",
-    target_cpu = "x86_64",
-    target_os = "linux",
-    version = "12.2.0",
-    use_default_package = True,
-)
-
-use_repo(gcc, "score_gcc_toolchain")
-```
+See the [maintained page](consumers/extension_api.md#consumer-entry-point).
 
 ## Public Tags
 
-`gcc.toolchain(...)`
-
-Declares a toolchain repository to generate.
-
-`gcc.sdp(...)`
-
-Declares a package repository explicitly. This is used when the package is not
-taken from the default version matrix or when local QNX SDP generation is
-required. The tag is nothing more than a thin proxy to the native `http_archive`
-repository rule: its attributes are passed straight through to `http_archive`
-with no additional processing.
+See the [maintained page](consumers/extension_api.md#public-tags).
 
 ## `gcc.toolchain(...)` Attributes
 
-Required attributes:
-
-- `name` (mandatory): toolchain repo name, default set to `score_gcc_toolchain`.
-- `target_cpu` (mandatory): target platform CPU, currently `x86_64` or `aarch64`.
-- `target_os` (mandatory): target platform OS, currently `linux` or `qnx`.
-
-Common package selection attributes:
-
-- `use_default_package`: whether to use the default package from the version
-  matrix, default set to `False`.
-- `version`: GCC version string for Linux toolchains (e.g. `12.2.0` or `15.3.0` —
-  see `packages/version_matrix.bzl` for all versions currently packaged).
-- `sdp_version`: version of the SDP package.
-- `sdk_version`: SDK version info variable, an alternative identifier used in
-  matrix resolution.
-- `sdp_to_link`: name of the toolchain package to be linked with this
-  toolchain. For default QNX packages, the extension uses a name based on the
-  version-matrix entry so toolchains for different CPUs share one package
-  repository (for example, QNX SDP 8.0.5 uses
-  `qnx_sdp_8_0_5_pkg`). Each `sdp_version` maps to its own default package, so
-  several SDP versions can coexist in one module. This default package is
-  private and available only to S-CORE committers; other users must provide
-  their own compatible package via
-  `gcc.sdp(...)`. Other default packages use toolchain name + `_pkg`.
-- `use_system_toolchain`: TBD.
-
-Flag and runtime attributes:
-
-- `extra_compile_flags`: list of additional flags to be passed to compiler.
-- `extra_c_compile_flags`: list of additional flags to be passed to C compiler.
-- `extra_cxx_compile_flags`: list of additional flags to be passed to C++
-  compiler.
-- `extra_link_flags`: list of additional flags to be passed to linker.
-- `extra_known_features`: extra `cc_feature` features to add to this toolchain
-  in an initially disabled state. See [Feature Injection](#feature-injection).
-- `extra_enabled_features`: extra `cc_feature` features to add to this
-  toolchain in an initially enabled state. See [Feature Injection](#feature-injection).
-- `ld_library_paths`: list of paths relative to the sysroot which should build
-  up the runtime linker path of the tools of this toolchain.
-- `runtime_ecosystem`: attribute for identifying the system-level runtime
-  environment a binary or target is built to run in.
-- `use_base_constraints_only`: experimental. Attribute for flag toolchain
-  creation to use only base platform constraints. Limits toolchain
-  registration to 1 per base platform definition.
-
-QNX-specific attributes:
-
-- `license_path`: path to the shared license file, default set to
-  `/opt/score_qnx/license/licenses`.
-- `license_info_variable`: QNX license info variable.
-- `license_info_url`: URL of the QNX license server.
+See the [maintained page](consumers/extension_api.md#gcctoolchain-attributes).
 
 ## `gcc.sdp(...)` Attributes
 
-The `gcc.sdp` tag defines the package side of the toolchain setup. It is a
-proxy to `http_archive`: every attribute below maps 1:1 to the identically
-named `http_archive` attribute, so refer to the Bazel `http_archive` docs for
-full semantics. Its attributes are:
-
-- `name`: package name of toolchain, default set to toolchain name + `_pkg`.
-- `build_file`: the path to the BUILD file of selected archive.
-- `url`: url to the toolchain archive.
-- `sha256`: checksum of the archive.
-- `strip_prefix`: strip prefix from toolchain archive.
-- `files`: a map of relative paths (key) to a file label (value) that is
-  overlaid on the repo as a symlink.
-- `patches`: list of patches to apply to the archive.
-- `patch_args`: the arguments given to the patch tool. Defaults to `-p0` (see
-  the `patch_strip` attribute), however `-p1` will usually be needed for
-  patches generated by git. When arguments other than `-p` are specified,
-  Bazel falls back to the `patch` command line tool instead of the
-  Bazel-native patch implementation. Only affects patch files in the
-  `patches` attribute.
-- `patch_cmds`: bash commands executed in the extracted archive root after
-  extraction.
-- `patch_strip`: when set to `N`, this is equivalent to inserting `-pN` to the
-  beginning of `patch_args`.
-- `patch_tool`: the patch(1) utility to use. If specified, Bazel uses the
-  specified patch tool instead of the Bazel-native patch implementation.
-
-Archive attributes can be supplied either directly through `gcc.sdp(...)` or through `packages/version_matrix.bzl`; the extension forwards matrix values for `patches`, `patch_args`, `patch_cmds`, `patch_strip`, `patch_tool`, and `files` to `http_archive` when present. Entries that omit these optional fields use the native `http_archive` defaults.
+See the [maintained page](consumers/extension_api.md#gccsdp-attributes).
 
 ### Private GitHub Release Assets
 
-The extension instantiates archives through the `http_archive` wrapper in
-`rules/http_archive.bzl`, which has the same interface as the native rule.
-If `url` is a GitHub REST API release asset URL
-(`https://api.github.com/repos/<owner>/<repo>/releases/assets/<id>`), the
-wrapper uses the `github_release_archive` repository rule from
-`rules/github_release_archive.bzl`; all other URLs go to the native
-`http_archive`.
-The attributes stay the same, but `sha256` and `type` are mandatory.
-Bazel 8 cannot download such assets itself: its downloader always sends a
-browser-like `Accept` header, so GitHub answers with JSON metadata instead of
-the archive.
-
-`tools/fetch_github_release_asset.py` downloads the asset and hands it to
-Bazel as a local file, so the checksum check and the repository cache still
-apply.
-Once the archive is in the repository cache, no token or network access is
-needed.
-The short-lived signed download URL never reaches Bazel, so it does not
-appear in the console output or the Build Event Protocol.
-The script requires `python3` on the host and reads the token in this order:
-
-- `SCORE_GITHUB_TOKEN`, `GITHUB_TOKEN` or `GH_TOKEN`
-- the netrc entry for `api.github.com` or `github.com` (`$NETRC` or `~/.netrc`)
-
-The token needs read access to the repository contents.
-It is not part of the repository definition, so rotating it does not trigger
-a refetch.
-No `--credential_helper` is needed for these URLs.
-
-```starlark
-gcc.sdp(
-    name = "my_qnx_sdp_pkg",
-    build_file = "//toolchains:qnx_sdp.BUILD",
-    sha256 = "<sha256 of the asset>",
-    type = "tar.gz",
-    url = "https://api.github.com/repos/<owner>/<repo>/releases/assets/<id>",
-)
-```
+See the [maintained page](consumers/extension_api.md#private-github-release-assets).
 
 ## Feature Injection
 
-`extra_known_features` and `extra_enabled_features` let a workspace add
-rule-based `cc_feature` targets (defined outside this repository) to the
-generated toolchain:
-
-- `extra_known_features` — registers external features so they can be toggled
-  per target via the `features` attribute or build-wide via `--features`.
-- `extra_enabled_features` — registers *and* enables external features by
-  default.
-
-Sanitizers are the primary use case: they are defined by the
-`score_cpp_policies` module and brought into the toolchain through these
-attributes. See [Toolchain features](features.md#sanitizers-linux-opt-in).
-
+See the [maintained page](consumers/extension_api.md#feature-injection).
 
 ## Activation In A Workspace
 
-Declaring a toolchain repository is not enough on its own. Consumers still need
-to activate the generated toolchain during Bazel analysis, typically with a
-configuration such as:
-
-```text
---extra_toolchains=@score_gcc_toolchain//:x86_64-linux-gcc_12.2.0
-```
-
-A newer GCC 15.3.0 toolchain is packaged as well; activate it the same way by
-referencing its generated label (e.g.
-`--extra_toolchains=@score_gcc_toolchain_15//:x86_64-linux-gcc_15.3.0`).
-
-The test workspace under `tests/` provides complete `.bazelrc`
-configurations for this activation step, including a `x86_64-linux-gcc15` /
-`aarch64-linux-gcc15` config pair for the GCC 15.3.0 toolchain.
+See the [maintained page](consumers/extension_api.md#activation-in-a-workspace).
 
 ## Migrating Downstream Workspaces
 
-The generated toolchains run under Bazel's explicit-feature model
-(`no_legacy_features`), so behaviors Bazel used to add implicitly are not
-automatic. For the behavioral impact and how consumers restore supported
-behavior explicitly, see the
-[Migration guide](migration_guide.md).
+See the [maintained page](consumers/extension_api.md#migrating-downstream-workspaces).
 
 ## Behavior Notes
 
-- The extension is intended for the root module.
-- When `use_default_package` is enabled, the version matrix can inject extra
-  include and link flags required by non-standard sysroot layouts.
-- Sanitizer features are not registered automatically. They are defined by the
-  `score_cpp_policies` module and made available through *feature injection* —
-  the `extra_known_features` / `extra_enabled_features` attributes on
-  `gcc.toolchain(...)`. See [Toolchain features](features.md#sanitizers-linux-opt-in)
-  for the injected feature names.
-- QNX toolchains use additional licensing and include-path parameters that do
-  not apply to Linux toolchains.
+See the [maintained page](consumers/extension_api.md#behavior-notes).

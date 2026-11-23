@@ -13,53 +13,20 @@
 
 # Overview
 
+This page has moved. See the [maintained page](consumers/overview.md).
+
 ## Purpose
 
-The repository separates toolchain *configuration logic* from toolchain
-*binary distributions*.
-
-It exists to answer three practical needs:
-
-- provide a single Bazel-native way to declare Linux and QNX C/C++ toolchains,
-- keep package provenance, compiler flags, and platform constraints consistent,
-- validate those toolchains through a dedicated test workspace instead of
-  relying on ad hoc local setup.
+See the [maintained page](consumers/overview.md#purpose).
 
 ## What The Repository Contains
 
-The repository does not contain GCC, QCC, or QNX SDK binaries. Instead, it
-contains the layers Bazel needs in order to fetch those binaries and expose
-them as `cc_toolchain` targets:
-
-- module extension logic in `extensions/`
-- repository rules in `rules/`
-- package metadata in `packages/`
-- generated-file templates in `templates/`
-- authentication helpers in `tools/`
-- a dedicated test workspace in `tests/`
+See the [maintained page](consumers/overview.md#what-the-repository-contains).
 
 ## Supported Platform Families
 
-The current repository surface supports these platform families:
-
-- Linux AMD64 (`x86_64-linux`) with packaged GCC toolchains
-- Linux ARM64 (`aarch64-linux`) with packaged GCC toolchains
-- Linux runtime-specific variants (`x86_64-linux`, `aarch64-linux`) such as `AutoSD` and `EB corbos Linux for Safety Applications`
-- QNX AMD64 (`x86_64-qnx`) with packaged or locally built SDP-based toolchains
-- QNX ARM64 (`aarch64-qnx`) with packaged or locally built SDP-based toolchains
+See the [maintained page](consumers/overview.md#supported-platform-families).
 
 ## Core Design Model
 
-The configuration pipeline is intentionally layered:
-
-1. A consuming project declares toolchains in `MODULE.bazel`.
-2. The `gcc` module extension interprets those declarations.
-3. Package metadata is resolved from either the default version matrix or a
-   manually declared package.
-4. Repository rules generate a Bazel repository containing the toolchain
-   definition and platform-specific configuration files.
-5. The consuming project activates those toolchains via `--extra_toolchains`
-   and compatible platform constraints.
-
-This keeps the consuming workspace small while centralizing platform policy,
-default flags, sysroot wiring, and repository authentication behavior.
+See the [maintained page](consumers/overview.md#core-design-model).
