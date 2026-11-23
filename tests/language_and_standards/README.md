@@ -15,7 +15,9 @@
 
 This directory contains tests for verifying that the toolchain correctly supports different programming languages and C++ standard versions.
 
-**For complete documentation, see [../../docs/test_suite.md](../../docs/test_suite.md)**
+For details, see the [test suite reference](../../docs/contributors/test_suite.md).
+
+Run the following commands from the `tests/` workspace root, not this directory.
 
 ## Quick Reference
 
@@ -32,5 +34,5 @@ bazel test --config=x86_64-linux --test_output=all //language_and_standards:cpp2
 
 ## See Also
 
-- Complete documentation: [../../docs/test_suite.md](../../docs/test_suite.md)
-- Toolchain overview: [../../docs/overview.md](../../docs/overview.md)
+- [Test suite reference](../../docs/contributors/test_suite.md)
+- [Toolchain overview](../../docs/consumers/overview.md)

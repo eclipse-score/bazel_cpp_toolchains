@@ -15,7 +15,9 @@
 
 This directory contains tests for verifying that specific C++ toolchain features are correctly implemented and functioning.
 
-**For complete documentation, see [../../docs/test_suite.md](../../docs/test_suite.md)**
+For details, see the [test suite reference](../../docs/contributors/test_suite.md).
+
+Run the following commands from the `tests/` workspace root, not this directory.
 
 ## Quick Reference
 
@@ -32,6 +34,6 @@ bazel build --config aarch64-qnx //feature_verification:defines_test
 
 ## See Also
 
-- Complete documentation: [../../docs/test_suite.md](../../docs/test_suite.md)
-- Toolchain overview: [../../docs/overview.md](../../docs/overview.md)
-- Features documentation: [../../docs/features.md](../../docs/features.md)
+- [Test suite reference](../../docs/contributors/test_suite.md)
+- [Toolchain overview](../../docs/consumers/overview.md)
+- [Toolchain features](../../docs/consumers/features.md)

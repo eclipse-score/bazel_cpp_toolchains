@@ -18,8 +18,8 @@ This directory contains an automated guardrail that protects the
 Linux and QNX toolchains enable the `no_legacy_features` marker so that Bazel
 injects **none** of its implicit legacy C/C++ features — every flag comes from a
 feature this repository defines explicitly (see
-[docs/features.md](../../docs/features.md) and
-[docs/migration_guide.md](../../docs/migration_guide.md)).
+[docs/features.md](../../docs/consumers/features.md) and
+[docs/migration_guide.md](../../docs/consumers/migration_guide.md)).
 
 The guardrails fail their tests if the explicit-feature contract or assembly
 sysroot flags regress.
@@ -57,11 +57,13 @@ cd tests
 # host-runnable script, so cross-target configs work without target hardware.
 bazel test --config=x86_64-linux //:guardrail_tests
 bazel test --config=aarch64-linux //:guardrail_tests
-bazel test --config=x86_64-qnx //:guardrail_tests
 ```
 
- CI runs the guardrails for platform configs covered by the GitHub Actions
- workflows under `.github/workflows/`.
+The QNX test configurations set a QNX runner and filter to C++ tests; these
+settings exclude the host-side guardrails. See
+[Test and validate toolchains](../../docs/contributors/tests_and_validation.md)
+and the workflows under `.github/workflows/` for the checks run for each
+configuration.
 
 ## Interpreting a failure
 
@@ -89,7 +91,7 @@ To fix it:
   `_LINUX_FEATURES` / `_QNX_FEATURES` list.
 - Provide any behavior you need through an **explicit** feature rather than
   relying on a Bazel legacy default. See
-  [docs/migration_guide.md](../../docs/migration_guide.md) for the supported
+  [docs/migration_guide.md](../../docs/consumers/migration_guide.md) for the supported
   extension mechanisms.
 
 ## Maintenance

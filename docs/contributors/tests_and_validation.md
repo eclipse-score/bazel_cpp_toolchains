@@ -11,109 +11,116 @@
   SPDX-License-Identifier: Apache-2.0
 ----------------------------------------------------------------------------- -->
 
-# Tests And Validation
+# Test and validate toolchains
 
-## Test Workspace Purpose
+This guide helps contributors choose validation for changes to toolchains,
+packages, and features. The separate [`tests/`](../../tests/) Bazel workspace
+checks toolchain generation and selected behaviors; it isn't a complete
+platform configuration or a compiler correctness suite.
 
-The `tests/` directory is a separate Bazel workspace used as the integration
-test bed for the repository.
+## Before you begin
 
-It demonstrates how consumers declare toolchains while also serving as the main
-validation surface for confirming that the generated toolchains can build and,
-where appropriate, run test targets.
+- Install the Bazel version pinned in [`.bazelversion`](../../.bazelversion).
+- Run the commands in this guide from the `tests/` directory. Its
+  [`MODULE.bazel`](../../tests/MODULE.bazel) uses a local override for this
+  checkout, and its [`.bazelrc`](../../tests/.bazelrc) defines the configurations.
+- Ensure you can fetch the selected packages. QNX also requires package access,
+  credentials, and a license; see
+  [Integrate a QNX toolchain](../consumers/qnx_integration.md).
+- For cross-target execution, provide a compatible target environment or an
+  appropriate emulator and runner.
 
-These tests are intended for validating global changes on the module extension
-side and for verifying toolchain features and language-standard support. They
-are not a reference point for full platform setup. For a proper build on a
-dedicated platform, consumers must consult the relevant platform developers and
-owners rather than relying on these tests as a platform configuration guide.
+## Select checks
 
-For the full catalog of individual tests, see
-[test_suite.md](test_suite.md).
+The root [`tests/BUILD`](../../tests/BUILD) defines these suites:
 
-## Important Files
+- `//:feature_verification_tests`: compile and link feature behavior.
+- `//:language_and_standards_tests`: C and C++ language and standard support.
+- `//:guardrail_tests`: host-side checks of feature lists and the explicit
+  feature contract. See the [guardrail reference](../../tests/guardrails/README.md).
+- `//:ebclfsa_hi_tests`: checks for the restricted EBcLfSA high-integrity
+  profile, including host-side checks and a target runtime test.
+- `//:all_tests`: aggregate suite; target compatibility affects which tests run.
 
-`tests/MODULE.bazel`
+See the [test suite reference](test_suite.md) for individual tests. Manual
+feature tests and their invocation requirements are described in
+[`opt_in_features/BUILD`](../../tests/feature_verification/opt_in_features/BUILD).
 
-Declares representative Linux and QNX toolchain repositories and wires the test
-workspace back to the local checkout with `local_path_override`.
+## Run native Linux tests
 
-`tests/.bazelrc`
-
-Defines named Bazel configurations (activated with `--config`) that select the
-generated toolchains and platforms.
-
-`tests/BUILD`
-
-Defines the `feature_verification_tests` and `language_and_standards_tests`
-test suites that aggregate the individual test targets.
-
-`tests/guardrails/`
-
-Holds the explicit-feature regression guardrail
-(`no_legacy_features_guard_test`), aggregated by the `guardrail_tests` suite in
-`tests/BUILD`. It fails as a test if the active toolchain regresses to relying
-on Bazel's implicit legacy C++ features (i.e. loses the `no_legacy_features`
-contract). See `tests/guardrails/README.md` for details and how to interpret
-failures.
-
-`tests/feature_verification/`
-
-C++ targets that verify toolchain features such as preprocessor defines,
-include paths (including the `includes` attribute), user-supplied compile and
-link flags, warnings, coverage, position-independent code, pthread support,
-multi-file archiving, whole-archive linking, reproducible-build random seed, and
-fully static linking. The `opt_in_features/` subpackage holds manual tests for
-features that are disabled by default or require a specific build mode.
-
-`tests/language_and_standards/`
-
-C and C++ targets that verify language support across C, C++11, C++14, C++17,
-and C++20.
-
-## Validation Matrix
-
-The test workspace validates these configuration groups (see `tests/.bazelrc`
-for the exact `--config` names):
-
-- Linux host toolchains (`x86_64-linux`, `x86_64-linux-custom`, `x86_64-linux-bp`)
-- Linux cross-compilation toolchains (`aarch64-linux`)
-- runtime-specific Linux toolchains such as AutoSD (`x86_64-linux-autosd10`)
-  and EB corbos Linux for Safety Applications
-  (`aarch64-linux-ebclfsa-2.0.0-beta2`,
-  `aarch64-linux-ebclfsa-2.0.0-beta3`)
-- packaged QNX toolchains (`x86_64-qnx`, `aarch64-qnx`)
-
-## Useful Commands
-
-The `tests/` directory is a separate Bazel workspace, so run the commands from
-within it:
+On an x86_64 Linux host, run the standard feature, language, and guardrail
+suites:
 
 ```bash
-cd tests
-
-# Run every test with the host toolchain
-bazel test --config x86_64-linux //...
-
-# Run a single test suite
-bazel test --config x86_64-linux //:feature_verification_tests
-bazel test --config x86_64-linux //:language_and_standards_tests
-
-# Build against a cross-compilation or runtime-specific target
-bazel build --config aarch64-qnx //...
+bazel test --config=x86_64-linux \
+  //:feature_verification_tests //:language_and_standards_tests //:guardrail_tests
 ```
 
-## What The Tests Prove
+Confirm that the selected tests pass. Test results depend on target
+compatibility and Bazel's test selection; don't rely on a fixed total.
 
-The test workspace is not intended to be an exhaustive compiler correctness
-suite. Instead, it answers a narrower question: did the configuration
-repository produce a usable toolchain definition for each supported scenario?
+## Build for a cross target
 
-In practice this means checking among other things:
+For example, build the standard suites for AArch64 Linux:
 
-- successful compilation with the selected compiler and sysroot,
-- correct toolchain registration and platform matching,
-- basic linking behavior,
-- feature coverage such as pthread-enabled builds, include-path handling, and
-  whole-archive linking,
-- language and C++ standard-version support.
+```bash
+bazel build --config=aarch64-linux \
+  //:feature_verification_tests //:language_and_standards_tests
+```
+
+Confirm that compilation and linking succeed. A cross-build doesn't execute
+the target binaries. Run them in a compatible target environment or use an
+appropriate runner. The generated toolchains declare an x86_64 Linux execution
+platform; running Bazel directly on a target OS doesn't by itself provide that
+execution platform.
+
+## Validate QNX
+
+For a build-only check on the Linux host, use a configured QNX package and
+license:
+
+```bash
+bazel build --config=x86_64-qnx \
+  //:feature_verification_tests //:language_and_standards_tests
+```
+
+The `x86_64-qnx` and `aarch64-qnx` test configurations in `tests/.bazelrc`
+set `--run_under` to the QNX runner and filter to C++ tests. Executing those
+configurations requires the runner's QNX emulator and KVM setup, in addition to
+package access and licensing. For those configurations, run:
+
+```bash
+bazel test --config=x86_64-qnx //:all_tests
+```
+
+Use the corresponding `aarch64-qnx` configuration for AArch64. The test
+filter excludes host-side guardrails; don't assume that this command runs them.
+See the [QNX CI workflow](../../.github/workflows/qnx.yml) for its configuration.
+
+## Validate EBcLfSA high integrity
+
+The high-integrity profile restricts language and runtime features. Use its
+dedicated suite rather than assuming the general-purpose feature suite applies.
+Run host-side checks:
+
+```bash
+bazel test --config=aarch64-linux-ebclfsa-hi --test_lang_filters=-cc \
+  //:ebclfsa_hi_tests //:guardrail_tests
+```
+
+With `qemu-user` installed at `/usr/bin/qemu-aarch64`, run the target runtime
+test:
+
+```bash
+bazel test --config=aarch64-linux-ebclfsa-hi \
+  --run_under=/usr/bin/qemu-aarch64 //ebclfsa_hi:runtime_test
+```
+
+See the [EBcLfSA CI workflow](../../.github/workflows/ebclfsa.yml) for the
+corresponding checks.
+
+## Record results
+
+Confirm that the selected checks pass. In the change description, record the
+configurations tested and any checks you couldn't run, including missing
+package access, licenses, target environments, or emulators.
