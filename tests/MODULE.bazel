@@ -16,10 +16,6 @@ module(
     version = "0.1.0",
 )
 
-# FIXME: Temporary workaround for Bazel 9.
-#        Pin `rules_go` to 0.61.1 because a newer transitive `rules_go` version
-#        pulled by upstream dependencies does not yet support Bazel 9.
-#        Remove once upstream is updated.
 bazel_dep(name = "rules_go", version = "0.64.2")
 
 # *******************************************************************************
