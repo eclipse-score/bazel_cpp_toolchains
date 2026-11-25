@@ -378,7 +378,7 @@ gcc_toolchain = repository_rule(
         "tc_pkg_repo": attr.string(doc = "The label name of toolchain tarbal."),
         "tc_runtime_ecosystem": attr.string(doc = "Runtime ecosystem."),
         "tc_system_toolchain": attr.bool(doc = "Boolean flag to state if this is a system toolchain"),
-        "tc_tool_suffix": attr.string(doc = "Suffix appended to the package tool/label names (ar, gcov, strip, cxx_builtin_include_directories), e.g. `_x86_64`; empty for unsuffixed packages."),
+        "tc_tool_suffix": attr.string(doc = "Suffix appended to the package tool/label names (ar, gcov, strip, cxx_builtin_include_directories), e.g. `_x86_64` for QNX packages; empty for Linux packages."),
         "_cc_gcov_wrapper_script": attr.label(
             default = "@score_bazel_cpp_toolchains//templates:cc_gcov_wrapper.template",
         ),
