@@ -125,11 +125,19 @@ VERSION_MATRIX = {
         "gcc_version": "12.2.0",
     },
     "qnx-sdp_8.0.5": {
-        "build_file": "@score_bazel_cpp_toolchains//packages/qnx/sdp/8.0:sdp.BUILD",
-        "sha256": "eaf000e6d8fe8b96685a0c0d5041e9fe62fe36c9fc3f0854033a7be9fbec8c89",
-        "strip_prefix": "",
+        "build_file": None,
+        "sha256": "fd18211740f5e83cae9535af043a9f6224ac5a82587cb05c22f3f5344fbed82a",
+        "strip_prefix": "qnx_sdp_805",
         "type": "tar.gz",
-        "url": "https://api.github.com/repos/eclipse-score/qnx_sdp_pkg/releases/assets/706198299",
+        "url": "https://api.github.com/repos/eclipse-score/qnx_sdp_pkg/releases/assets/787260390",
+        "gcc_version": "12.2.0",
+    },
+    "qnx-sdp_8.0.6": {
+        "build_file": None,
+        "sha256": "b062211caeef17e5f985c829106c22291cb3fd2f621ee90ef01a58b0cda8d238",
+        "strip_prefix": "qnx_sdp_806",
+        "type": "tar.gz",
+        "url": "https://api.github.com/repos/eclipse-score/qnx_sdp_pkg/releases/assets/787260907",
         "gcc_version": "12.2.0",
     },
     "x86_64-linux-gcc_12.2.0": {
