@@ -11,7 +11,7 @@
   SPDX-License-Identifier: Apache-2.0
 ----------------------------------------------------------------------------- -->
 
-# Migration Guide: The Explicit-Feature Model
+# Migrate to the explicit-feature model
 
 This guide is for **downstream consumers** of
 `score_bazel_cpp_toolchains`. It explains what changes when the toolchains run
@@ -23,11 +23,11 @@ If your builds worked before and something now fails to compile or link with a
 "missing flag / undefined behavior" symptom, this document is where to start. It
 is designed so you can adopt the toolchains without reading the toolchain source.
 
-## TL;DR
+## Summary
 
-- Both the Linux and QNX toolchains enable **`no_legacy_features`**. Bazel no
+- The Linux, QNX, and EBcLfSA high-integrity toolchains enable **`no_legacy_features`**. Bazel no
   longer injects any of its built-in "legacy" compile/link/archive flags.
-- Every flag the toolchain emits now comes from a feature that is **defined
+- Every flag the toolchain emits comes from a feature that is **defined
   explicitly** in the toolchain config. See
   [Toolchain features](features.md) for the full catalog.
 - If you relied on a Bazel-default behavior that this toolchain does not define,
@@ -37,7 +37,7 @@ is designed so you can adopt the toolchains without reading the toolchain source
 - Nothing falls back silently: under `no_legacy_features` a missing behavior is a
   broken build, not a quiet default.
 
-## What Changed And Why
+## Why the model changed
 
 ### The legacy (implicit) model
 
@@ -52,35 +52,38 @@ reproducible toolchain:
 - Behavior is implicit: it is hard to audit *why* a flag appears on the command
   line, and easy for an unintended flag to slip in.
 
-### The explicit (current) model
+### The explicit model
 
-Both toolchain configs always enable `no_legacy_features` — a `cc_feature`
-defined in `features/native/markers` and listed as initially-enabled in the
-ordered feature list built by `features/custom/linux/make_cc_features.bzl` /
-`features/custom/qnx/make_cc_features.bzl`.
+The Linux, QNX, and EBcLfSA high-integrity toolchain configurations always
+enable `no_legacy_features`. It is a `cc_feature` defined in
+`features/native/markers` and listed as initially enabled in the ordered
+feature list of each profile:
+[Linux](../../features/custom/linux/make_cc_features.bzl),
+[QNX](../../features/custom/qnx/make_cc_features.bzl), and
+[EBcLfSA high integrity](../../features/custom/ebclfsa_hi/make_cc_features.bzl).
 
-With this enabled, Bazel injects **nothing** implicitly. Every compile, link,
-and archive flag must come from a feature (or other toolchain wiring) declared
-explicitly under [`features/`](../features) and wired in by
-[`templates/cc_toolchain_config.bzl.template`](../templates/cc_toolchain_config.bzl.template).
+With this feature enabled, Bazel injects **nothing** implicitly. Every compile,
+link, and archive flag must come from a feature (or other toolchain wiring)
+declared explicitly under [`features/`](../../features) and wired in by
+[`templates/cc_toolchain_config.bzl.template`](../../templates/cc_toolchain_config.bzl.template).
 
-The practical consequence: the command line is now fully described by this
-repository's feature set. What you see documented in
-[Toolchain features](features.md) is what you get — no more, no less.
+As a result, this repository's feature set fully describes the command line.
+What you see documented in [Toolchain features](features.md) is what you
+get — no more, no less.
 
-## Impact: Behaviors No Longer Implicitly Available
+## Behaviors that are no longer implicit
 
 Under `no_legacy_features`, none of Bazel's built-in legacy features are active.
-The behaviors most commonly *assumed* to be automatic, and their status in this
-toolchain, are summarized below.
+The following table lists the behaviors most commonly *assumed* to be
+automatic, and their status in this toolchain.
 
-| Behavior you may have relied on (legacy) | Status here | How it is provided now |
+| Behavior you may have relied on (legacy) | Status here | How this toolchain provides it |
 | --- | --- | --- |
 | Default C/C++ compile flags | **Supported, explicit** | `default_compile_flags` feature (per-target flags differ) |
 | `-D` preprocessor defines from `defines` / `local_defines` | **Supported, explicit** | `preprocessor_defines` feature |
 | `-iquote` / `-I` / `-isystem` include paths | **Supported, explicit** | `include_paths` feature |
 | Force-included headers (`-include`) | **Supported, explicit (Linux)** | `includes` feature |
-| Position-independent code (`-fPIC`) | **Linux: supported, explicit** | `pic` feature (Linux). QNX declares the `supports_pic` capability marker but does not add `-fPIC` in the default compile flags. |
+| Position-independent code (`-fPIC`) | **Supported, explicit** | `pic` feature emits `-fPIC` when the `pic` build variable is available. |
 | `.d` dependency file generation | **Supported, explicit** | `dependency_file` feature |
 | Pass-through of user `copts` | **Supported, explicit** | `user_compile_flags` feature |
 | Pass-through of user `linkopts` | **Supported, explicit** | `user_link_flags` feature (both) |
@@ -90,12 +93,12 @@ toolchain, are summarized below.
 | `--sysroot` handling | **Supported, explicit (Linux)** | `sysroot_link_flags` at link and assemble/preprocess-assemble; C/C++ compile-time header resolution relies on `cxx_builtin_include_directories` |
 | Compiler / archiver / strip tool binding | **Supported, wiring** | `action_config` entries, not legacy `tool_paths` |
 | `gcov` | **Supported, wiring** | `tool_paths` (`gcov_wrapper`) |
-| Warnings (e.g. `-Wall`) added by default | **Not part of this toolchain — injected** | `minimal_warnings` / `strict_warnings` / `all_wall_warnings` are defined by `score_cpp_policies`, not this toolchain, and only become available once brought in via `extra_known_features` / `extra_enabled_features`. |
+| Warnings (for example, `-Wall`) added by default | **Not part of this toolchain — injected** | `minimal_warnings` / `strict_warnings` / `all_wall_warnings` are defined by `score_cpp_policies`, not this toolchain, and only become available once brought in via `extra_known_features` / `extra_enabled_features`. |
 | `-Werror` | **Not part of this toolchain — injected** | `warnings_as_errors`, defined by `score_cpp_policies` and injected the same way as the other warning features. |
 | Sanitizers (asan/lsan/tsan/ubsan) | **Not part of this toolchain — injected (Linux)** | Defined by `score_cpp_policies` (`score_asan` / `score_lsan` / `score_tsan` / `score_ubsan`) and brought in via `extra_known_features` / `extra_enabled_features` |
-| Fully static link (`-static`) | **Not implicit — opt-in** | `fully_static_link` (disabled by default) |
-| `-pthread` | **Not implicit — opt-in (Linux)** | `use_pthread` (disabled by default) |
-| Fission / split DWARF, linkstamps, strip, static-libgcc | **Supported, guarded** | Guarded features; no-ops until the relevant build mode is active |
+| Fully static link (`-static`) | **Not implicit — opt-in (Linux)** | `fully_static_link` (disabled by default) |
+| `-pthread` | **Supported, explicit (Linux)** | `use_pthread` (enabled by default) |
+| Fission / split DWARF, linkstamps, strip, static-libgcc | **Supported, guarded (Linux)** | Guarded features; no-ops until the relevant build mode is active |
 | Any other Bazel legacy default not listed above | **Not available** | Must be added explicitly (see below) |
 
 Three categories deserve special attention because they are the most frequent
@@ -106,8 +109,8 @@ migration surprises:
    `all_wall_warnings`, `warnings_as_errors`/`-Werror`) are defined by
    `score_cpp_policies` and only become available once injected via
    `extra_known_features` / `extra_enabled_features`.
-2. **`-pthread` and fully-static linking are opt-in.** These emit nothing until
-   you enable the corresponding feature.
+2. **Fully static linking is opt-in on Linux.** It emits nothing until you
+   enable `fully_static_link`. Linux enables `use_pthread` by default.
 3. **Sanitizers are not part of this toolchain.** They are defined by the
    `score_cpp_policies` module and must first be injected via
    `extra_known_features` / `extra_enabled_features` before they can be enabled.
@@ -116,7 +119,7 @@ migration surprises:
 For the authoritative and complete list, always refer to
 [Toolchain features](features.md).
 
-## How To Restore Supported Behavior Explicitly
+## Restore behavior explicitly
 
 There are four mechanisms, ordered roughly from "most local" to "most global".
 Pick the narrowest one that solves your problem.
@@ -137,7 +140,7 @@ cc_binary(
 ```
 
 You can also *disable* an enabled-by-default feature by prefixing it with `-`,
-e.g. `features = ["-per_object_debug_info"]`.
+for example `features = ["-per_object_debug_info"]`.
 
 ### 2. Enable a feature build-wide with a flag
 
@@ -153,13 +156,12 @@ build:myconfig --host_features=use_pthread
 
 ### 3. Turn on an opt-in feature that already exists
 
-Many legacy-equivalent behaviors already ship as opt-in features (warnings,
-`fully_static_link`, `use_pthread`, `per_object_debug_info`, ...).
-You do not need to modify the toolchain to use them — enable them with
-mechanism 1 or 2 above. See the *Opt-in* entries in
-[Toolchain features](features.md). (Sanitizers are the exception: they are
-defined by `score_cpp_policies` and must first be injected via
-`extra_known_features` / `extra_enabled_features`.)
+Some legacy-equivalent behaviors ship as opt-in features, including
+`fully_static_link`. You can enable them with mechanism 1 or 2. See the
+*Opt-in* entries in [Toolchain features](features.md). Other features, such as
+`per_object_debug_info`, are enabled by default but emit flags only in the
+appropriate build mode. Warnings and sanitizers must first be injected from
+`score_cpp_policies`.
 
 ### 4. Inject raw flags through the toolchain attributes
 
@@ -195,33 +197,43 @@ behavior should be toggleable per target.
 
 > **Ordering matters.** Flags from a feature later in the toolchain's feature
 > list appear later on the command line. When you enable additional features,
-> verify the resulting command line (e.g. with `--subcommands`) if flag order is
+> verify the resulting command line (for example, with `--subcommands`) if flag order is
 > significant for your build.
 
-## Common Migration Scenarios
+## Migration scenarios
 
-Each scenario below is a concrete "I used to get X automatically; how do I get it
-now?" case.
+Each scenario is a concrete case: "I used to get X automatically; how do I get
+it explicitly?"
 
 ### Scenario A — "My warnings disappeared"
 
-**Symptom:** Code that used to warn (or fail on warnings) now builds clean.
+**Symptom:** Code that used to warn (or fail on warnings) builds clean.
 
 **Cause:** Warning-level features are not defined by this toolchain at all —
 they are defined by `score_cpp_policies` and are only available once injected
 into the toolchain via `extra_known_features` / `extra_enabled_features` (see
 [Extension API](extension_api.md#feature-injection)).
 
-**Fix:** Inject the desired warning feature(s) from `score_cpp_policies` on
+**Fix:** Inject the warning features from `score_cpp_policies` on
 `gcc.toolchain(...)`, then enable them like any other feature:
 
 ```starlark
 gcc.toolchain(
     name = "score_gcc_toolchain",
-    ...
-    extra_known_features = ["@score_cpp_policies//features:strict_warnings", "@score_cpp_policies//features:warnings_as_errors"],
+    target_cpu = "x86_64",
+    target_os = "linux",
+    version = "12.2.0",
+    use_default_package = True,
+    extra_known_features = [
+        "STRICT_WARNINGS_LABEL",
+        "WARNINGS_AS_ERRORS_LABEL",
+    ],
 )
 ```
+
+Replace `STRICT_WARNINGS_LABEL` and `WARNINGS_AS_ERRORS_LABEL` with the labels
+of the `strict_warnings` and `warnings_as_errors` feature targets in
+`score_cpp_policies`. See that module's documentation for the label names.
 
 ```bash
 # .bazelrc
@@ -235,20 +247,20 @@ Or per target:
 cc_library(
     name = "core",
     srcs = ["core.cpp"],
-    features = ["all_wall_warnings", "warnings_as_errors"],
+    features = ["strict_warnings", "warnings_as_errors"],
 )
 ```
-
-> The exact `score_cpp_policies` feature labels above are illustrative — see
-> that module's documentation for the authoritative target names.
 
 ### Scenario B — "Undefined reference to pthread symbols"
 
 **Symptom:** Links fail with `pthread_*` undefined references.
 
-**Cause:** `-pthread` is not added implicitly.
+**Cause:** The toolchain doesn't rely on a Bazel legacy feature for this flag.
+The generic Linux profile enables `use_pthread` by default; a target or build
+configuration might have disabled it, or a different profile might apply.
 
-**Fix (Linux):** Enable `use_pthread` for the target, package, or build:
+**Fix (Linux):** Check the selected toolchain and whether `use_pthread` was
+disabled. If needed, enable it for the target, package, or build:
 
 ```starlark
 cc_binary(
@@ -267,7 +279,7 @@ build --features=use_pthread
 
 **Symptom:** Binary is dynamically linked; you expected `-static`.
 
-**Cause:** `fully_static_link` is opt-in (it also requires static system
+**Cause:** On Linux, `fully_static_link` is opt-in (it also requires static system
 archives, which some toolchains such as AutoSD do not ship).
 
 **Fix:** Enable it only for the targets that need it:
@@ -344,12 +356,12 @@ cc_library(
 )
 ```
 
-## Migration Checklist
+## Migration checklist
 
 - [ ] Build your workspace against the toolchain and collect any compile/link
       failures.
 - [ ] For each failure, identify the legacy behavior involved using the
-      [impact table](#impact-behaviors-no-longer-implicitly-available).
+      [behavior table](#behaviors-that-are-no-longer-implicit).
 - [ ] If the behavior maps to an **existing opt-in feature**, enable it with a
       target/package `features` attribute or a `--features` / `--host_features`
       flag.
@@ -362,10 +374,10 @@ cc_library(
 - [ ] Pin the chosen settings in `.bazelrc` so the configuration is reproducible
       and self-describing.
 
-## Related Documentation
+## Related documentation
 
 - [Toolchain features](features.md) — the authoritative feature catalog.
 - [Extension API](extension_api.md) — `gcc.toolchain(...)` attributes and
   activation.
-- [Maintenance](maintenance.md) — how features and non-feature wiring are
+- [Maintenance](../contributors/maintenance.md) — how features and non-feature wiring are
   classified under `no_legacy_features`.

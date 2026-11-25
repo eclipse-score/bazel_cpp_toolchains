@@ -11,45 +11,22 @@
   SPDX-License-Identifier: Apache-2.0
 ----------------------------------------------------------------------------- -->
 
-# S-CORE Bazel C/C++ Toolchain Configuration Repository
+# S-CORE Bazel C/C++ toolchains
 
-This repository contains the configuration layer for S-CORE C and C++
-toolchains used in Bazel builds. It does not ship compiler binaries. Instead,
-it defines the metadata, templates, repository rules, module extension logic,
-and validation workspace needed to fetch and register external toolchain
-packages reproducibly.
+This repository provides Bazel configuration for external Linux and QNX C/C++
+toolchain packages. It does not contain compiler binaries.
 
-The documentation below is organized around the main subsystems of the
-repository: how consumers declare toolchains, how Bazel repositories are
-generated, how platform packages are described, how the test workspace
-validates the setup, and how QNX-specific authentication and licensing fit in.
+## Use a toolchain
 
-## Documentation
+If you maintain a Bazel module that uses these toolchains, start with
+[Build with a Linux toolchain](docs/consumers/getting_started.md). For QNX,
+see [Integrate a QNX toolchain](docs/consumers/qnx_integration.md).
 
-- [Overview](docs/overview.md)
-- [Repository layout](docs/repository_layout.md)
-- [Extension API](docs/extension_api.md)
-- [Generation flow](docs/generation_flow.md)
-- [Toolchain features](docs/features.md)
-- [Migration guide (explicit-feature model)](docs/migration_guide.md)
-- [Tests and validation](docs/tests_and_validation.md)
-- [QNX integration](docs/qnx_integration.md)
-- [Test Suite](docs/test_suite.md)
-- [Maintenance](docs/maintenance.md)
+## Develop toolchain support
 
-## Quick Summary
+If you maintain this repository or add a toolchain variant, start with
+[Add a toolchain variant](docs/contributors/add_toolchain.md). See
+[Tests and validation](docs/contributors/tests_and_validation.md) for the
+test workspace and execution requirements.
 
-**Module:** S-CORE Bazel C/C++ toolchain configurations
-
-**Type:** Bazel module with repository rules, templates, and example validation
-
-**Primary consumer entry point:** `@score_bazel_cpp_toolchains//extensions:gcc.bzl`
-
-**Main validation surface:** `tests/` smoke-test workspace
-
-## Key Capabilities
-
-- Define Linux and QNX toolchains through a Bzlmod extension.
-- Resolve default package metadata through `packages/version_matrix.bzl`.
-- Generate toolchain repositories from platform-specific templates.
-- Validate toolchain selections through the workspace test matrix.
+For the complete documentation map, see [Documentation](docs/README.md).

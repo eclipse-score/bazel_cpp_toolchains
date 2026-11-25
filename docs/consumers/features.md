@@ -11,24 +11,27 @@
   SPDX-License-Identifier: Apache-2.0
 ----------------------------------------------------------------------------- -->
 
-# Toolchain Features
+# Toolchain features
 
-These are the `cc_toolchain` features defined by the shared toolchain config in
-[`templates/cc_toolchain_config.bzl.template`](../templates/cc_toolchain_config.bzl.template).
+This reference helps consumers find features in the generic Linux and QNX
+toolchain profiles. The feature definitions are in
+[`features/`](../../features/), and the ordered profile lists are under
+`features/custom/`. The EBcLfSA high-integrity profile has a separate feature
+list and omits some generic Linux features; consult its
+[feature list](../../features/custom/ebclfsa_hi/make_cc_features.bzl) for
+that profile.
 
-Both toolchains enable **`no_legacy_features`**, which turns off the features
-Bazel would otherwise add implicitly. As a result every flag the toolchain emits
-comes from a feature defined explicitly below.
+The generic Linux and QNX toolchains, and the high-integrity profile, enable
+**`no_legacy_features`**, which turns off the features Bazel would otherwise
+add implicitly. Toolchain flags come from explicitly declared features and
+other toolchain wiring. If your builds depended on implicit legacy behavior,
+see the [migration guide](migration_guide.md).
 
-> **Migrating from an implicit/legacy setup?** See the
-> [Migration guide](migration_guide.md) for the behavioral impact of
-> `no_legacy_features` and how to restore supported behavior explicitly.
+Each entry is tagged with the generic platform(s) it applies to: **(both)**,
+**(Linux)**, or **(QNX)**. Unless noted as *opt-in (disabled by default)* or a
+build-mode marker, a feature is enabled by default.
 
-Each entry is tagged with the platform(s) it applies to: **(both)**, **(Linux)**,
-or **(QNX)**. Unless noted as *opt-in (disabled by default)*, a feature is
-enabled by default.
-
-> **Note:** The order of features in the `features` list is significant — flags
+> **Note:** The order of features in the `features` list is significant. Flags
 > from a later feature appear after those from an earlier feature on the command
 > line.
 
@@ -40,15 +43,15 @@ enabled by default.
 - **`supports_header_path_normalization`** (Linux) — Suppresses absolute-path
   warnings for system headers.
 - **`dbg`** / **`opt`** (both) — Well-known build-mode markers used to select flags.
+- **`gnu11`** / **`c_std_c99`** (both, opt-in) — Select GNU C11 or C99
+  compilation instead of the default C11 mode.
 
 ## Compilation
 - **`unfiltered_compile_flags`** (both) — Redacts `__DATE__`/`__TIME__`/`__TIMESTAMP__`
   for reproducible builds.
 - **`default_compile_flags`** (both) — Core compile flags plus `dbg`/`opt`
   build-mode variants (exact flags differ per target).
-- **`pic`** (Linux) — Emits `-fPIC` when the `pic` build variable is available.
-  QNX declares the `supports_pic` capability marker but does not add `-fPIC` in
-  the default compile flags.
+- **`pic`** (both) — Emits `-fPIC` when the `pic` build variable is available.
 - **`random_seed`** (both) — Emits `-frandom-seed=<output_file>` for
   deterministic output.
 - **`include_paths`** (both) — Emits `-iquote` / `-I` / `-isystem` from the
@@ -63,16 +66,16 @@ enabled by default.
 - **`compiler_library_search_paths`** (Linux) — Sets `LD_LIBRARY_PATH` so the
   compiler binary finds its shared libraries.
 - **`dependency_file`** (both) — Generates `.d` dependency files. On QNX,
-  **`dependency_file_named_implicitly`** toggles between explicit and implicit
-  naming.
+  the opt-in **`dependency_file_named_implicitly`** marker toggles between
+  explicit and implicit naming.
 - **`per_object_debug_info`** (Linux) — Emits `-gsplit-dwarf -g` under
   `--fission` (guarded; no-op otherwise).
 
 ## Linking / archiving
 - **`archiver_flags`** (both) — `ar` flags (`rcsD`) and the object-file list for
   static archives.
-- **`user_link_flags`** (both) — Passes
-  through user-supplied link flags (`linkopts`).
+- **`user_link_flags`** (both) — Passes through user-supplied link flags
+  (`linkopts`).
 - **`linker_param_file`** (both) — Uses `@param_file` for linker/archiver args.
 - **`default_link_flags`** (both) — Default/hardening link flags (exact flags
   differ per target and build mode).
@@ -94,18 +97,19 @@ the relevant build mode is active. All are enabled by default except where noted
 - **`linkstamps`** — Passes `%{linkstamp_paths}` to the linker (`--stamp`).
 - **`force_pic_flags`** — `-pie` for executables under `--force_pic`.
 - **`strip_debug_symbols`** — `-Wl,-S` when the link output is stripped
-  (e.g. `fastbuild`/`opt`, not `dbg`).
+  (for example, `fastbuild` or `opt`, not `dbg`).
 - **`static_libgcc`** — `-static-libgcc` when `static_link_cpp_runtimes` is on.
 - **`fully_static_link`** — `-static` for fully static executables. **Opt-in
   (disabled by default)**, since it forces static linking for every target and
-  requires static system archives (unavailable on some toolchains, e.g. AutoSD).
+  requires static system archives (unavailable on some toolchains, such as AutoSD).
 
 ## Warnings
-**Note:** Warning-level features (`minimal_warnings`, `strict_warnings`, `all_wall_warnings`, `warnings_as_errors`)
-have been migrated to [`score_cpp_policies`](https://github.com/eclipse-score/score_cpp_policies).
-
-These features are no longer defined by this toolchain but can be provided through *feature injection* via
-the `extra_known_features` / `extra_enabled_features` attributes on `gcc.toolchain(...)`.
+The warning-level features (`minimal_warnings`, `strict_warnings`,
+`all_wall_warnings`, `warnings_as_errors`) are defined in
+[`score_cpp_policies`](https://github.com/eclipse-score/score_cpp_policies),
+not in this toolchain. Provide them through *feature injection* with the
+`extra_known_features` / `extra_enabled_features` attributes on
+`gcc.toolchain(...)`.
 
 ## Sanitizers (Linux, opt-in)
 Sanitizers are **not** defined by this toolchain. They are provided as
@@ -126,16 +130,18 @@ See the `score_cpp_policies` documentation for the authoritative list and usage.
 
 ## Extra flag hooks (template-substituted)
 - **`extra_compile_flags`** (both) — Extra flags for all compile actions.
-- **`extra_c_compile_flags`** / **`extra_cxx_compile_flags`** (Linux) — Extra C /
+- **`extra_c_compile_flags`** / **`extra_cxx_compile_flags`** (both) — Extra C /
   C++ compile flags.
 - **`extra_link_flags`** (both) — Extra link flags.
 
 ## Coverage
-- **`coverage`** (both) — Base coverage feature.
-- **`gcc_coverage_map_format`** (both) — `-fprofile-arcs -ftest-coverage` at
+- **`coverage`** (both, opt-in) — Base coverage feature.
+- **`gcc_coverage_map_format`** (both, opt-in) — `-fprofile-arcs -ftest-coverage` at
   compile and `-lgcov` / `--coverage` at link.
 
 ## QNX environment
 - **`sdp_env`** (QNX) — Injects QNX SDP environment variables (`QNX_HOST`,
   `QNX_TARGET`, license path, ...) into compile/link actions.
-- **`qnx_license_env_info`** (QNX) — Adds an optional license environment entry.
+- **`gcc_version_flags`** (QNX) — Selects the QNX compiler version and CPU.
+- **`io_pkt_ddk`** (QNX, opt-in) — Adds C compilation flags and headers for
+  QNX io-pkt drivers and modules.
