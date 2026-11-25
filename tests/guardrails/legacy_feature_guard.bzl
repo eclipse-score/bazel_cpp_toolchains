@@ -92,7 +92,7 @@ def _impl(ctx):
         message.extend(["  - " + p for p in problems])
         message.extend([
             "",
-            "Expected contract (see docs/migration_guide.md):",
+            "Expected contract (see docs/consumers/migration_guide.md):",
             "  * The cc_toolchain keeps the `{}` feature (enabled = True) in its".format(_CONTRACT_MARKER),
             "    `features` list.",
             "  * None of Bazel's implicit legacy C++ features are active.",
