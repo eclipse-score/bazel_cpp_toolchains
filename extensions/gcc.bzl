@@ -15,7 +15,7 @@
 """
 
 load("@score_bazel_cpp_toolchains//packages:version_matrix.bzl", "VERSION_MATRIX")
-load("@score_bazel_cpp_toolchains//rules:common.bzl", "QNX_SDP_TO_GCC_VERSION", "SDP_VERSION_MAPPING")
+load("@score_bazel_cpp_toolchains//rules:common.bzl", "QNX_SDP_TO_GCC_VERSION", "map_sdp_version")
 load("@score_bazel_cpp_toolchains//rules:gcc.bzl", "gcc_toolchain")
 load("@score_bazel_cpp_toolchains//rules:http_archive.bzl", "http_archive")
 
@@ -27,7 +27,6 @@ _IDENTIFIER_SDP = "sdp"
 _OS_QNX = "qnx"
 _SUPPORTED_CPUS = ["x86_64", "aarch64"]
 _SUPPORTED_OSS = ["linux", "qnx"]
-_SDP_VERSION_MAPPING = SDP_VERSION_MAPPING
 _QNX_SDP_TO_GCC_VERSION = QNX_SDP_TO_GCC_VERSION
 
 # GCC interface API for archive tag class
@@ -401,7 +400,7 @@ def _resolve_identifier(toolchain_info):
         version = toolchain_info["sdp_version"]
 
         # Apply version mapping for constraint compatibility
-        version = _SDP_VERSION_MAPPING.get(version, version)
+        version = map_sdp_version(version)
 
     return "{}_{}".format(identifier, version)
 

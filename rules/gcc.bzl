@@ -14,14 +14,13 @@
 """ Module rule for defining GCC toolchains in Bazel.
 """
 
-load("@score_bazel_cpp_toolchains//rules:common.bzl", "SDP_VERSION_MAPPING", "get_flag_groups", "get_flag_strings", "label_list_to_string")
+load("@score_bazel_cpp_toolchains//rules:common.bzl", "get_flag_groups", "get_flag_strings", "label_list_to_string", "map_sdp_version")
 
 # Constants
 _OS_QNX = "qnx"
 _OS_LINUX = "linux"
 _CPU_AARCH64 = "aarch64"
 _CPU_AARCH64LE = "aarch64le"
-_SDP_VERSION_MAPPING = SDP_VERSION_MAPPING
 _CANONICAL_REPO_SEPARATOR = "++"
 _CANONICAL_REPO_TAG_SEPARATOR = "+"
 _PLACEHOLDER_TOOLCHAIN_PKG = "%{toolchain_pkg}%"
@@ -171,7 +170,7 @@ def _apply_sdp_version_mapping(sdp_version):
     Returns:
         str: Mapped SDP version, or original if no mapping exists.
     """
-    return _SDP_VERSION_MAPPING.get(sdp_version, sdp_version)
+    return map_sdp_version(sdp_version)
 
 def _get_gcov_path(rctx, canonical_pkg_name):
     """Computes the gcov binary path used by the gcov_wrapper template.
