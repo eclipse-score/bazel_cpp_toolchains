@@ -62,6 +62,7 @@ test_suite(
     tests = [
         "//guardrails:feature_lists_test",
         "//guardrails:no_legacy_features_guard_test",
+        "//guardrails:sysroot_assembly_flags_guard_test",
     ],
 )
 

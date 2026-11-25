@@ -21,7 +21,8 @@ feature this repository defines explicitly (see
 [docs/features.md](../../docs/features.md) and
 [docs/migration_guide.md](../../docs/migration_guide.md)).
 
-The guardrail fails the test if that contract regresses.
+The guardrails fail their tests if the explicit-feature contract or assembly
+sysroot flags regress.
 
 ## What it validates
 
@@ -34,6 +35,14 @@ toolchain configured for the current `--config` and checks that:
    a set of legacy feature names that this repository intentionally never
    defines (`legacy_compile_flags`, `legacy_link_flags`, `sysroot`); if any is
    enabled, Bazel has re-injected its legacy feature set.
+
+`sysroot_assembly_flags_guard_test` (defined in
+[`sysroot_assembly_flags_guard.bzl`](sysroot_assembly_flags_guard.bzl)) resolves
+the toolchain and inspects generated command-line arguments for both `assemble`
+and `preprocess-assemble`. It requires `--sysroot=<path>` and rejects
+`-Wl,--sysroot`, which is a linker-only flag. It inspects the command line
+instead of compiling a `.S` file because host headers can mask a missing
+sysroot. The check is Linux-only and needs no target hardware.
 
 The verdict is deterministic (derived from the resolved toolchain
 configuration) and is surfaced as the **test's exit status**, so it needs no
@@ -51,7 +60,7 @@ bazel test --config=aarch64-linux //:guardrail_tests
 bazel test --config=x86_64-qnx //:guardrail_tests
 ```
 
- CI runs the guardrail for every platform config covered by the GitHub Actions
+ CI runs the guardrails for platform configs covered by the GitHub Actions
  workflows under `.github/workflows/`.
 
 ## Interpreting a failure

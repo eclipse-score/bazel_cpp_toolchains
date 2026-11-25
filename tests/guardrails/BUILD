@@ -15,6 +15,7 @@
 
 load(":feature_lists_test.bzl", "feature_lists_test")
 load(":legacy_feature_guard.bzl", "no_legacy_features_guard_test")
+load(":sysroot_assembly_flags_guard.bzl", "sysroot_assembly_flags_guard_test")
 
 feature_lists_test(
     name = "feature_lists_test",
@@ -26,5 +27,12 @@ feature_lists_test(
 # the whole toolchain matrix.
 no_legacy_features_guard_test(
     name = "no_legacy_features_guard_test",
+    visibility = ["//visibility:public"],
+)
+
+sysroot_assembly_flags_guard_test(
+    name = "sysroot_assembly_flags_guard_test",
+    src = "sysroot_assembly.S",
+    target_compatible_with = ["@platforms//os:linux"],
     visibility = ["//visibility:public"],
 )
