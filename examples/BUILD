@@ -14,7 +14,7 @@
 """Example C++ applications demonstrating SCORE Bazel C++ toolchain usage.
 
 Tests have been moved to the ../tests/ directory.
-See ../docs/test_suite.md for comprehensive test documentation.
+See ../docs/contributors/test_suite.md for comprehensive test documentation.
 """
 
 # This file is preserved for potential future example applications.
