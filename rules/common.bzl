@@ -18,12 +18,26 @@ load("@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl", "flag_group")
 
 # SDP version mapping for constraint compatibility.
 # Certain SDP versions are mapped to canonical versions used in platform constraints.
-# For example, SDP 8.0.4 is mapped to 8.0.0 because platform constraint support
-# uses the older identifier.
+# Keys are "<major>.<minor>" series; every patch version of that series
+# (e.g. 8.0.4, 8.0.5, 8.0.12) is mapped to the canonical version because
+# platform constraint support uses the older identifier.
 SDP_VERSION_MAPPING = {
-    "8.0.4": "8.0.0",
-    "8.0.5": "8.0.0",
+    "8.0": "8.0.0",
 }
+
+def map_sdp_version(sdp_version):
+    """Maps an SDP version to its canonical constraint version.
+
+    Args:
+        sdp_version (str): The original SDP version, e.g. "8.0.5".
+
+    Returns:
+        str: The canonical version, or the original if its series is not mapped.
+    """
+    parts = sdp_version.split(".")
+    if len(parts) < 3:
+        return sdp_version
+    return SDP_VERSION_MAPPING.get(".".join(parts[:2]), sdp_version)
 
 # GCC version bundled with each QNX SDP major release, keyed by SDP major version.
 # Used to default/validate a toolchain's `version` attribute from its `sdp_version`.

@@ -1404,7 +1404,7 @@
     },
     "@@score_bazel_cpp_toolchains+//extensions:gcc.bzl%gcc": {
       "general": {
-        "bzlTransitiveDigest": "Mt8WFH65tchffrhzu4AQQBkhYHP8LZm5QJDnk0x57LU=",
+        "bzlTransitiveDigest": "SSD/4CEJLqYulusv/vAuyCMgonty+0ZAM0HKGDrTWUc=",
         "usagesDigest": "KF6GFcgyV7tT38zFX12qeL6jNwermuh0oKu4SOgzY90=",
         "recordedInputs": [
           "REPO_MAPPING:,score_bazel_cpp_toolchains score_bazel_cpp_toolchains+",
