@@ -58,8 +58,12 @@ configuration; consumers should start with the
    contributor guidance for any new maintenance or validation requirements.
 
 For QNX, the matrix key is CPU-independent and the package descriptor provides
-CPU-suffixed tool targets. Custom QNX packages use the same suffixed targets,
-because the generated toolchain applies the suffix to every QNX package. If the
+CPU-suffixed tool and file-group targets, for example `ar_x86_64` and
+`compiler_files_x86_64`. Custom QNX packages use the same suffixed targets,
+because the generated toolchain applies the suffix to every QNX package. Linux
+package descriptors define the same targets without a suffix. See
+[Package targets that the toolchain requires](../consumers/extension_api.md#package-targets-that-the-toolchain-requires)
+for the full list. If the
 SDK layout, compiler, or constraint changes, check the descriptor and version
 mappings instead of assuming an older release's configuration applies.
 

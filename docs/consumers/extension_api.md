@@ -154,6 +154,30 @@ through `packages/version_matrix.bzl`. The extension forwards matrix values for
 to `http_archive` when present. Entries that omit these optional fields use the
 native `http_archive` defaults.
 
+### Package targets that the toolchain requires
+
+The generated toolchain reads targets from the package repository. If you
+supply your own `build_file`, define the following targets in it:
+
+- `cc`, `cxx`, `all_files`, `sysroot_dir`: used without a suffix.
+- `ar`, `gcov`, `strip`, `cxx_builtin_include_directories`: tools and include
+  directories.
+- `ar_files`, `as_files`, `compiler_files`, `coverage_files`, `dwp_files`,
+  `linker_files`, `objcopy_files`, `strip_files`: the file groups that the
+  generated `cc_toolchain` uses for the matching action inputs. The
+  `coverage_files` group needs to contain the `gcov` binary and its runtime
+  dependencies. The extension adds the generated `gcov_wrapper` script itself.
+
+The extension appends a CPU suffix to every target except `cc`, `cxx`,
+`all_files`, and `sysroot_dir`, so that one package can serve several CPUs. For
+QNX toolchains the suffix is `_CPU`, where `CPU` is the `target_cpu` value, for
+example `ar_x86_64` and `compiler_files_x86_64`. For all other toolchains, the
+suffix is empty, and the targets are named `ar` and `compiler_files`.
+
+A package that doesn't need a separate file group can define the target as an
+`alias` to `all_files` or to an empty `filegroup`, as the Linux package
+descriptors under `packages/` do.
+
 ### Private GitHub release assets
 
 The extension instantiates archives through the `http_archive` wrapper in

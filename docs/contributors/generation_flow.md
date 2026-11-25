@@ -85,6 +85,12 @@ A single set of templates serves Linux, QNX, and the EBcLfSA high-integrity
   is rewritten to the canonical Bzlmod repository name during repository-rule
   generation. This is handled by the `_get_canonical_pkg_name()` helper in
   `rules/gcc.bzl`.
+- The generated `cc_toolchain` takes its action file groups (`compiler_files`,
+  `linker_files`, `ar_files`, and so on) from targets of the same name in the
+  package repository, and the tool labels in `rules/gcc.bzl` use the same
+  repository. The `tc_tool_suffix` attribute, set by `_resolve_tool_suffix()`
+  in `extensions/gcc.bzl`, is appended to those target names: `_CPU` for QNX,
+  empty otherwise. `templates/BUILD.template` receives it as `%{tc_suffix}`.
 - QNX `aarch64` is mapped internally to `aarch64le` where required by the
   underlying SDK layout. This normalization is a QNX-specific convention,
   centralized in the `_normalize_cpu()` helper. Linux toolchain binaries use
@@ -97,6 +103,9 @@ A single set of templates serves Linux, QNX, and the EBcLfSA high-integrity
 - Linux toolchains generate an extra `gcov_wrapper` script to work around how
   `rules_cc` integrates coverage. The gcov path uses the
   `{cpu}-unknown-linux-gnu-gcov` naming convention.
+- The generated `cc_toolchain` takes `coverage_files` from a filegroup in the
+  toolchain repository. That filegroup combines the package's `coverage_files`
+  with `gcov_wrapper`, so the wrapper is available to coverage actions.
 
 ## Version matrix responsibilities
 
