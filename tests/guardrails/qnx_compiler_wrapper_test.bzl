@@ -40,17 +40,21 @@ exec "${0%/*}/compiler helper" "$@"
         helper,
         """#!/bin/bash
 set -euo pipefail
-[[ -f "${QNX_HOST}/usr/lib/liblicense.so.1" ]] || exit 127
-[[ "$QNX_HOST" == "${EXPECTED_SDK}/host/linux/x86_64" ]]
-[[ "$QNX_TARGET" == "${EXPECTED_SDK}/target/qnx" ]]
-[[ -f "${QNX_TARGET}/marker" ]]
-[[ "$PWD" == "$EXPECTED_CWD" ]]
-[[ "$QNX_CONFIGURATION_EXCLUSIVE" == /var/tmp/.qnx ]]
-[[ "$QNX_SHARED_LICENSE_FILE" == FAKE-LICENSE-FOR-TESTING ]]
-[[ "$LM_LICENSE_FILE" == FAKE-SERVER-FOR-TESTING ]]
-[[ "$#" == 2 && "$1" == "-DVALUE=two words" && "$2" == "source file.c" ]]
-[[ -f "$2" ]]
-[[ "$VENDOR_LAUNCHER_SELECTED" == "$EXPECTED_COMPILER" ]]
+sdk_for_files="$EXPECTED_SDK"
+if [[ "$sdk_for_files" == /proc/self/cwd/* ]]; then
+    sdk_for_files="${PWD}/${sdk_for_files#/proc/self/cwd/}"
+fi
+[[ -f "${sdk_for_files}/host/linux/x86_64/usr/lib/liblicense.so.1" ]] || exit 127
+[[ "$QNX_HOST" == "${EXPECTED_SDK}/host/linux/x86_64" ]] || exit 1
+[[ "$QNX_TARGET" == "${EXPECTED_SDK}/target/qnx" ]] || exit 1
+[[ -f "${sdk_for_files}/target/qnx/marker" ]] || exit 1
+[[ "$PWD" == "$EXPECTED_CWD" ]] || exit 1
+[[ "$QNX_CONFIGURATION_EXCLUSIVE" == /var/tmp/.qnx ]] || exit 1
+[[ "$QNX_SHARED_LICENSE_FILE" == FAKE-LICENSE-FOR-TESTING ]] || exit 1
+[[ "$LM_LICENSE_FILE" == FAKE-SERVER-FOR-TESTING ]] || exit 1
+[[ "$#" == 2 && "$1" == "-DVALUE=two words" && "$2" == "source file.c" ]] || exit 1
+[[ -f "$2" ]] || exit 1
+[[ "$VENDOR_LAUNCHER_SELECTED" == "$EXPECTED_COMPILER" ]] || exit 1
 exit "${COMPILER_STATUS:-0}"
 """,
         is_executable = True,
