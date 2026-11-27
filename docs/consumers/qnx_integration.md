@@ -211,8 +211,12 @@ The archive that you build from a `qnx_sdp` target already contains the
 set `build_file`. If you provide your own BUILD file with the `build_file`
 attribute, make sure that it is compatible. The generated configuration
 expects the targets `cc`, `cxx`, `all_files`, `sysroot_dir`, and `target_dir`,
-and the CPU-suffixed targets `ar_CPU`, `gcov_CPU`, `strip_CPU`, and
-`cxx_builtin_include_directories_CPU`, where `CPU` is `x86_64` or `aarch64`.
+and the CPU-suffixed targets `ar_CPU`, `gcov_CPU`, `strip_CPU`,
+`cxx_builtin_include_directories_CPU`, and the file groups `ar_files_CPU`,
+`as_files_CPU`, `compiler_files_CPU`, `coverage_files_CPU`, `dwp_files_CPU`,
+`linker_files_CPU`, `objcopy_files_CPU`, and `strip_files_CPU`, where `CPU` is
+`x86_64` or `aarch64`. For the full list, see
+[Package targets that the toolchain requires](extension_api.md#package-targets-that-the-toolchain-requires).
 The package must also contain the expected host tools and target headers and
 libraries.
 

@@ -60,6 +60,16 @@ filegroup(
     ]
 )
 
+# The gcov_wrapper lives in this repository, so it has to be added to the
+# package-provided coverage files for it to be available to coverage actions.
+filegroup(
+    name = "coverage_files",
+    srcs = [
+        "@{tc_pkg_repo}//:coverage_files{tc_tool_suffix}",
+        "gcov_wrapper",
+    ]
+)
+
 cc_toolchain_config(
     name = "cc_toolchain_config",
     ar_binary = "@{tc_pkg_repo}//:ar{tc_tool_suffix}",
@@ -279,6 +289,7 @@ def _impl(rctx):
             "%{cc_toolchain_config}": cc_toolchain_config,
             "%{tc_cpu}": rctx.attr.tc_cpu,
             "%{tc_identifier}": tc_identifier,
+            "%{tc_suffix}": rctx.attr.tc_tool_suffix,
             "%{tc_os}": rctx.attr.tc_os,
             "%{tc_feature_os}": "ebclfsa_hi" if rctx.attr.tc_os == _OS_LINUX and rctx.attr.tc_runtime_ecosystem == "ebclfsa-hi" else rctx.attr.tc_os,
             "%{tc_pkg_repo}": rctx.attr.tc_pkg_repo,
@@ -378,7 +389,7 @@ gcc_toolchain = repository_rule(
         "tc_pkg_repo": attr.string(doc = "The label name of toolchain tarbal."),
         "tc_runtime_ecosystem": attr.string(doc = "Runtime ecosystem."),
         "tc_system_toolchain": attr.bool(doc = "Boolean flag to state if this is a system toolchain"),
-        "tc_tool_suffix": attr.string(doc = "Suffix appended to the package tool/label names (ar, gcov, strip, cxx_builtin_include_directories), e.g. `_x86_64` for QNX packages; empty for Linux packages."),
+        "tc_tool_suffix": attr.string(doc = "Suffix appended to the package target names for tools (ar, gcov, strip), include directories (cxx_builtin_include_directories) and action file groups (ar_files, as_files, compiler_files, coverage_files, dwp_files, linker_files, objcopy_files, strip_files), e.g. `_x86_64` for QNX packages; empty for Linux packages."),
         "_cc_gcov_wrapper_script": attr.label(
             default = "@score_bazel_cpp_toolchains//templates:cc_gcov_wrapper.template",
         ),

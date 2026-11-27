@@ -46,23 +46,19 @@ make_sysroot_link_flags(
 # the order-irrelevant subset that should start on. See get_feature_lists().
 _KNOWN_FEATURES, _ENABLED_FEATURES = get_feature_lists()
 
-filegroup(
-    name = "empty",
-)
-
 %{cc_toolchain_config}
 
 cc_toolchain(
     name = "cc_toolchain",
     all_files = "@%{tc_pkg_repo}//:all_files",
-    ar_files = "@%{tc_pkg_repo}//:all_files",
-    as_files = "@%{tc_pkg_repo}//:all_files",
-    compiler_files = "@%{tc_pkg_repo}//:all_files",
-    coverage_files = ":all_files",
-    dwp_files = ":empty",
-    linker_files = "@%{tc_pkg_repo}//:all_files",
-    objcopy_files = ":empty",
-    strip_files = "@%{tc_pkg_repo}//:all_files",
+    ar_files = "@%{tc_pkg_repo}//:ar_files%{tc_suffix}",
+    as_files = "@%{tc_pkg_repo}//:as_files%{tc_suffix}",
+    compiler_files = "@%{tc_pkg_repo}//:compiler_files%{tc_suffix}",
+    coverage_files = ":coverage_files",
+    dwp_files = "@%{tc_pkg_repo}//:dwp_files%{tc_suffix}",
+    linker_files = "@%{tc_pkg_repo}//:linker_files%{tc_suffix}",
+    objcopy_files = "@%{tc_pkg_repo}//:objcopy_files%{tc_suffix}",
+    strip_files = "@%{tc_pkg_repo}//:strip_files%{tc_suffix}",
     toolchain_config = ":cc_toolchain_config",
 )
 
