@@ -50,8 +50,8 @@ feature, though; some behavior is provided by other toolchain wiring:
   `sysroot` compile feature.
 - **Sysroot / system includes (QNX)** — The package's `sysroot_dir` is passed
   as `builtin_sysroot`. System include roots come from
-  `cxx_builtin_include_directories` (SDP paths), and the SDP environment is
-  injected by the `sdp_env` feature.
+  `cxx_builtin_include_directories` (SDP paths). Compiler wrappers resolve the
+  SDP environment at runtime; the `sdp_env` feature injects license settings.
 
 When adding or auditing a feature, classify how each required behavior is
 provided: an **explicit feature** in the `features` list, **tool/sysroot wiring**

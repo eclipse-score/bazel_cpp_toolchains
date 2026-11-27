@@ -140,8 +140,8 @@ See the `score_cpp_policies` documentation for the authoritative list and usage.
   compile and `-lgcov` / `--coverage` at link.
 
 ## QNX environment
-- **`sdp_env`** (QNX) — Injects QNX SDP environment variables (`QNX_HOST`,
-  `QNX_TARGET`, license path, ...) into compile/link actions.
+- **`sdp_env`** (QNX) - Injects license settings into compile/link actions.
+  Compiler wrappers set `QNX_HOST` and `QNX_TARGET` at runtime.
 - **`gcc_version_flags`** (QNX) — Selects the QNX compiler version and CPU.
 - **`io_pkt_ddk`** (QNX, opt-in) — Adds C compilation flags and headers for
   QNX io-pkt drivers and modules.
