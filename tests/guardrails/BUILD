@@ -15,10 +15,16 @@
 
 load(":feature_lists_test.bzl", "feature_lists_test")
 load(":legacy_feature_guard.bzl", "no_legacy_features_guard_test")
+load(":qnx_compiler_wrapper_test.bzl", "qnx_compiler_wrapper_test")
 load(":sysroot_assembly_flags_guard.bzl", "sysroot_assembly_flags_guard_test")
 
 feature_lists_test(
     name = "feature_lists_test",
+    visibility = ["//visibility:public"],
+)
+
+qnx_compiler_wrapper_test(
+    name = "qnx_compiler_wrapper_test",
     visibility = ["//visibility:public"],
 )
 
