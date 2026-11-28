@@ -241,9 +241,11 @@ each configuration instead of registering both for that configuration.
 
 The QNX compiler wrappers resolve `QNX_HOST` and `QNX_TARGET` relative to their
 invoked location, so compilation also works when Cargo or CMake changes the
-working directory. The `sdp_env` feature sets `QNX_CONFIGURATION_EXCLUSIVE`
-and `QNX_SHARED_LICENSE_FILE` for compile and link actions. The latter comes
-from the `license_path` attribute.
+working directory. The `sdp_env` feature also exposes `QNX_HOST` and `QNX_TARGET`
+as `/proc/self/cwd/external/...` SDK discovery paths for direct consumers such as
+bindgen. Compiler wrappers override those paths only for their child processes.
+The feature sets `QNX_CONFIGURATION_EXCLUSIVE` and `QNX_SHARED_LICENSE_FILE`
+for compile and link actions. The latter comes from the `license_path` attribute.
 `license_info_variable` and `license_info_url` can specify an additional
 license environment entry; see the [extension reference](extension_api.md).
 
