@@ -54,15 +54,15 @@ filegroup(
 
 cc_toolchain(
     name = "cc_toolchain",
-    all_files = "@%{tc_pkg_repo}//:all_files",
-    ar_files = "@%{tc_pkg_repo}//:all_files",
-    as_files = "@%{tc_pkg_repo}//:all_files",
-    compiler_files = "@%{tc_pkg_repo}//:all_files",
+    all_files = "%{tc_files}",
+    ar_files = "%{tc_files}",
+    as_files = "%{tc_files}",
+    compiler_files = "%{tc_files}",
     coverage_files = ":all_files",
     dwp_files = ":empty",
-    linker_files = "@%{tc_pkg_repo}//:all_files",
+    linker_files = "%{tc_files}",
     objcopy_files = ":empty",
-    strip_files = "@%{tc_pkg_repo}//:all_files",
+    strip_files = "%{tc_files}",
     toolchain_config = ":cc_toolchain_config",
 )
 

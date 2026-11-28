@@ -51,20 +51,22 @@ def _get_cc_config(rctx):
     Returns:
         str: BUILD file content defining filegroup and cc_toolchain_config.
     """
+    qnx = rctx.attr.tc_os == _OS_QNX
     return """
 filegroup(
     name = "all_files",
     srcs = [
         "@{tc_pkg_repo}//:all_files",
         "gcov_wrapper",
+        {compiler_wrappers}
     ]
 )
 
 cc_toolchain_config(
     name = "cc_toolchain_config",
     ar_binary = "@{tc_pkg_repo}//:ar{tc_tool_suffix}",
-    cc_binary = "@{tc_pkg_repo}//:cc",
-    cxx_binary = "@{tc_pkg_repo}//:cxx",
+    cc_binary = "{cc_binary}",
+    cxx_binary = "{cxx_binary}",
     gcov_binary = "@{tc_pkg_repo}//:gcov{tc_tool_suffix}",
     strip_binary = "@{tc_pkg_repo}//:strip{tc_tool_suffix}",
     sysroot = "@{tc_pkg_repo}//:sysroot_dir",
@@ -84,6 +86,9 @@ cc_toolchain_config(
         tc_extra_known_features = label_list_to_string(rctx.attr.extra_known_features),
         tc_extra_enabled_features = label_list_to_string(rctx.attr.extra_enabled_features),
         tc_tool_suffix = rctx.attr.tc_tool_suffix,
+        cc_binary = ":qcc" if qnx else "@{}//:cc".format(rctx.attr.tc_pkg_repo),
+        cxx_binary = ":q++" if qnx else "@{}//:cxx".format(rctx.attr.tc_pkg_repo),
+        compiler_wrappers = '":compiler_wrapper_files",' if qnx else "",
     )
 
 def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
@@ -96,6 +101,7 @@ def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
     Returns:
         A tuple of the Starlark load statements and feature declarations.
     """
+
     # sdp_env's host_dir/target_dir must be plain resolved paths, not labels:
     # cc_args' `env` rejects format() variables that aren't builtin cc_toolchain
     # variables ("The variable host_dir does not exist").
@@ -112,11 +118,29 @@ def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
     target_dir_label = "@{tc_pkg_repo}//:target_dir".format(tc_pkg_repo = rctx.attr.tc_pkg_repo)
 
     custom_load = "\n".join([
+        """load("@score_bazel_cpp_toolchains//rules:qnx_compiler_wrapper.bzl", "qnx_compiler_files", "qnx_compiler_wrapper")""",
         """load("@score_bazel_cpp_toolchains//features/custom/qnx/sdp_env:feature.bzl", "make_sdp_env_feature")""",
         """load("@score_bazel_cpp_toolchains//features/custom/qnx/gcc_version_flags:feature.bzl", "make_gcc_version_flags_feature")""",
         """load("@score_bazel_cpp_toolchains//features/custom/qnx/io_pkt_ddk:feature.bzl", "make_io_pkt_ddk_feature")""",
     ])
     custom_features = """
+qnx_compiler_wrapper(
+    name = "qcc",
+    compiler = "@{tc_pkg_repo}//:cc",
+    sdk_files = "@{tc_pkg_repo}//:all_files",
+)
+
+qnx_compiler_wrapper(
+    name = "q++",
+    compiler = "@{tc_pkg_repo}//:cxx",
+    sdk_files = "@{tc_pkg_repo}//:all_files",
+)
+
+qnx_compiler_files(
+    name = "compiler_wrapper_files",
+    compilers = [":qcc", ":q++"],
+)
+
 make_sdp_env_feature(
     host_dir = "{host_dir}",
     target_dir = "{target_dir}",
@@ -134,6 +158,7 @@ make_io_pkt_ddk_feature(
     cpu = "{cpu}",
 )
 """.format(
+        tc_pkg_repo = rctx.attr.tc_pkg_repo,
         host_dir = "/proc/self/cwd/external/{canonical_pkg}/host/linux/x86_64".format(canonical_pkg = canonical_pkg_name),
         target_dir = target_dir,
         target_dir_label = target_dir_label,
@@ -179,7 +204,6 @@ def _get_gcov_path(rctx, canonical_pkg_name):
     ("external/<repo>/...") because a repository rule cannot resolve a
     label's execpath (that only exists at analysis/execution time). This will
     break under --experimental_sibling_repository_layout ("../<repo>/...").
-    See the related TODO in get_custom_cc_features_qnx.
 
     Args:
         rctx: RepositoryContext object with toolchain attributes.
@@ -282,6 +306,7 @@ def _impl(rctx):
             "%{tc_os}": rctx.attr.tc_os,
             "%{tc_feature_os}": "ebclfsa_hi" if rctx.attr.tc_os == _OS_LINUX and rctx.attr.tc_runtime_ecosystem == "ebclfsa-hi" else rctx.attr.tc_os,
             "%{tc_pkg_repo}": rctx.attr.tc_pkg_repo,
+            "%{tc_files}": ":all_files" if rctx.attr.tc_os == _OS_QNX else "@{}//:all_files".format(rctx.attr.tc_pkg_repo),
             "%{tc_runtime_es}": rctx.attr.tc_runtime_ecosystem,
             "%{tc_version}": rctx.attr.gcc_version,
             "%{tc_sysroot}": "@{tc_pkg_repo}//:sysroot_dir".format(tc_pkg_repo = rctx.attr.tc_pkg_repo),

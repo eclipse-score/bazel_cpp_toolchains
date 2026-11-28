@@ -1,0 +1,25 @@
+#!/bin/bash
+# Copyright (c) 2026 Contributors to the Eclipse Foundation
+#
+# SPDX-License-Identifier: Apache-2.0
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# Do not resolve the script symlink into Bazel's repository cache or change the
+# compiler's working directory: relative source paths belong to the caller.
+case "$0" in
+    */*) wrapper_dir="${0%/*}" ;;
+    *) wrapper_dir=. ;;
+esac
+sdk_relative_path='%{sdk_relative_path}'
+compiler_relative_path='%{compiler_relative_path}'
+sdk_root="$(cd -L -- "${wrapper_dir}/${sdk_relative_path}" && pwd -L)"
+# Native Bazel depfiles must match the toolchain's builtin include prefix.
+caller_root="$(pwd -P)"
+if [[ "$sdk_root" == "$caller_root/"* ]]; then
+    sdk_root="/proc/self/cwd/${sdk_root#"$caller_root/"}"
+fi
+export QNX_HOST="${sdk_root}/host/linux/x86_64"
+export QNX_TARGET="${sdk_root}/target/qnx"
+exec "${wrapper_dir}/${compiler_relative_path}" "$@"

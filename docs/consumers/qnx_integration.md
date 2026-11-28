@@ -215,6 +215,8 @@ and the CPU-suffixed targets `ar_CPU`, `gcov_CPU`, `strip_CPU`, and
 `cxx_builtin_include_directories_CPU`, where `CPU` is `x86_64` or `aarch64`.
 The package must also contain the expected host tools and target headers and
 libraries.
+The compiler wrappers execute the artifacts selected by `cc` and `cxx`, including
+vendor launchers or compiler files with nonstandard names.
 
 ## Select an SDP version
 
@@ -237,9 +239,13 @@ each configuration instead of registering both for that configuration.
 
 ## Configure licensing
 
-The QNX `sdp_env` feature sets `QNX_HOST`, `QNX_TARGET`,
-`QNX_CONFIGURATION_EXCLUSIVE`, and `QNX_SHARED_LICENSE_FILE` for compile and
-link actions. The last value comes from the `license_path` attribute.
+The QNX compiler wrappers resolve `QNX_HOST` and `QNX_TARGET` relative to their
+invoked location, so compilation also works when Cargo or CMake changes the
+working directory. The `sdp_env` feature also exposes `QNX_HOST` and `QNX_TARGET`
+as `/proc/self/cwd/external/...` SDK discovery paths for direct consumers such as
+bindgen. Compiler wrappers override those paths only for their child processes.
+The feature sets `QNX_CONFIGURATION_EXCLUSIVE` and `QNX_SHARED_LICENSE_FILE`
+for compile and link actions. The latter comes from the `license_path` attribute.
 `license_info_variable` and `license_info_url` can specify an additional
 license environment entry; see the [extension reference](extension_api.md).
 
