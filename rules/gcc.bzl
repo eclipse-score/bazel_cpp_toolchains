@@ -91,20 +91,30 @@ cc_toolchain_config(
         compiler_wrappers = '":compiler_wrapper_files",' if qnx else "",
     )
 
-def get_custom_cc_features_qnx(rctx):
+def get_custom_cc_features_qnx(rctx, canonical_pkg_name):
     """Returns the QNX-specific feature loads and generated feature declarations.
 
     Args:
         rctx: RepositoryContext object with toolchain attributes.
+        canonical_pkg_name: Canonical repository name of the toolchain package.
 
     Returns:
         A tuple of the Starlark load statements and feature declarations.
     """
 
+    # sdp_env's host_dir/target_dir must be plain resolved paths, not labels:
+    # cc_args' `env` rejects format() variables that aren't builtin cc_toolchain
+    # variables ("The variable host_dir does not exist").
+
+    # TODO: Once Bazel enables label resolution in cc_args' env, we can use labels instead of resolved paths.
+
+    target_dir = "/proc/self/cwd/external/{canonical_pkg}/target/qnx".format(canonical_pkg = canonical_pkg_name)
+
     # io_pkt_ddk's cc_args (unlike sdp_env's env) supports label resolution via
     # `format`, so it references the package's own target_dir filegroup directly
     # instead of a hardcoded path. Uses the plain declared repo name (like
-    # sysroot/cxx_builtin_include_directories above).
+    # sysroot/cxx_builtin_include_directories above), not canonical_pkg_name --
+    # that form is only valid for on-disk "/proc/self/cwd/external/..." paths.
     target_dir_label = "@{tc_pkg_repo}//:target_dir".format(tc_pkg_repo = rctx.attr.tc_pkg_repo)
 
     custom_load = "\n".join([
@@ -132,6 +142,8 @@ qnx_compiler_files(
 )
 
 make_sdp_env_feature(
+    host_dir = "{host_dir}",
+    target_dir = "{target_dir}",
     license_path = "{license_path}",
     license_info_variable = "{license_info_variable}",
     license_info_value = "{license_info_value}",
@@ -147,6 +159,8 @@ make_io_pkt_ddk_feature(
 )
 """.format(
         tc_pkg_repo = rctx.attr.tc_pkg_repo,
+        host_dir = "/proc/self/cwd/external/{canonical_pkg}/host/linux/x86_64".format(canonical_pkg = canonical_pkg_name),
+        target_dir = target_dir,
         target_dir_label = target_dir_label,
         cpu = rctx.attr.tc_cpu,
         license_path = rctx.attr.license_path,
@@ -284,8 +298,8 @@ def _impl(rctx):
         "BUILD",
         rctx.attr._cc_toolchain_build,
         {
-            "%{tc_custom_feature_load}": get_custom_cc_features_qnx(rctx)[0] if rctx.attr.tc_os == _OS_QNX else "",
-            "%{tc_custom_features}": get_custom_cc_features_qnx(rctx)[1] if rctx.attr.tc_os == _OS_QNX else "",
+            "%{tc_custom_feature_load}": get_custom_cc_features_qnx(rctx, canonical_pkg_name)[0] if rctx.attr.tc_os == _OS_QNX else "",
+            "%{tc_custom_features}": get_custom_cc_features_qnx(rctx, canonical_pkg_name)[1] if rctx.attr.tc_os == _OS_QNX else "",
             "%{cc_toolchain_config}": cc_toolchain_config,
             "%{tc_cpu}": rctx.attr.tc_cpu,
             "%{tc_identifier}": tc_identifier,

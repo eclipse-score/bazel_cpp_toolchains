@@ -63,6 +63,7 @@ test_suite(
         "//guardrails:feature_lists_test",
         "//guardrails:no_legacy_features_guard_test",
         "//guardrails:qnx_compiler_wrapper_test",
+        "//guardrails:qnx_sdp_env_test",
         "//guardrails:sysroot_assembly_flags_guard_test",
     ],
 )

@@ -20,12 +20,16 @@ _ACTIONS = [
 ]
 
 def make_sdp_env_feature(
+        host_dir,
+        target_dir,
         license_path,
         license_info_variable,
         license_info_value):
     """Creates a feature for the sdp_env toolchain.
 
     Args:
+        host_dir: str, resolved path to the SDP host directory.
+        target_dir: str, resolved path to the SDP target directory.
         license_path: str, path to the license file.
         license_info_variable: str, name of an extra license env var, "" if none.
         license_info_value: str, value of that extra license env var, "" if none.
@@ -34,9 +38,12 @@ def make_sdp_env_feature(
         A feature definition for the sdp_env toolchain.
     """
 
-    # The compiler wrappers set QNX_HOST/QNX_TARGET at execution time because
-    # consumers such as Cargo build scripts and CMake change working directory.
+    # cc_args' `env` has no mechanism to resolve labels/format custom
+    # placeholders (see validate_env_variables in rules_cc) -- host_dir/
+    # target_dir must already be plain resolved path strings.
     env = {
+        "QNX_HOST": host_dir,
+        "QNX_TARGET": target_dir,
         "QNX_CONFIGURATION_EXCLUSIVE": "/var/tmp/.qnx",
         "QNX_SHARED_LICENSE_FILE": license_path,
     }
